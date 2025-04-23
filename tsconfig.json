@@ -1,3 +1,30 @@
 {
-  "extends": "@react-native/typescript-config/tsconfig.json"
+  "extends": "@react-native/typescript-config/tsconfig.json",
+  "compilerOptions": {
+    /* Basic Options */
+    "baseUrl": ".", // Base directory to resolve non-absolute module names.
+    "paths": {
+      "@src/*": ["src/*"],
+      "@assets/*": ["src/assets/*"],
+      "@components/*": ["src/components/*"],
+      "@config/*": ["src/config/*"],
+      "@navigation/*": ["src/navigation/*"],
+      "@screens/*": ["src/screens/*"],
+      "@services/*": ["src/services/*"],
+      "@store/*": ["src/store/*"],
+      "@types/*": ["src/types/*"],
+      "@utils/*": ["src/utils/*"]
+    },
+    /* Ensure these match the base config or override as needed */
+    "jsx": "react-native", // Keep React Native JSX setting
+    "esModuleInterop": true, // Allows default imports from modules with no default export
+    "skipLibCheck": true, // Skip type checking of all declaration files (*.d.ts).
+    "resolveJsonModule": true // Include modules imported with .json extension
+  },
+  "exclude": [
+    "node_modules",
+    "babel.config.js",
+    "metro.config.js",
+    "jest.config.js"
+  ]
 }
