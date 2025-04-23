@@ -76,3 +76,7 @@ yarn-error.log
 
 # Environment variables
 .env
+
+# Environment files
+.env*
+!.env.example

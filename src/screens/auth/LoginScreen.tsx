@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { authStart, authSuccess, authFailure, clearError } from '@store/slices/authSlice';
 import { RootState } from '@store/rootReducer'; // Corrected import path for RootState
 import { AppDispatch } from '@store/index'; 
+import { AuthStackParamList } from '@navigation/AuthNavigator';
+import { loginUser } from '@services/authService';
 
-// --- TODO: Import navigation types ---
-// import { NativeStackScreenProps } from '@react-navigation/native-stack';
-// import { AuthStackParamList } from '@navigation/AuthNavigator';
-// type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
+type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
-const LoginScreen = (/* { navigation }: Props */) => {
+const LoginScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const dispatch = useDispatch<AppDispatch>();
@@ -28,44 +28,31 @@ const LoginScreen = (/* { navigation }: Props */) => {
     dispatch(authStart());
 
     try {
-      // --- TODO: Replace with actual API call ---
-      console.log('Attempting login with:', email, password);
-      // const response = await apiService.login(email, password);
-      // MOCK SUCCESSFUL LOGIN RESPONSE (REMOVE LATER)
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 1500)); // Corrected setTimeout usage again
-      const mockUserData = { id: '123', name: 'Test User', email: email };
-      const mockToken = 'mock-jwt-token-12345';
-      // ---------------------------------------
-
-      dispatch(authSuccess({ user: mockUserData, token: mockToken }));
+      const response = await loginUser({ email, password });
+      dispatch(authSuccess({ user: response.user, token: response.token }));
       // Navigation to the main app stack will happen automatically
       // because RootNavigator listens to the isAuthenticated state.
 
-    } catch (apiError: unknown) { // Use unknown for better type safety
-      // --- TODO: Extract meaningful error message from apiError ---
+    } catch (apiError: unknown) {
       let errorMessage = 'Login failed. Please try again.';
-      if (typeof apiError === 'object' && apiError !== null && 'message' in apiError && typeof apiError.message === 'string') {
+      if (apiError instanceof Error) {
         errorMessage = apiError.message;
-      } else if (apiError instanceof Error) {
+      } else if (typeof apiError === 'object' && apiError !== null && 'message' in apiError && typeof apiError.message === 'string') {
         errorMessage = apiError.message;
       }
       
       dispatch(authFailure(errorMessage));
       Alert.alert('Login Failed', errorMessage);
-      // Optionally clear error after showing it
-      // setTimeout(() => dispatch(clearError()), 3000);
     }
   };
 
   const navigateToRegister = () => {
-    // navigation.navigate('Register'); // Requires Props type uncommented
-    console.log("Navigate to Register"); // Placeholder
-  }
+    navigation.navigate('Register');
+  };
 
   const navigateToForgotPassword = () => {
-    // navigation.navigate('ForgotPassword'); // Requires Props type uncommented
-    console.log("Navigate to Forgot Password"); // Placeholder
-  }
+    navigation.navigate('ForgotPassword');
+  };
 
   return (
     <View>

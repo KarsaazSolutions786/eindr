@@ -1,17 +1,17 @@
 import React, { useState } from 'react';
 import { View, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { authStart, authSuccess, authFailure } from '@store/slices/authSlice';
 import { RootState } from '@store/rootReducer';
 import { AppDispatch } from '@store/index';
+import { AuthStackParamList } from '@navigation/AuthNavigator';
+import { registerUser } from '@services/authService';
 
-// --- TODO: Import navigation types ---
-// import { NativeStackScreenProps } from '@react-navigation/native-stack';
-// import { AuthStackParamList } from '@navigation/AuthNavigator';
-// type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
+type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
 
-const RegisterScreen = (/* { navigation }: Props */) => {
+const RegisterScreen = ({ navigation }: Props) => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -48,24 +48,16 @@ const RegisterScreen = (/* { navigation }: Props */) => {
     dispatch(authStart());
 
     try {
-      // --- TODO: Replace with actual API call ---
-      console.log('Attempting registration with:', { fullName, email, password });
-      // const response = await apiService.register({ fullName, email, password });
-      // MOCK SUCCESSFUL REGISTRATION RESPONSE (REMOVE LATER)
-      await new Promise<void>(resolve => setTimeout(() => resolve(), 1500));
-      const mockUserData = { id: '123', name: fullName, email: email };
-      const mockToken = 'mock-jwt-token-12345';
-      // ---------------------------------------
-
-      dispatch(authSuccess({ user: mockUserData, token: mockToken }));
+      const response = await registerUser({ fullName, email, password });
+      dispatch(authSuccess({ user: response.user, token: response.token }));
       // Navigation to the main app stack will happen automatically
       // because RootNavigator listens to the isAuthenticated state
 
     } catch (apiError: unknown) {
       let errorMessage = 'Registration failed. Please try again.';
-      if (typeof apiError === 'object' && apiError !== null && 'message' in apiError && typeof apiError.message === 'string') {
+      if (apiError instanceof Error) {
         errorMessage = apiError.message;
-      } else if (apiError instanceof Error) {
+      } else if (typeof apiError === 'object' && apiError !== null && 'message' in apiError && typeof apiError.message === 'string') {
         errorMessage = apiError.message;
       }
       
@@ -75,8 +67,7 @@ const RegisterScreen = (/* { navigation }: Props */) => {
   };
 
   const navigateToLogin = () => {
-    // navigation.navigate('Login'); // Requires Props type uncommented
-    console.log("Navigate to Login"); // Placeholder
+    navigation.navigate('Login');
   };
 
   return (
