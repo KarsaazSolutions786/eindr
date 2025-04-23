@@ -9,7 +9,7 @@ const persistConfig = {
   storage: AsyncStorage,
   // Whitelist (persist only specific reducers) or Blacklist (don't persist specific reducers)
   // Example: Persist only settings
-  whitelist: ['settings'],
+  whitelist: ['settings', 'auth'],
   // Example: Don't persist user temporarily
   // blacklist: ['user']
 };

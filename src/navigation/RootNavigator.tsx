@@ -1,25 +1,20 @@
 import React from 'react';
 import { NavigationContainer } from '@react-navigation/native';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+// Import Redux hook (or context) to get auth state later
+import { useSelector } from 'react-redux'; 
+import { RootState } from '@store/rootReducer'; // Import RootState
 
-import HomeScreen from '@screens/HomeScreen';
-import DetailsScreen from '@screens/DetailsScreen';
-
-// Define the type for the stack parameters
-export type RootStackParamList = {
-  Home: undefined; // No parameters expected for Home screen
-  Details: { itemId: number; otherParam?: string }; // Parameters expected for Details screen
-};
-
-const Stack = createNativeStackNavigator<RootStackParamList>();
+import AuthNavigator from './AuthNavigator';
+import AppNavigator from './AppNavigator';
 
 const RootNavigator = () => {
+  // --- Get Authentication State from Redux ---
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  // -----------------------------------------
+
   return (
     <NavigationContainer>
-      <Stack.Navigator initialRouteName="Home">
-        <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Overview' }} />
-        <Stack.Screen name="Details" component={DetailsScreen} />
-      </Stack.Navigator>
+      {isAuthenticated ? <AppNavigator /> : <AuthNavigator />}
     </NavigationContainer>
   );
 };
