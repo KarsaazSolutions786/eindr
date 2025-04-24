@@ -1,6 +1,4 @@
 // RegisterScreen.tsx
-import { Button, Input, SocialButton, Header } from '@components/common';
-import theme from '@theme/theme';
 import React, { useState } from 'react';
 import {
   View,
@@ -11,15 +9,42 @@ import {
   Platform,
   SafeAreaView,
   ScrollView,
+  Alert,
 } from 'react-native';
+import { useDispatch, useSelector } from 'react-redux';
+import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/FontAwesome';
+
+// Redux and Navigation imports
+import { authStart, authSuccess, authFailure } from '@store/slices/authSlice';
+import { RootState } from '@store/rootReducer';
+import { AppDispatch } from '@store/index';
+import { AuthStackParamList } from '@navigation/AuthNavigator';
+
+// Service imports
+import { registerUser } from '@services/authService';
+
+// Component imports
+import { Button, Input, SocialButton, Header } from '@components/common';
+import theme from '@theme/theme';
 
 interface Gender {
   label: string;
   value: string;
 }
 
-const RegisterScreen: React.FC = () => {
+interface ApiError {
+  message: string;
+}
+
+type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
+
+const RegisterScreen = ({ navigation }: Props) => {
+  // Redux state and dispatch
+  const dispatch = useDispatch<AppDispatch>();
+  const { isLoading, error } = useSelector((state: RootState) => state.auth);
+
+  // Form state
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [gender, setGender] = useState('');
@@ -42,7 +67,7 @@ const RegisterScreen: React.FC = () => {
     { label: 'Prefer not to say', value: 'not_specified' },
   ];
 
-  const handleRegister = () => {
+  const handleRegister = async () => {
     // Reset all error states
     setFullNameError('');
     setEmailError('');
@@ -88,14 +113,25 @@ const RegisterScreen: React.FC = () => {
     }
 
     if (isValid) {
-      console.log('Registration submitted:', { fullName, email, gender, password });
-      // Implement your registration logic here
+      dispatch(authStart());
+      try {
+        const userData = { fullName, email, gender, password };
+        const response = await registerUser(userData);
+        dispatch(authSuccess({ user: response.user, token: response.token }));
+        // Navigate to appropriate screen after successful registration
+      } catch (error) {
+        const apiError = error as ApiError;
+        const errorMessage = apiError.message || 'Registration failed. Please try again.';
+        dispatch(authFailure(errorMessage));
+        Alert.alert('Registration Failed', errorMessage);
+      }
     }
   };
 
   const handleSocialRegister = (provider: 'google' | 'facebook' | 'apple') => {
     console.log(`Register with ${provider}`);
     // Implement social registration logic
+    // This would follow similar patterns to the social login handlers
   };
 
   const toggleGenderDropdown = () => {
@@ -108,9 +144,12 @@ const RegisterScreen: React.FC = () => {
     if (genderError) setGenderError('');
   };
 
-  const goBack = () => {
-    console.log('Go back');
-    // Navigation logic to go back to previous screen
+  const navigateBack = () => {
+    navigation.goBack();
+  };
+
+  const navigateToLogin = () => {
+    navigation.goBack();
   };
 
   return (
@@ -119,31 +158,32 @@ const RegisterScreen: React.FC = () => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Header showBackArrow onBackPress={goBack} />
+          <Header showBackArrow onBackPress={navigateBack} title="Create Account" />
 
           <View style={styles.form}>
             <Input
-              label="Full name"
-              placeholder="Enter user name"
+              label="Full Name"
+              placeholder="Enter your full name"
               value={fullName}
               onChangeText={text => {
                 setFullName(text);
                 if (fullNameError) setFullNameError('');
               }}
               error={fullNameError}
+              autoCapitalize="words"
             />
 
             <Input
               label="Email"
-              placeholder="Enter Email"
+              placeholder="Enter your email"
               value={email}
               onChangeText={text => {
                 setEmail(text);
                 if (emailError) setEmailError('');
               }}
+              error={emailError}
               keyboardType="email-address"
               autoCapitalize="none"
-              error={emailError}
             />
 
             {/* Gender dropdown field */}
@@ -151,13 +191,14 @@ const RegisterScreen: React.FC = () => {
               <Text style={styles.label}>Gender</Text>
               <TouchableOpacity
                 style={[styles.dropdownButton, genderError ? styles.inputError : null]}
-                onPress={toggleGenderDropdown}>
+                onPress={toggleGenderDropdown}
+                disabled={isLoading}>
                 <View style={styles.dropdownTextContainer}>
                   <Text style={[styles.dropdownText, !gender ? styles.placeholderText : null]}>
                     {gender || '--Select gender--'}
                   </Text>
                 </View>
-                {/* <Icon name="chevron-down" size={20} color={theme.colors.text.secondary} /> */}
+                <Icon name="chevron-down" size={20} color={theme.colors.text.secondary} />
               </TouchableOpacity>
               {genderError ? <Text style={styles.errorText}>{genderError}</Text> : null}
 
@@ -190,8 +231,8 @@ const RegisterScreen: React.FC = () => {
             />
 
             <Input
-              label="Confirm password"
-              placeholder="Enter Confirm password"
+              label="Confirm Password"
+              placeholder="Confirm your password"
               value={confirmPassword}
               onChangeText={text => {
                 setConfirmPassword(text);
@@ -201,6 +242,8 @@ const RegisterScreen: React.FC = () => {
               isPassword
               secureTextEntry
             />
+
+            {error && <Text style={styles.globalErrorText}>{error}</Text>}
 
             <Button
               variant="primary"
@@ -218,9 +261,21 @@ const RegisterScreen: React.FC = () => {
             </View>
 
             <View style={styles.socialButtons}>
-              <SocialButton iconName="google" onPress={() => handleSocialRegister('google')} />
-              <SocialButton iconName="facebook" onPress={() => handleSocialRegister('facebook')} />
-              <SocialButton iconName="apple" onPress={() => handleSocialRegister('apple')} />
+              <SocialButton
+                iconName="google"
+                // onPress={() => handleSocialRegister('google')}
+                disabled={isLoading}
+              />
+              <SocialButton
+                iconName="facebook"
+                // onPress={() => handleSocialRegister('facebook')}
+                disabled={isLoading}
+              />
+              <SocialButton
+                iconName="apple"
+                // onPress={() => handleSocialRegister('apple')}
+                disabled={isLoading}
+              />
             </View>
           </View>
         </ScrollView>
@@ -364,6 +419,29 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSize.xs,
     marginTop: theme.spacing.xs,
     fontFamily: theme.typography.fontFamily.regular,
+  },
+  globalErrorText: {
+    color: theme.colors.danger,
+    textAlign: 'center',
+    marginBottom: theme.spacing.md,
+    fontSize: theme.typography.fontSize.sm,
+    minHeight: theme.typography.lineHeight?.sm || 20,
+  },
+  loginContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: theme.spacing.xl,
+  },
+  loginText: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.regular,
+  },
+  linkText: {
+    color: theme.colors.text.link,
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.bold,
   },
 });
 

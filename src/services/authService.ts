@@ -48,5 +48,34 @@ export const requestPasswordReset = async (data: ForgotPasswordRequest): Promise
   // No specific data needed in response for this example
 };
 
+// --- Social Login Functions ---
+
+// Google Login
+export const loginWithGoogle = async (idToken: string): Promise<AuthResponse> => {
+  console.log('Sending Google ID Token to backend...');
+  // TODO: Replace '/auth/google' with your actual backend endpoint
+  const response = await api.post<AuthResponse>('/auth/google', { idToken });
+  console.log('Backend response for Google login:', response.data);
+  return response.data;
+};
+
+// Facebook Login
+export const loginWithFacebook = async (accessToken: string): Promise<AuthResponse> => {
+  console.log('Sending Facebook Access Token to backend...');
+  // TODO: Replace '/auth/facebook' with your actual backend endpoint
+  const response = await api.post<AuthResponse>('/auth/facebook', { accessToken });
+  console.log('Backend response for Facebook login:', response.data);
+  return response.data;
+};
+
+// Apple Login
+export const loginWithApple = async (identityToken: string): Promise<AuthResponse> => {
+  console.log('Sending Apple Identity Token to backend...');
+  // TODO: Replace '/auth/apple' with your actual backend endpoint
+  const response = await api.post<AuthResponse>('/auth/apple', { identityToken });
+  console.log('Backend response for Apple login:', response.data);
+  return response.data;
+};
+
 // --- TODO: Add other auth-related API calls as needed ---
 // e.g., resetPassword, verifyEmail, etc. 
