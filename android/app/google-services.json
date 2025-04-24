@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "59246559330",
+    "project_id": "eindr-5b395",
+    "storage_bucket": "eindr-5b395.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:59246559330:android:28d5a0a2ec62294e59913b",
+        "android_client_info": {
+          "package_name": "com.eindr"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBMZ3YR1tC05jcRwFXEK1CeuYiw4BVD9TI"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

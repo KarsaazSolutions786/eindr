@@ -1,5 +1,12 @@
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
+import {
+  View,
+  TouchableOpacity,
+  Text,
+  Alert,
+  StyleSheet,
+  ScrollView,
+} from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
@@ -8,6 +15,10 @@ import { RootState } from '@store/rootReducer';
 import { AppDispatch } from '@store/index';
 import { AuthStackParamList } from '@navigation/AuthNavigator';
 import { registerUser } from '@services/authService';
+
+// Common Component Imports
+import { Input, Button } from '@components/common';
+import theme from '@theme/theme';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
 
@@ -71,58 +82,128 @@ const RegisterScreen = ({ navigation }: Props) => {
   };
 
   return (
-    <View>
-      {/* Name Input */}
-      <TextInput
-        placeholder="Full Name"
-        value={fullName}
-        onChangeText={setFullName}
-        autoCapitalize="words"
-        editable={!isLoading}
-      />
+    <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
+      <View style={styles.container}>
+        <Text style={styles.title}>Create Account</Text>
 
-      {/* Email Input */}
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        editable={!isLoading}
-      />
+        <Input
+          label="Full Name"
+          placeholder="Enter your full name"
+          value={fullName}
+          onChangeText={setFullName}
+          autoCapitalize="words"
+          editable={!isLoading}
+          containerStyle={styles.input}
+        />
 
-      {/* Password Input */}
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        editable={!isLoading}
-      />
+        <Input
+          label="Email"
+          placeholder="Enter your email"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          editable={!isLoading}
+          containerStyle={styles.input}
+        />
 
-      {/* Confirm Password Input */}
-      <TextInput
-        placeholder="Confirm Password"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-        editable={!isLoading}
-      />
+        <Input
+          label="Password"
+          placeholder="Enter password (min. 6 chars)"
+          value={password}
+          onChangeText={setPassword}
+          isPassword={true}
+          editable={!isLoading}
+          containerStyle={styles.input}
+        />
 
-      {/* Register Button */}
-      <TouchableOpacity onPress={handleRegister} disabled={isLoading}>
-        <Text>{isLoading ? 'Registering...' : 'Register'}</Text>
-      </TouchableOpacity>
+        <Input
+          label="Confirm Password"
+          placeholder="Re-enter password"
+          value={confirmPassword}
+          onChangeText={setConfirmPassword}
+          isPassword={true}
+          editable={!isLoading}
+          containerStyle={styles.input}
+        />
 
-      {/* Login Link */}
-      <TouchableOpacity onPress={navigateToLogin} disabled={isLoading}>
-        <Text>Already have an account? Login</Text>
-      </TouchableOpacity>
+        {error && <Text style={styles.errorText}>{error}</Text>}
 
-      {/* Display Error */}
-      {error && <Text style={{ color: 'red', marginTop: 10 }}>{error}</Text>}
-    </View>
+        <Button
+          onPress={handleRegister}
+          loading={isLoading}
+          disabled={isLoading}
+          fullWidth
+          style={styles.button}
+          variant="primary"
+        >
+          Register
+        </Button>
+
+        {/* Login Link */}
+        <View style={styles.loginContainer}>
+          <Text style={styles.loginText}>Already have an account? </Text>
+          <TouchableOpacity onPress={navigateToLogin} disabled={isLoading}>
+            <Text style={[styles.linkText, styles.loginLink]}>Login</Text>
+          </TouchableOpacity>
+        </View>
+      </View>
+    </ScrollView>
   );
 };
+
+// Styles similar to LoginScreen
+const styles = StyleSheet.create({
+  scrollContainer: {
+    flexGrow: 1,
+    justifyContent: 'center',
+  },
+  container: {
+    flex: 1,
+    padding: theme.spacing.xl,
+    backgroundColor: theme.colors.background.primary,
+    justifyContent: 'center',
+  },
+  title: {
+    fontSize: theme.typography.fontSize['3xl'],
+    color: theme.colors.text.primary,
+    fontFamily: theme.typography.fontFamily.bold,
+    textAlign: 'center',
+    marginBottom: theme.spacing.xl,
+  },
+  input: {
+    marginBottom: theme.spacing.lg,
+  },
+  button: {
+    marginTop: theme.spacing.md,
+  },
+  errorText: {
+    color: theme.colors.danger,
+    textAlign: 'center',
+    marginBottom: theme.spacing.md,
+    fontSize: theme.typography.fontSize.sm,
+    minHeight: theme.typography.lineHeight.sm,
+  },
+  loginContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: theme.spacing.xl,
+    paddingBottom: theme.spacing.md,
+  },
+  loginText: {
+    color: theme.colors.text.secondary,
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.regular,
+  },
+  linkText: {
+    color: theme.colors.text.link,
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.medium,
+  },
+  loginLink: {
+    fontFamily: theme.typography.fontFamily.bold,
+  }
+});
 
 export default RegisterScreen; 
