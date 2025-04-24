@@ -13,7 +13,7 @@ interface HeaderProps {
 const Header: React.FC<HeaderProps> = ({
   showBackArrow = false,
   onBackPress,
-  title = 'Bindr',
+  title = 'Eindr',
   subtitle = 'Forget Forgetting',
 }) => {
   return (

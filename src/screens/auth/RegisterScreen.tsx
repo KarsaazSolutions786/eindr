@@ -158,7 +158,7 @@ const RegisterScreen = ({ navigation }: Props) => {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Header showBackArrow onBackPress={navigateBack} title="Create Account" />
+          <Header showBackArrow onBackPress={navigateBack} title="Eindr" />
 
           <View style={styles.form}>
             <Input
@@ -198,7 +198,7 @@ const RegisterScreen = ({ navigation }: Props) => {
                     {gender || '--Select gender--'}
                   </Text>
                 </View>
-                <Icon name="chevron-down" size={20} color={theme.colors.text.secondary} />
+                {/* <Icon name="chevron-down" size={20} color={theme.colors.text.secondary} /> */}
               </TouchableOpacity>
               {genderError ? <Text style={styles.errorText}>{genderError}</Text> : null}
 
