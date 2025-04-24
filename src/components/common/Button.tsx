@@ -10,7 +10,7 @@ import {
 } from 'react-native';
 import theme from '@theme/theme';
 
-type ButtonVariant = 'primary' | 'secondary' | 'outline' | 'ghost';
+type ButtonVariant = 'primary' | 'outline';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
 interface ButtonProps extends TouchableOpacityProps {
@@ -39,48 +39,21 @@ const Button: React.FC<ButtonProps> = ({
   children,
   ...props
 }) => {
-  const getBackgroundColor = () => {
-    if (disabled) return theme.colors.gray[300];
-    switch (variant) {
-      case 'primary':
-        return theme.colors.primary;
-      case 'secondary':
-        return theme.colors.secondary;
-      case 'outline':
-      case 'ghost':
-        return 'transparent';
-      default:
-        return theme.colors.primary;
-    }
-  };
+  const getPrimaryStyles = () => ({
+    backgroundColor: disabled ? theme.colors.gray[700] : theme.colors.background.secondary,
+    borderColor: disabled ? theme.colors.gray[600] : theme.colors.border.primary,
+    textColor: disabled ? theme.colors.gray[500] : theme.colors.text.primary,
+  });
 
-  const getTextColor = () => {
-    if (disabled) return theme.colors.gray[600];
-    switch (variant) {
-      case 'primary':
-      case 'secondary':
-        return theme.colors.white;
-      case 'outline':
-      case 'ghost':
-        return theme.colors.primary;
-      default:
-        return theme.colors.white;
-    }
-  };
+  const getOutlineStyles = () => ({
+    backgroundColor: 'transparent',
+    borderColor: disabled ? theme.colors.gray[600] : theme.colors.accentStroke,
+    textColor: disabled ? theme.colors.gray[500] : theme.colors.text.secondary,
+  });
 
-  const getBorderColor = () => {
-    if (disabled) return theme.colors.gray[300];
-    switch (variant) {
-      case 'outline':
-        return theme.colors.primary;
-      case 'ghost':
-        return 'transparent';
-      default:
-        return 'transparent';
-    }
-  };
+  const currentStyles = variant === 'primary' ? getPrimaryStyles() : getOutlineStyles();
 
-  const getPadding = () => {
+  const getPaddingVertical = () => {
     switch (size) {
       case 'sm':
         return theme.spacing.sm;
@@ -107,9 +80,10 @@ const Button: React.FC<ButtonProps> = ({
       style={[
         styles.button,
         {
-          backgroundColor: getBackgroundColor(),
-          borderColor: getBorderColor(),
-          padding: getPadding(),
+          backgroundColor: currentStyles.backgroundColor,
+          borderColor: currentStyles.borderColor,
+          paddingVertical: getPaddingVertical(),
+          borderRadius: theme.borderRadius.xl,
           width: fullWidth ? '100%' : 'auto',
         },
         style,
@@ -119,7 +93,7 @@ const Button: React.FC<ButtonProps> = ({
       {...props}
     >
       {loading ? (
-        <ActivityIndicator color={getTextColor()} />
+        <ActivityIndicator color={currentStyles.textColor} />
       ) : (
         <>
           {leftIcon}
@@ -127,7 +101,7 @@ const Button: React.FC<ButtonProps> = ({
             style={[
               styles.text,
               {
-                color: getTextColor(),
+                color: currentStyles.textColor,
                 fontSize: getFontSize(),
                 marginLeft: leftIcon ? theme.spacing.sm : 0,
                 marginRight: rightIcon ? theme.spacing.sm : 0,
@@ -149,8 +123,8 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderRadius: theme.borderRadius.md,
     borderWidth: 1,
+    paddingHorizontal: theme.spacing.lg,
   },
   text: {
     fontFamily: theme.typography.fontFamily.medium,
