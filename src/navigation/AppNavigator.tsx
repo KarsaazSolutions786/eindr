@@ -1,26 +1,43 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
-// Assume these screens exist or will be created
-import HomeScreen from '@screens/HomeScreen'; 
-import DetailsScreen from '@screens/DetailsScreen';
+// Import Screens
+import HomeScreen from '@screens/app/HomeScreen';
+import RemindersScreen from '@screens/app/RemindersScreen';
+import NotesScreen from '@screens/app/NotesScreen';
+import FriendsScreen from '@screens/app/FriendsScreen';
+import SettingsScreen from '@screens/app/SettingsScreen';
 
-// Define the type for the stack parameters
-export type AppStackParamList = {
-  Home: undefined; 
-  Details: { itemId: number; otherParam?: string };
-  // Add other main app screens here (e.g., Settings, Profile)
+// Import Custom Tab Bar (We will create this next)
+import CustomTabBar from './CustomTabBar'; 
+
+// Define Param List
+export type AppTabParamList = {
+  Home: undefined;
+  Reminders: undefined;
+  Notes: undefined;
+  Friends: undefined;
+  Settings: undefined;
 };
 
-const Stack = createNativeStackNavigator<AppStackParamList>();
+const Tab = createBottomTabNavigator<AppTabParamList>();
 
 const AppNavigator = () => {
   return (
-    <Stack.Navigator initialRouteName="Home">
-      <Stack.Screen name="Home" component={HomeScreen} options={{ title: 'Overview' }} />
-      <Stack.Screen name="Details" component={DetailsScreen} />
-      {/* Add other main app screens here */}
-    </Stack.Navigator>
+    <Tab.Navigator
+      // Use the custom tab bar component
+      tabBar={(props) => <CustomTabBar {...props} />}
+      screenOptions={{
+        headerShown: false, // Hide default header, we might add custom ones later
+      }}
+    >
+      {/* These screens are part of the navigator state but won't all be directly shown in the custom bar */}
+      <Tab.Screen name="Home" component={HomeScreen} />
+      <Tab.Screen name="Reminders" component={RemindersScreen} />
+      <Tab.Screen name="Notes" component={NotesScreen} />
+      <Tab.Screen name="Friends" component={FriendsScreen} />
+      <Tab.Screen name="Settings" component={SettingsScreen} />
+    </Tab.Navigator>
   );
 };
 
