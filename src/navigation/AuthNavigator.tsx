@@ -1,9 +1,9 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import LoginScreen from '@screens/auth/LoginScreen';
-import RegisterScreen from '@screens/auth/RegisterScreen';
-import ForgotPasswordScreen from '@screens/auth/ForgotPasswordScreen';
+import LoginScreen from '@screens/Auth/LoginScreen';
+import RegisterScreen from '@screens/Auth/RegisterScreen';
+import ForgotPasswordScreen from '@screens/Auth/ForgotPasswordScreen';
 
 // Define the param list for type safety
 export type AuthStackParamList = {
@@ -17,7 +17,7 @@ const Stack = createNativeStackNavigator<AuthStackParamList>();
 const AuthNavigator = () => {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="Login" component={LoginScreen} />
+      {/* <Stack.Screen name="Login" component={LoginScreen} /> */}
       <Stack.Screen name="Register" component={RegisterScreen} />
       <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
     </Stack.Navigator>

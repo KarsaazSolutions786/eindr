@@ -1,13 +1,7 @@
 import React from 'react';
-import {
-  TouchableOpacity,
-  View,
-  StyleSheet,
-  ViewStyle,
-  TouchableOpacityProps,
-} from 'react-native';
-import Icon from 'react-native-vector-icons/FontAwesome'; // Using FontAwesome for google, facebook, apple
+import { TouchableOpacity, View, StyleSheet, ViewStyle, TouchableOpacityProps } from 'react-native';
 import theme from '@theme/theme';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
 interface SocialButtonProps extends TouchableOpacityProps {
   iconName: string; // e.g., 'google', 'facebook', 'apple'
@@ -41,9 +35,8 @@ const SocialButton: React.FC<SocialButtonProps> = ({
             borderRadius: size / 2, // Make it circular
             borderColor: borderColor,
           },
-        ]}
-      >
-        <Icon
+        ]}>
+        <FontAwesome
           name={iconName}
           size={iconSize ?? defaultIconSize} // Use provided iconSize or default
           color={iconColor}
@@ -62,4 +55,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default SocialButton; 
+export default SocialButton;

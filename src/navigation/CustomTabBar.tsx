@@ -10,8 +10,8 @@ import {
 } from 'react-native';
 import { BottomTabBarProps } from '@react-navigation/bottom-tabs';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'; // Using MaterialCommunityIcons for more options
-import theme from '@theme/theme';
 import { AppTabParamList } from './AppNavigator'; // Import the ParamList
+import theme from '@theme/theme';
 
 // Define the structure for the popup menu items
 interface PopupItem {

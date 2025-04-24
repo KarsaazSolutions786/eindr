@@ -83,7 +83,7 @@ const Button: React.FC<ButtonProps> = ({
           backgroundColor: currentStyles.backgroundColor,
           borderColor: currentStyles.borderColor,
           paddingVertical: getPaddingVertical(),
-          borderRadius: theme.borderRadius.xl,
+          borderRadius: theme.borderRadius.sm,
           width: fullWidth ? '100%' : 'auto',
         },
         style,
@@ -125,6 +125,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     borderWidth: 1,
     paddingHorizontal: theme.spacing.lg,
+    marginBottom: theme.spacing.sm,
   },
   text: {
     fontFamily: theme.typography.fontFamily.medium,

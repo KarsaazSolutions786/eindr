@@ -1,128 +1,370 @@
+// RegisterScreen.tsx
+import { Button, Input, SocialButton, Header } from '@components/common';
+import theme from '@theme/theme';
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+  ScrollView,
+} from 'react-native';
+import Icon from 'react-native-vector-icons/FontAwesome';
 
-import { authStart, authSuccess, authFailure } from '@store/slices/authSlice';
-import { RootState } from '@store/rootReducer';
-import { AppDispatch } from '@store/index';
-import { AuthStackParamList } from '@navigation/AuthNavigator';
-import { registerUser } from '@services/authService';
+interface Gender {
+  label: string;
+  value: string;
+}
 
-type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
-
-const RegisterScreen = ({ navigation }: Props) => {
+const RegisterScreen: React.FC = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
+  const [gender, setGender] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showGenderDropdown, setShowGenderDropdown] = useState(false);
 
-  const dispatch = useDispatch<AppDispatch>();
-  const { isLoading, error } = useSelector((state: RootState) => state.auth);
+  // Form validation states
+  const [fullNameError, setFullNameError] = useState('');
+  const [emailError, setEmailError] = useState('');
+  const [genderError, setGenderError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
+  const [confirmPasswordError, setConfirmPasswordError] = useState('');
 
-  const handleRegister = async () => {
-    // Basic validation
-    if (!fullName || !email || !password || !confirmPassword) {
-      Alert.alert('Error', 'Please fill in all fields.');
-      return;
+  // Gender options
+  const genderOptions: Gender[] = [
+    { label: 'Male', value: 'male' },
+    { label: 'Female', value: 'female' },
+    { label: 'Other', value: 'other' },
+    { label: 'Prefer not to say', value: 'not_specified' },
+  ];
+
+  const handleRegister = () => {
+    // Reset all error states
+    setFullNameError('');
+    setEmailError('');
+    setGenderError('');
+    setPasswordError('');
+    setConfirmPasswordError('');
+
+    // Validate form
+    let isValid = true;
+
+    if (!fullName.trim()) {
+      setFullNameError('Full name is required');
+      isValid = false;
     }
 
-    if (password !== confirmPassword) {
-      Alert.alert('Error', 'Passwords do not match.');
-      return;
+    if (!email.trim()) {
+      setEmailError('Email is required');
+      isValid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError('Please enter a valid email');
+      isValid = false;
     }
 
-    // Basic password validation
-    if (password.length < 6) {
-      Alert.alert('Error', 'Password must be at least 6 characters long.');
-      return;
+    if (!gender) {
+      setGenderError('Please select a gender');
+      isValid = false;
     }
 
-    // Basic email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
-      Alert.alert('Error', 'Please enter a valid email address.');
-      return;
+    if (!password) {
+      setPasswordError('Password is required');
+      isValid = false;
+    } else if (password.length < 8) {
+      setPasswordError('Password must be at least 8 characters');
+      isValid = false;
     }
 
-    dispatch(authStart());
+    if (!confirmPassword) {
+      setConfirmPasswordError('Please confirm your password');
+      isValid = false;
+    } else if (password !== confirmPassword) {
+      setConfirmPasswordError('Passwords do not match');
+      isValid = false;
+    }
 
-    try {
-      const response = await registerUser({ fullName, email, password });
-      dispatch(authSuccess({ user: response.user, token: response.token }));
-      // Navigation to the main app stack will happen automatically
-      // because RootNavigator listens to the isAuthenticated state
-
-    } catch (apiError: unknown) {
-      let errorMessage = 'Registration failed. Please try again.';
-      if (apiError instanceof Error) {
-        errorMessage = apiError.message;
-      } else if (typeof apiError === 'object' && apiError !== null && 'message' in apiError && typeof apiError.message === 'string') {
-        errorMessage = apiError.message;
-      }
-      
-      dispatch(authFailure(errorMessage));
-      Alert.alert('Registration Failed', errorMessage);
+    if (isValid) {
+      console.log('Registration submitted:', { fullName, email, gender, password });
+      // Implement your registration logic here
     }
   };
 
-  const navigateToLogin = () => {
-    navigation.navigate('Login');
+  const handleSocialRegister = (provider: 'google' | 'facebook' | 'apple') => {
+    console.log(`Register with ${provider}`);
+    // Implement social registration logic
+  };
+
+  const toggleGenderDropdown = () => {
+    setShowGenderDropdown(!showGenderDropdown);
+  };
+
+  const selectGender = (selectedGender: Gender) => {
+    setGender(selectedGender.label);
+    setShowGenderDropdown(false);
+    if (genderError) setGenderError('');
+  };
+
+  const goBack = () => {
+    console.log('Go back');
+    // Navigation logic to go back to previous screen
   };
 
   return (
-    <View>
-      {/* Name Input */}
-      <TextInput
-        placeholder="Full Name"
-        value={fullName}
-        onChangeText={setFullName}
-        autoCapitalize="words"
-        editable={!isLoading}
-      />
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoidingView}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          <Header showBackArrow onBackPress={goBack} />
 
-      {/* Email Input */}
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        editable={!isLoading}
-      />
+          <View style={styles.form}>
+            <Input
+              label="Full name"
+              placeholder="Enter user name"
+              value={fullName}
+              onChangeText={text => {
+                setFullName(text);
+                if (fullNameError) setFullNameError('');
+              }}
+              error={fullNameError}
+            />
 
-      {/* Password Input */}
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        editable={!isLoading}
-      />
+            <Input
+              label="Email"
+              placeholder="Enter Email"
+              value={email}
+              onChangeText={text => {
+                setEmail(text);
+                if (emailError) setEmailError('');
+              }}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              error={emailError}
+            />
 
-      {/* Confirm Password Input */}
-      <TextInput
-        placeholder="Confirm Password"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-        editable={!isLoading}
-      />
+            {/* Gender dropdown field */}
+            <View style={styles.inputContainer}>
+              <Text style={styles.label}>Gender</Text>
+              <TouchableOpacity
+                style={[styles.dropdownButton, genderError ? styles.inputError : null]}
+                onPress={toggleGenderDropdown}>
+                <View style={styles.dropdownTextContainer}>
+                  <Text style={[styles.dropdownText, !gender ? styles.placeholderText : null]}>
+                    {gender || '--Select gender--'}
+                  </Text>
+                </View>
+                {/* <Icon name="chevron-down" size={20} color={theme.colors.text.secondary} /> */}
+              </TouchableOpacity>
+              {genderError ? <Text style={styles.errorText}>{genderError}</Text> : null}
 
-      {/* Register Button */}
-      <TouchableOpacity onPress={handleRegister} disabled={isLoading}>
-        <Text>{isLoading ? 'Registering...' : 'Register'}</Text>
-      </TouchableOpacity>
+              {/* Dropdown options */}
+              {showGenderDropdown && (
+                <View style={styles.dropdownList}>
+                  {genderOptions.map(option => (
+                    <TouchableOpacity
+                      key={option.value}
+                      style={styles.dropdownItem}
+                      onPress={() => selectGender(option)}>
+                      <Text style={styles.dropdownItemText}>{option.label}</Text>
+                    </TouchableOpacity>
+                  ))}
+                </View>
+              )}
+            </View>
 
-      {/* Login Link */}
-      <TouchableOpacity onPress={navigateToLogin} disabled={isLoading}>
-        <Text>Already have an account? Login</Text>
-      </TouchableOpacity>
+            <Input
+              label="Password"
+              placeholder="Enter password"
+              value={password}
+              onChangeText={text => {
+                setPassword(text);
+                if (passwordError) setPasswordError('');
+              }}
+              error={passwordError}
+              isPassword
+              secureTextEntry
+            />
 
-      {/* Display Error */}
-      {error && <Text style={{ color: 'red', marginTop: 10 }}>{error}</Text>}
-    </View>
+            <Input
+              label="Confirm password"
+              placeholder="Enter Confirm password"
+              value={confirmPassword}
+              onChangeText={text => {
+                setConfirmPassword(text);
+                if (confirmPasswordError) setConfirmPasswordError('');
+              }}
+              error={confirmPasswordError}
+              isPassword
+              secureTextEntry
+            />
+
+            <Button
+              variant="primary"
+              size="md"
+              fullWidth
+              onPress={handleRegister}
+              style={styles.registerButton}>
+              Register
+            </Button>
+
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>Or register in with</Text>
+              <View style={styles.dividerLine} />
+            </View>
+
+            <View style={styles.socialButtons}>
+              <SocialButton iconName="google" onPress={() => handleSocialRegister('google')} />
+              <SocialButton iconName="facebook" onPress={() => handleSocialRegister('facebook')} />
+              <SocialButton iconName="apple" onPress={() => handleSocialRegister('apple')} />
+            </View>
+          </View>
+        </ScrollView>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
-export default RegisterScreen; 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background.primary,
+    paddingBottom: theme.spacing.xl,
+  },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    padding: theme.spacing.lg,
+  },
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: theme.spacing.xl,
+    marginTop: theme.spacing.xl,
+  },
+  backButton: {
+    padding: theme.spacing.sm,
+  },
+  titleContainer: {
+    flex: 1,
+    alignItems: 'center',
+    marginRight: theme.spacing.xl, // To account for the back button
+  },
+  logo: {
+    fontSize: theme.typography.fontSize['2xl'],
+    fontFamily: theme.typography.fontFamily.bold,
+    color: theme.colors.white,
+  },
+  tagline: {
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.regular,
+    color: theme.colors.text.secondary,
+    fontStyle: 'italic',
+  },
+  form: {
+    width: '100%',
+  },
+  registerButton: {
+    marginTop: theme.spacing.md,
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: theme.spacing.xl,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: theme.colors.border.primary,
+  },
+  dividerText: {
+    color: theme.colors.text.secondary,
+    paddingHorizontal: theme.spacing.md,
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.regular,
+  },
+  socialButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: theme.spacing.md,
+    gap: theme.spacing.md,
+  },
+
+  // Custom dropdown styles
+  inputContainer: {
+    marginBottom: theme.spacing.md,
+  },
+  label: {
+    fontSize: theme.typography.fontSize.lg,
+    color: theme.colors.text.secondary,
+    marginBottom: theme.spacing.sm,
+    fontFamily: theme.typography.fontFamily.medium,
+  },
+  dropdownButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: theme.spacing.lg,
+    paddingVertical: theme.spacing.md,
+    borderWidth: 1,
+    borderColor: theme.colors.border.primary,
+    borderRadius: theme.borderRadius.sm,
+    backgroundColor: theme.colors.background.secondary,
+  },
+  dropdownTextContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+  },
+  dropdownIcon: {
+    marginRight: theme.spacing.md,
+  },
+  dropdownText: {
+    flex: 1,
+    fontSize: theme.typography.fontSize.md,
+    color: theme.colors.text.primary,
+    fontFamily: theme.typography.fontFamily.regular,
+  },
+  placeholderText: {
+    color: theme.colors.text.placeholder,
+  },
+  dropdownList: {
+    marginTop: 5,
+    borderWidth: 1,
+    borderColor: theme.colors.border.primary,
+    borderRadius: theme.borderRadius.md,
+    backgroundColor: theme.colors.background.secondary,
+    position: 'absolute',
+    top: '100%',
+    left: 0,
+    right: 0,
+    zIndex: 10,
+  },
+  dropdownItem: {
+    paddingVertical: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: theme.colors.border.primary,
+  },
+  dropdownItemText: {
+    fontSize: theme.typography.fontSize.md,
+    color: theme.colors.text.primary,
+    fontFamily: theme.typography.fontFamily.regular,
+  },
+  inputError: {
+    borderColor: theme.colors.danger,
+  },
+  errorText: {
+    color: theme.colors.danger,
+    fontSize: theme.typography.fontSize.xs,
+    marginTop: theme.spacing.xs,
+    fontFamily: theme.typography.fontFamily.regular,
+  },
+});
+
+export default RegisterScreen;

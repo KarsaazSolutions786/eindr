@@ -1,99 +1,206 @@
+// LoginScreen.tsx
+import { Button, Input, SocialButton, Header } from '@components/common';
+import theme from '@theme/theme';
 import React, { useState } from 'react';
-import { View, TextInput, TouchableOpacity, Text, Alert } from 'react-native';
-import { useDispatch, useSelector } from 'react-redux';
-import { NativeStackScreenProps } from '@react-navigation/native-stack';
+import {
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform,
+  SafeAreaView,
+} from 'react-native';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
 
-import { authStart, authSuccess, authFailure, clearError } from '@store/slices/authSlice';
-import { RootState } from '@store/rootReducer'; // Corrected import path for RootState
-import { AppDispatch } from '@store/index'; 
-import { AuthStackParamList } from '@navigation/AuthNavigator';
-import { loginUser } from '@services/authService';
-
-type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
-
-const LoginScreen = ({ navigation }: Props) => {
+const LoginScreen: React.FC = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const dispatch = useDispatch<AppDispatch>();
+  const [emailError, setEmailError] = useState('');
+  const [passwordError, setPasswordError] = useState('');
 
-  const { isLoading, error } = useSelector((state: RootState) => state.auth);
+  const handleLogin = () => {
+    // Simple validation
+    let valid = true;
 
-  const handleLogin = async () => {
-    // Basic validation
-    if (!email || !password) {
-      Alert.alert('Error', 'Please enter both email and password.');
-      return;
+    if (!email.trim()) {
+      setEmailError('Email is required');
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError('Please enter a valid email');
+      valid = false;
+    } else {
+      setEmailError('');
     }
 
-    dispatch(authStart());
+    if (!password.trim()) {
+      setPasswordError('Password is required');
+      valid = false;
+    } else {
+      setPasswordError('');
+    }
 
-    try {
-      const response = await loginUser({ email, password });
-      dispatch(authSuccess({ user: response.user, token: response.token }));
-      // Navigation to the main app stack will happen automatically
-      // because RootNavigator listens to the isAuthenticated state.
-
-    } catch (apiError: unknown) {
-      let errorMessage = 'Login failed. Please try again.';
-      if (apiError instanceof Error) {
-        errorMessage = apiError.message;
-      } else if (typeof apiError === 'object' && apiError !== null && 'message' in apiError && typeof apiError.message === 'string') {
-        errorMessage = apiError.message;
-      }
-      
-      dispatch(authFailure(errorMessage));
-      Alert.alert('Login Failed', errorMessage);
+    if (valid) {
+      console.log('Login pressed with:', { email, password });
+      // Implement your login logic here
     }
   };
 
-  const navigateToRegister = () => {
-    navigation.navigate('Register');
+  const handleRegister = () => {
+    console.log('Register pressed');
   };
 
-  const navigateToForgotPassword = () => {
-    navigation.navigate('ForgotPassword');
+  const handleSocialLogin = (provider: 'google' | 'facebook' | 'apple') => {
+    console.log(`${provider} login pressed`);
+    // Implement social login logic here
+  };
+
+  const handleForgotPassword = () => {
+    console.log('Forgot password pressed');
+    // Implement forgot password logic here
   };
 
   return (
-    <View>
-      {/* Email Input */}
-      <TextInput
-        placeholder="Email"
-        value={email}
-        onChangeText={setEmail}
-        keyboardType="email-address"
-        autoCapitalize="none"
-        editable={!isLoading} // Disable input when loading
-      />
+    <SafeAreaView style={styles.container}>
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={styles.keyboardAvoidingView}>
+        <View style={styles.content}>
+          <Header />
 
-      {/* Password Input */}
-      <TextInput
-        placeholder="Password"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-        editable={!isLoading} // Disable input when loading
-      />
+          <View style={styles.form}>
+            <Input
+              label="Email"
+              placeholder="Enter your email"
+              value={email}
+              onChangeText={text => {
+                setEmail(text);
+                if (emailError) setEmailError('');
+              }}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              error={emailError}
+              leftIcon={
+                <FontAwesome name="envelope" size={20} color={theme.colors.text.secondary} />
+              }
+            />
 
-      {/* Login Button */}
-      <TouchableOpacity onPress={handleLogin} disabled={isLoading}>
-        <Text>{isLoading ? 'Logging in...' : 'Login'}</Text>
-      </TouchableOpacity>
+            <Input
+              label="Password"
+              placeholder="Enter your password"
+              value={password}
+              onChangeText={text => {
+                setPassword(text);
+                if (passwordError) setPasswordError('');
+              }}
+              error={passwordError}
+              isPassword
+              secureTextEntry
+            />
 
-      {/* Forgot Password */}
-      <TouchableOpacity onPress={navigateToForgotPassword} disabled={isLoading}>
-        <Text>Forgot Password?</Text>
-      </TouchableOpacity>
+            <TouchableOpacity style={styles.forgotPasswordContainer} onPress={handleForgotPassword}>
+              <Text style={styles.forgotPasswordText}>Forgot Password?</Text>
+            </TouchableOpacity>
 
-      {/* Register Link */}
-      <TouchableOpacity onPress={navigateToRegister} disabled={isLoading}>
-        <Text>Don't have an account? Register</Text>
-      </TouchableOpacity>
+            <Button variant="primary" size="md" fullWidth onPress={handleLogin}>
+              Login
+            </Button>
 
-      {/* Display Error (optional) */}
-      {error && <Text style={{ color: 'red', marginTop: 10 }}>{error}</Text>}
-    </View>
+            <Button
+              variant="primary"
+              size="md"
+              fullWidth
+              onPress={handleRegister}
+              style={styles.registerButton}>
+              Register
+            </Button>
+
+            <View style={{ marginTop: theme.spacing.xl }}>
+              <View style={styles.divider}>
+                <View style={styles.dividerLine} />
+                <Text style={styles.dividerText}>Or sign in with</Text>
+                <View style={styles.dividerLine} />
+              </View>
+
+              <View style={styles.socialButtons}>
+                <SocialButton iconName="google" onPress={() => handleSocialLogin('google')} />
+                <SocialButton iconName="facebook" onPress={() => handleSocialLogin('facebook')} />
+                <SocialButton iconName="apple" onPress={() => handleSocialLogin('apple')} />
+              </View>
+            </View>
+          </View>
+        </View>
+      </KeyboardAvoidingView>
+    </SafeAreaView>
   );
 };
 
-export default LoginScreen; 
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    backgroundColor: theme.colors.background.primary,
+  },
+  keyboardAvoidingView: {
+    flex: 1,
+  },
+  content: {
+    flex: 1,
+    padding: theme.spacing.lg,
+    justifyContent: 'center',
+  },
+  header: {
+    alignItems: 'center',
+    marginBottom: theme.spacing.xl,
+  },
+  logo: {
+    fontSize: theme.typography.fontSize['3xl'],
+    fontFamily: theme.typography.fontFamily.bold,
+    color: theme.colors.white,
+    marginBottom: theme.spacing.xs,
+  },
+  tagline: {
+    fontSize: theme.typography.fontSize.md,
+    fontFamily: theme.typography.fontFamily.regular,
+    color: theme.colors.text.secondary,
+    fontStyle: 'italic',
+  },
+  form: {
+    width: '100%',
+  },
+  forgotPasswordContainer: {
+    alignSelf: 'flex-end',
+    marginBottom: theme.spacing.md,
+  },
+  forgotPasswordText: {
+    color: theme.colors.text.link,
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.medium,
+  },
+  registerButton: {
+    marginTop: theme.spacing.sm,
+  },
+  divider: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginVertical: theme.spacing.xl,
+  },
+  dividerLine: {
+    flex: 1,
+    height: 1,
+    backgroundColor: theme.colors.border.primary,
+  },
+  dividerText: {
+    color: theme.colors.text.secondary,
+    paddingHorizontal: theme.spacing.md,
+    fontSize: theme.typography.fontSize.sm,
+    fontFamily: theme.typography.fontFamily.regular,
+  },
+  socialButtons: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    marginTop: theme.spacing.md,
+    gap: theme.spacing.md,
+  },
+});
+
+export default LoginScreen;
