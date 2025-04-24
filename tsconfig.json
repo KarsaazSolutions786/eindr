@@ -4,16 +4,14 @@
     /* Basic Options */
     "baseUrl": ".", // Base directory to resolve non-absolute module names.
     "paths": {
-      "@src/*": ["src/*"],
-      "@assets/*": ["src/assets/*"],
       "@components/*": ["src/components/*"],
-      "@config/*": ["src/config/*"],
-      "@navigation/*": ["src/navigation/*"],
       "@screens/*": ["src/screens/*"],
-      "@services/*": ["src/services/*"],
+      "@navigation/*": ["src/navigation/*"],
       "@store/*": ["src/store/*"],
-      "@types/*": ["src/types/*"],
-      "@utils/*": ["src/utils/*"]
+      "@services/*": ["src/services/*"],
+      "@theme/*": ["src/theme/*"],
+      "@utils/*": ["src/utils/*"],
+      "@assets/*": ["src/assets/*"]
     },
     /* Ensure these match the base config or override as needed */
     "jsx": "react-native", // Keep React Native JSX setting
