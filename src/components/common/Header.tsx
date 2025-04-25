@@ -1,64 +1,96 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import {
+  View,
+  Text,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  StatusBar,
+  SafeAreaView,
+} from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import theme from '@theme/theme';
 
 interface HeaderProps {
   showBackArrow?: boolean;
   onBackPress?: () => void;
-  title?: string;
   subtitle?: string;
 }
 
 const Header: React.FC<HeaderProps> = ({
   showBackArrow = false,
   onBackPress,
-  title = 'Eindr',
   subtitle = 'Forget Forgetting',
 }) => {
   return (
-    <View style={styles.header}>
-      {showBackArrow && (
-        <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
-          <FontAwesome name="arrow-left" size={20} color={theme.colors.white} />
-        </TouchableOpacity>
-      )}
-      <View style={[styles.titleContainer, !showBackArrow && styles.titleContainerCenter]}>
-        <Text style={styles.logo}>{title}</Text>
-        <Text style={styles.tagline}>{subtitle}</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <StatusBar barStyle="light-content" backgroundColor={theme.colors.background.primary} />
+      <View style={styles.header}>
+        {showBackArrow ? (
+          <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
+            <FontAwesome name="arrow-left" size={20} color={theme.colors.white} />
+          </TouchableOpacity>
+        ) : (
+          <View style={styles.backButtonPlaceholder} />
+        )}
+
+        <View style={[styles.titleContainer, !showBackArrow && styles.titleContainerCenter]}>
+          {/* Replace text logo with Image component */}
+          <Image
+            source={require('../../assets/Logo/indr.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
+          <Text style={styles.tagline}>{subtitle}</Text>
+        </View>
+
+        {/* Add empty view for proper spacing when back arrow is shown */}
+        <View style={styles.backButtonPlaceholder} />
       </View>
-      {/* Add empty view for proper spacing when back arrow is shown */}
-      {showBackArrow && <View style={styles.backButtonPlaceholder} />}
-    </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
+  safeArea: {
+    backgroundColor: theme.colors.background.primary,
+    zIndex: 10,
+    elevation: 3, // Android shadow
+    shadowColor: '#000', // iOS shadow
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 3,
+  },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginBottom: theme.spacing.xl,
-    marginTop: theme.spacing.xl,
+    paddingHorizontal: theme.spacing.md,
+    paddingVertical: theme.spacing.md,
+    backgroundColor: theme.colors.background.primary,
+    justifyContent: 'space-between',
+    width: '100%',
   },
   backButton: {
     padding: theme.spacing.sm,
+    width: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   backButtonPlaceholder: {
-    width: 44, // Same width as backButton including padding
+    width: 44, // Same width as backButton
   },
   titleContainer: {
-    flex: 1,
     alignItems: 'center',
-    marginTop: theme.spacing.sm,
+    justifyContent: 'center',
+    flex: 1,
   },
   titleContainerCenter: {
-    marginLeft: 0, // No margin needed when back arrow is not shown
+    // Center styling when no back button
   },
-  logo: {
-    fontSize: theme.typography.fontSize['4xl'],
-    fontFamily: theme.typography.fontFamily.bold,
-    color: theme.colors.white,
-    marginTop: theme.spacing.lg,
+  logoImage: {
+    width: 170,
+    height: 80,
+    marginBottom: 4,
   },
   tagline: {
     fontSize: theme.typography.fontSize.sm,

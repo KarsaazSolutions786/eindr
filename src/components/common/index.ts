@@ -4,3 +4,4 @@ export { default as Card } from './Card';
 export { default as Dropdown } from './Dropdown';
 export { default as SocialButton } from './SocialButton';
 export { default as Header } from './Header';
+export { default as Modal } from './Modal';

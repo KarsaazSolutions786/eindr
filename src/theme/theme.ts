@@ -5,32 +5,32 @@ const { width, height } = Dimensions.get('window');
 // Updated color palette based on the provided image
 export const colors = {
   // Core Palette
-  primaryDark: '#16182A',       // Deep dark blue/purple
-  accentLight: '#A6A1F6',     // Light lavender (60% opacity)
-  accentStroke: '#B2A1FF',    // Stroke lavender
+  primaryDark: '#16182A', // Deep dark blue/purple
+  accentLight: '#A6A1F6', // Light lavender (60% opacity)
+  accentStroke: '#B2A1FF', // Stroke lavender
   white: '#FFFFFF',
   black: '#000000',
   transparentBlack20: 'rgba(0, 0, 0, 0.2)', // Black with 20% opacity
   transparentAccentLight60: 'rgba(166, 161, 246, 0.6)', // #A6A1F6 with 60% opacity
 
   // Semantic Colors (can be mapped to core palette)
-  primary: '#B2A1FF',        // Using accentStroke as primary for now
-  secondary: '#A6A1F6',     // Using accentLight as secondary
+  primary: '#B2A1FF', // Using accentStroke as primary for now
+  secondary: '#A6A1F6', // Using accentLight as secondary
   background: {
-    primary: '#16182A',       // Dark background
-    secondary: '#2C2C54',     // Slightly lighter dark bg (from input example)
-    tertiary: '#4C4C7A',     // Even lighter dark bg (from input example)
+    primary: '#16182A', // Dark background
+    secondary: '#2C2C54', // Slightly lighter dark bg (from input example)
+    tertiary: '#4C4C7A', // Even lighter dark bg (from input example)
   },
   text: {
-    primary: '#FFFFFF',       // White text on dark background
-    secondary: '#A8A8D0',     // Light lavender/gray text (from input example)
-    tertiary: '#8E8E93',       // Keeping a gray for less emphasis
-    link: '#B2A1FF',          // Link color
-    placeholder: '#A8A8D0',   // Placeholder text color
+    primary: '#FFFFFF', // White text on dark background
+    secondary: '#A8A8D0', // Light lavender/gray text (from input example)
+    tertiary: '#8E8E93', // Keeping a gray for less emphasis
+    link: '#B2A1FF', // Link color
+    placeholder: '#FFFFFF', // Placeholder text color
   },
   border: {
-    primary: '#4C4C7A',       // Default border (from input example)
-    secondary: '#B2A1FF',    // Accent border
+    primary: '#4C4C7A', // Default border (from input example)
+    secondary: '#B2A1FF', // Accent border
   },
 
   // Status Colors (standard)
@@ -58,7 +58,7 @@ export const typography = {
   fontFamily: {
     // NOTE: Ensure these font files (Poppins-Regular, Poppins-Medium, Poppins-SemiBold)
     // are added to your project assets and linked correctly.
-    regular: 'Poppins-Regular', 
+    regular: 'Poppins-Regular',
     medium: 'Poppins-Medium',
     bold: 'Poppins-SemiBold', // Using SemiBold as bold based on image
   },
@@ -66,11 +66,12 @@ export const typography = {
     xs: 12,
     sm: 14,
     md: 16,
-    lg: 18,    // Matches 18px Medium from image
-    xl: 20,    // Matches 20px Medium from image
+    lg: 18, // Matches 18px Medium from image
+    xl: 20, // Matches 20px Medium from image
     '2xl': 24,
     '3xl': 30, // Matches 30px Semi Bold from image
     '4xl': 36,
+    '6xl': 50,
   },
   // Line heights can be adjusted based on font specifics if needed
   lineHeight: {
@@ -132,7 +133,7 @@ export const shadows = {
       width: 0,
       height: 4,
     },
-    shadowOpacity: 0.30,
+    shadowOpacity: 0.3,
     shadowRadius: 4.65,
     elevation: 8,
   },
@@ -154,4 +155,4 @@ export const theme = {
 };
 
 export type Theme = typeof theme;
-export default theme; 
+export default theme;

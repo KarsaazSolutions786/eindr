@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
-import Icon from 'react-native-vector-icons/FontAwesome';
 
 // Redux and Navigation imports
 import { authStart, authSuccess, authFailure } from '@store/slices/authSlice';
@@ -113,26 +112,30 @@ const RegisterScreen = ({ navigation }: Props) => {
     }
 
     if (isValid) {
-      dispatch(authStart());
-      try {
-        const userData = { fullName, email, gender, password };
-        const response = await registerUser(userData);
-        dispatch(authSuccess({ user: response.user, token: response.token }));
-        // Navigate to appropriate screen after successful registration
-      } catch (error) {
-        const apiError = error as ApiError;
-        const errorMessage = apiError.message || 'Registration failed. Please try again.';
-        dispatch(authFailure(errorMessage));
-        Alert.alert('Registration Failed', errorMessage);
-      }
+      navigation.navigate('Registered');
     }
+
+    // if (isValid) {
+    //   dispatch(authStart());
+    //   try {
+    //     const userData = { fullName, email, gender, password };
+    //     const response = await registerUser(userData);
+    //     dispatch(authSuccess({ user: response.user, token: response.token }));
+    //     navigation.navigate('Registered');
+    //   } catch (error) {
+    //     const apiError = error as ApiError;
+    //     const errorMessage = apiError.message || 'Registration failed. Please try again.';
+    //     dispatch(authFailure(errorMessage));
+    //     Alert.alert('Registration Failed', errorMessage);
+    //   }
+    // }
   };
 
-  const handleSocialRegister = (provider: 'google' | 'facebook' | 'apple') => {
-    console.log(`Register with ${provider}`);
-    // Implement social registration logic
-    // This would follow similar patterns to the social login handlers
-  };
+  // const handleSocialRegister = (provider: 'google' | 'facebook' | 'apple') => {
+  //   console.log(`Register with ${provider}`);
+  //   // Implement social registration logic
+  //   // This would follow similar patterns to the social login handlers
+  // };
 
   const toggleGenderDropdown = () => {
     setShowGenderDropdown(!showGenderDropdown);
@@ -148,17 +151,13 @@ const RegisterScreen = ({ navigation }: Props) => {
     navigation.goBack();
   };
 
-  const navigateToLogin = () => {
-    navigation.goBack();
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Header showBackArrow onBackPress={navigateBack} title="Eindr" />
+          <Header showBackArrow onBackPress={navigateBack} />
 
           <View style={styles.form}>
             <Input
@@ -271,11 +270,13 @@ const RegisterScreen = ({ navigation }: Props) => {
                 // onPress={() => handleSocialRegister('facebook')}
                 disabled={isLoading}
               />
-              <SocialButton
-                iconName="apple"
-                // onPress={() => handleSocialRegister('apple')}
-                disabled={isLoading}
-              />
+              {Platform.OS === 'ios' && (
+                <SocialButton
+                  iconName="apple"
+                  //  onPress={handleAppleLogin}
+                  disabled={isLoading}
+                />
+              )}
             </View>
           </View>
         </ScrollView>

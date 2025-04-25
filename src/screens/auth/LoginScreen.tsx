@@ -9,8 +9,10 @@ import {
   Platform,
   SafeAreaView,
   Alert,
+  ScrollView,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
+import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Config from 'react-native-config';
@@ -20,23 +22,6 @@ import { authStart, authSuccess, authFailure, clearError } from '@store/slices/a
 import { RootState } from '@store/rootReducer';
 import { AppDispatch } from '@store/index';
 import { AuthStackParamList } from '@navigation/AuthNavigator';
-
-// API Services
-import {
-  loginUser,
-  loginWithGoogle,
-  loginWithFacebook,
-  loginWithApple,
-} from '@services/authService';
-
-// Social Login SDK Imports
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
-// import appleAuth, {
-//   AppleButton,
-//   AppleRequestOperation,
-//   AppleRequestScope,
-// } from '@invertase/react-native-apple-authentication';
 
 // Components
 import { Input, Button, SocialButton, Header } from '@components/common';
@@ -68,38 +53,38 @@ const LoginScreen = ({ navigation }: Props) => {
     dispatch(clearError());
   }, [dispatch]);
 
-  // const handleLogin = async () => {
-  //   // Form validation
-  //   let valid = true;
+  const handleLogin = async () => {
+    // Form validation
+    let valid = true;
 
-  //   if (!email.trim()) {
-  //     setEmailError('Email is required');
-  //     valid = false;
-  //   } else if (!/\S+@\S+\.\S+/.test(email)) {
-  //     setEmailError('Please enter a valid email');
-  //     valid = false;
-  //   } else {
-  //     setEmailError('');
-  //   }
+    if (!email.trim()) {
+      setEmailError('Email is required');
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError('Please enter a valid email');
+      valid = false;
+    } else {
+      setEmailError('');
+    }
 
-  //   if (!password.trim()) {
-  //     setPasswordError('Password is required');
-  //     valid = false;
-  //   } else {
-  //     setPasswordError('');
-  //   }
+    if (!password.trim()) {
+      setPasswordError('Password is required');
+      valid = false;
+    } else {
+      setPasswordError('');
+    }
 
-  //   if (valid) {
-  //     dispatch(authStart());
-  //     try {
-  //       const response = await loginUser({ email, password });
-  //       dispatch(authSuccess({ user: response.user, token: response.token }));
-  //     } catch (error: any) {
-  //       const errorMessage = error.message || 'Login failed. Please try again.';
-  //       dispatch(authFailure(errorMessage));
-  //     }
-  //   }
-  // };
+    if (valid) {
+      dispatch(authStart());
+      // try {
+      //   const response = await loginUser({ email, password });
+      //   dispatch(authSuccess({ user: response.user, token: response.token }));
+      // } catch (error: any) {
+      //   const errorMessage = error.message || 'Login failed. Please try again.';
+      //   dispatch(authFailure(errorMessage));
+      // }
+    }
+  };
 
   // Google Login Handler
   const handleGoogleLogin = async () => {
@@ -259,13 +244,18 @@ const LoginScreen = ({ navigation }: Props) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header is placed outside the KeyboardAvoidingView to stay at top */}
+      <View style={styles.containerHeader}>
+        <Header />
+      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoidingView}>
-        <View style={styles.content}>
-          <Header />
-
-          <View style={styles.form}>
+        style={styles.keyboardAvoidingView}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.formContainer}>
             <Input
               label="Email"
               placeholder="Enter your email"
@@ -307,7 +297,7 @@ const LoginScreen = ({ navigation }: Props) => {
               variant="primary"
               size="md"
               fullWidth
-              // onPress={handleLogin}
+              onPress={handleLogin}
               loading={isLoading}
               disabled={isLoading}>
               Login
@@ -323,17 +313,16 @@ const LoginScreen = ({ navigation }: Props) => {
               Register
             </Button>
 
-
             <Button
-                variant="outline"
-                size="md"
-                fullWidth
-                onPress={handleGoogleLogout}
-                disabled={isLoading}
-                // style={styles.logoutButton}
-                >
-                Logout
-              </Button>
+              variant="outline"
+              size="md"
+              fullWidth
+              onPress={handleGoogleLogout}
+              disabled={isLoading}
+              // style={styles.logoutButton}
+            >
+              Logout
+            </Button>
 
             <View style={{ marginTop: theme.spacing.xl }}>
               <View style={styles.divider}>
@@ -343,11 +332,7 @@ const LoginScreen = ({ navigation }: Props) => {
               </View>
 
               <View style={styles.socialButtons}>
-              <SocialButton
-                  iconName="google"
-                  onPress={handleGoogleLogin}
-                  disabled={isLoading}
-                />
+                <SocialButton iconName="google" onPress={handleGoogleLogin} disabled={isLoading} />
                 <SocialButton
                   iconName="facebook"
                   // onPress={handleFacebookLogin}
@@ -363,7 +348,7 @@ const LoginScreen = ({ navigation }: Props) => {
               </View>
             </View>
           </View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -374,32 +359,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background.primary,
   },
+  containerHeader: {
+    paddingTop: 50,
+  },
+
   keyboardAvoidingView: {
     flex: 1,
   },
-  content: {
-    flex: 1,
-    padding: theme.spacing.lg,
-    justifyContent: 'center',
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.xl,
   },
-  header: {
-    alignItems: 'center',
-    marginBottom: theme.spacing.xl,
-  },
-  logo: {
-    fontSize: theme.typography.fontSize['3xl'],
-    fontFamily: theme.typography.fontFamily.bold,
-    color: theme.colors.white,
-    marginBottom: theme.spacing.xs,
-  },
-  tagline: {
-    fontSize: theme.typography.fontSize.md,
-    fontFamily: theme.typography.fontFamily.regular,
-    color: theme.colors.text.secondary,
-    fontStyle: 'italic',
-  },
-  form: {
+  formContainer: {
     width: '100%',
+    marginTop: theme.spacing.xl,
   },
   forgotPasswordContainer: {
     alignSelf: 'flex-end',

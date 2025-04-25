@@ -1,19 +1,12 @@
 import React, { useState } from 'react';
-import {
-  View,
-  TouchableOpacity,
-  Text,
-  Alert,
-  StyleSheet,
-  ScrollView,
-} from 'react-native';
+import { View, Text, Alert, StyleSheet, SafeAreaView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { AuthStackParamList } from '@navigation/AuthNavigator';
 import { requestPasswordReset } from '@services/authService';
 
 // Common Component Imports
-import { Input, Button } from '@components/common';
+import { Input, Button, Header } from '@components/common';
 import theme from '@theme/theme';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'ForgotPassword'>;
@@ -36,130 +29,109 @@ const ForgotPasswordScreen = ({ navigation }: Props) => {
     setMessage(null);
     setError(null);
 
-    try {
-      await requestPasswordReset({ email });
-      setMessage('If an account exists for this email, a password reset link has been sent.');
-    } catch (apiError: unknown) {
-      let errorMessage = 'Failed to send reset link. Please try again.';
-      if (apiError instanceof Error) {
-        errorMessage = apiError.message;
-      } else if (typeof apiError === 'object' && apiError !== null && 'message' in apiError && typeof apiError.message === 'string') {
-        errorMessage = apiError.message;
-      }
-      setError(errorMessage);
-      // Keep alert for now, but also display inline
-      Alert.alert('Error', errorMessage);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    navigation.navigate('OtpVerification');
 
-  const navigateToLogin = () => {
-    navigation.navigate('Login');
+    // try {
+    //   await requestPasswordReset({ email });
+    //   setMessage('If an account exists for this email, a password reset link has been sent.');
+    // } catch (apiError: unknown) {
+    //   let errorMessage = 'Failed to send reset link. Please try again.';
+    //   if (apiError instanceof Error) {
+    //     errorMessage = apiError.message;
+    //   } else if (
+    //     typeof apiError === 'object' &&
+    //     apiError !== null &&
+    //     'message' in apiError &&
+    //     typeof apiError.message === 'string'
+    //   ) {
+    //     errorMessage = apiError.message;
+    //   }
+    //   setError(errorMessage);
+    //   // Keep alert for now, but also display inline
+    //   Alert.alert('Error', errorMessage);
+    // } finally {
+    //   setIsLoading(false);
+    // }
   };
 
   return (
-    <ScrollView contentContainerStyle={styles.scrollContainer} keyboardShouldPersistTaps="handled">
-        <View style={styles.container}>
-            <Text style={styles.title}>Reset Password</Text>
-            <Text style={styles.subtitle}>Enter your email address below and we'll send you a link to reset your password.</Text>
+    <SafeAreaView style={styles.safeArea}>
+      {/* Header fixed at the top */}
+      <Header
+        showBackArrow={true}
+        onBackPress={() => navigation.goBack()}
+      />
 
-            <Input
-                label="Email"
-                placeholder="Enter your email"
-                value={email}
-                onChangeText={setEmail}
-                keyboardType="email-address"
-                autoCapitalize="none"
-                editable={!isLoading}
-                containerStyle={styles.input}
-            />
+      <View style={styles.contentContainer}>
+        {/* Top Section with Email Input */}
+        <View style={styles.topSection}>
+          <Text style={styles.label}>Email</Text>
+          <Input
+            placeholder="Enter Email"
+            value={email}
+            onChangeText={setEmail}
+            keyboardType="email-address"
+            autoCapitalize="none"
+            editable={!isLoading}
+          />
 
-            {/* Display Success/Error Message Inline */}
-            {message && <Text style={styles.successText}>{message}</Text>}
-            {error && <Text style={styles.errorText}>{error}</Text>}
-
-            <Button
-                onPress={handleResetPassword}
-                loading={isLoading}
-                disabled={isLoading}
-                fullWidth
-                style={styles.button}
-                variant="primary"
-            >
-                Send Reset Link
-            </Button>
-
-            {/* Back to Login */}
-            <TouchableOpacity 
-                onPress={navigateToLogin} 
-                disabled={isLoading} 
-                style={styles.backLinkContainer}
-            >
-                <Text style={styles.linkText}>Back to Login</Text>
-            </TouchableOpacity>
+          {/* Display Success/Error Message Inline */}
+          {message && <Text style={styles.successText}>{message}</Text>}
+          {error && <Text style={styles.errorText}>{error}</Text>}
         </View>
-    </ScrollView>
+
+        {/* Bottom Section with Button */}
+        <View style={styles.bottomSection}>
+          <Button
+            onPress={handleResetPassword}
+            loading={isLoading}
+            disabled={isLoading}
+            fullWidth
+            variant="primary">
+            Confirm
+          </Button>
+        </View>
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
-  scrollContainer: {
-    flexGrow: 1,
-    justifyContent: 'center',
-  },
-  container: {
+  safeArea: {
     flex: 1,
-    padding: theme.spacing.xl,
     backgroundColor: theme.colors.background.primary,
-    justifyContent: 'center',
+    paddingTop:40
   },
-  title: {
-    fontSize: theme.typography.fontSize['3xl'],
-    color: theme.colors.text.primary,
-    fontFamily: theme.typography.fontFamily.bold,
-    textAlign: 'center',
-    marginBottom: theme.spacing.md, // Less margin below title
+  contentContainer: {
+    flex: 1,
+    paddingHorizontal: 20,
+    justifyContent: 'space-between',
   },
-  subtitle: {
-    fontSize: theme.typography.fontSize.md,
+  topSection: {
+    paddingTop: 70,
+  },
+  label: {
+    fontSize: theme.typography.fontSize.lg,
     color: theme.colors.text.secondary,
-    fontFamily: theme.typography.fontFamily.regular,
-    textAlign: 'center',
-    marginBottom: theme.spacing.xl, // More margin below subtitle
+    marginBottom: 10,
+    fontFamily: theme.typography.fontFamily.medium,
   },
-  input: {
-    marginBottom: theme.spacing.lg,
-  },
-  button: {
-    marginTop: theme.spacing.lg, // More space above button
+  bottomSection: {
+    paddingBottom: 60,
+    width: '100%',
   },
   successText: {
     color: theme.colors.success,
-    textAlign: 'center',
-    marginBottom: theme.spacing.md,
+    marginTop: theme.spacing.md,
     fontSize: theme.typography.fontSize.sm,
     fontFamily: theme.typography.fontFamily.medium,
-    minHeight: theme.typography.lineHeight.sm * 2, // Reserve space for multi-line msg
   },
   errorText: {
     color: theme.colors.danger,
-    textAlign: 'center',
-    marginBottom: theme.spacing.md,
-    fontSize: theme.typography.fontSize.sm,
-    fontFamily: theme.typography.fontFamily.medium,
-    minHeight: theme.typography.lineHeight.sm * 2, // Reserve space for multi-line msg
-  },
-  backLinkContainer: {
-      marginTop: theme.spacing.xl,
-      alignItems: 'center',
-      paddingBottom: theme.spacing.md, 
-  },
-  linkText: {
-    color: theme.colors.text.link,
+    marginTop: theme.spacing.md,
     fontSize: theme.typography.fontSize.sm,
     fontFamily: theme.typography.fontFamily.medium,
   },
 });
 
-export default ForgotPasswordScreen; 
+export default ForgotPasswordScreen;
