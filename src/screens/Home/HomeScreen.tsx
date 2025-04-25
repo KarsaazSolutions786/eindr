@@ -1,22 +1,16 @@
 import React from 'react';
 import { View, Text, Button, StyleSheet } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import type { RootStackParamList } from '@navigation/RootNavigator'; // Import the type
+import { AuthStackParamList } from '@navigation/AuthNavigator';
 
 // Define props type for HomeScreen using the RootStackParamList
-type HomeScreenProps = NativeStackScreenProps<RootStackParamList, 'Home'>;
+type Props = NativeStackScreenProps<AuthStackParamList, 'Home'>;
 
-const HomeScreen: React.FC<HomeScreenProps> = ({ navigation }) => {
+const HomeScreen = ({ navigation }: Props) => {
   return (
     <View style={styles.container}>
       <Text style={styles.text}>Home Screen</Text>
-      <Button
-        title="Go to Details"
-        onPress={() => navigation.navigate('Details', { 
-          itemId: 86, 
-          otherParam: 'anything you want here' 
-        })} // Navigate to Details with parameters
-      />
+      <Button title="Go to Details" />
     </View>
   );
 };
@@ -33,4 +27,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default HomeScreen; 
+export default HomeScreen;

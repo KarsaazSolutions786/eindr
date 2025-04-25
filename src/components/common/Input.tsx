@@ -53,7 +53,7 @@ const Input: React.FC<InputProps> = ({
         {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
         <TextInput
           style={[styles.input, leftIcon ? styles.inputWithIcon : null, style]}
-          placeholderTextColor={theme.colors.text.placeholder}
+          placeholderTextColor={`${theme.colors.text.placeholder}33`}
           secureTextEntry={effectiveSecureTextEntry}
           {...props}
         />

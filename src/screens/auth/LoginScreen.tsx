@@ -9,6 +9,7 @@ import {
   Platform,
   SafeAreaView,
   Alert,
+  ScrollView,
 } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -19,23 +20,6 @@ import { authStart, authSuccess, authFailure, clearError } from '@store/slices/a
 import { RootState } from '@store/rootReducer';
 import { AppDispatch } from '@store/index';
 import { AuthStackParamList } from '@navigation/AuthNavigator';
-
-// API Services
-import {
-  loginUser,
-  loginWithGoogle,
-  loginWithFacebook,
-  loginWithApple,
-} from '@services/authService';
-
-// Social Login SDK Imports
-import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
-import { LoginManager, AccessToken } from 'react-native-fbsdk-next';
-// import appleAuth, {
-//   AppleButton,
-//   AppleRequestOperation,
-//   AppleRequestScope,
-// } from '@invertase/react-native-apple-authentication';
 
 // Components
 import { Input, Button, SocialButton, Header } from '@components/common';
@@ -54,189 +38,36 @@ const LoginScreen = ({ navigation }: Props) => {
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
 
-  // Google SignIn configuration
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: 'YOUR_GOOGLE_WEB_CLIENT_ID.apps.googleusercontent.com', // Replace this
-      offlineAccess: false,
-    });
-  }, []);
-
   // Clear any previous auth errors when component mounts
   useEffect(() => {
     dispatch(clearError());
   }, [dispatch]);
 
-  // const handleLogin = async () => {
-  //   // Form validation
-  //   let valid = true;
+  const handleLogin = async () => {
+    // Form validation
+    let valid = true;
 
-  //   if (!email.trim()) {
-  //     setEmailError('Email is required');
-  //     valid = false;
-  //   } else if (!/\S+@\S+\.\S+/.test(email)) {
-  //     setEmailError('Please enter a valid email');
-  //     valid = false;
-  //   } else {
-  //     setEmailError('');
-  //   }
+    if (!email.trim()) {
+      setEmailError('Email is required');
+      valid = false;
+    } else if (!/\S+@\S+\.\S+/.test(email)) {
+      setEmailError('Please enter a valid email');
+      valid = false;
+    } else {
+      setEmailError('');
+    }
 
-  //   if (!password.trim()) {
-  //     setPasswordError('Password is required');
-  //     valid = false;
-  //   } else {
-  //     setPasswordError('');
-  //   }
+    if (!password.trim()) {
+      setPasswordError('Password is required');
+      valid = false;
+    } else {
+      setPasswordError('');
+    }
 
-  //   if (valid) {
-  //     dispatch(authStart());
-  //     try {
-  //       const response = await loginUser({ email, password });
-  //       dispatch(authSuccess({ user: response.user, token: response.token }));
-  //     } catch (error: any) {
-  //       const errorMessage = error.message || 'Login failed. Please try again.';
-  //       dispatch(authFailure(errorMessage));
-  //     }
-  //   }
-  // };
-
-  // Google Login Handler
-  // const handleGoogleLogin = async () => {
-  //   dispatch(authStart());
-  //   try {
-  //     await GoogleSignin.hasPlayServices();
-  //     const userInfo = await GoogleSignin.signIn();
-  //     // const idToken = userInfo.idToken;
-
-  //     if (idToken) {
-  //       console.log('Google Sign-In Success, ID Token:', idToken);
-  //       const response = await loginWithGoogle(idToken);
-  //       dispatch(authSuccess({ user: response.user, token: response.token }));
-  //     } else {
-  //       throw new Error('Google Sign-In failed: No ID token received in response');
-  //     }
-  //   } catch (error: unknown) {
-  //     let errorMessage = 'Google Sign-In failed.';
-  //     if (typeof error === 'object' && error !== null && 'code' in error) {
-  //       const gError = error as { code: string | number; message?: string };
-  //       if (gError.code === statusCodes.SIGN_IN_CANCELLED) {
-  //         errorMessage = 'Google Sign-In cancelled.';
-  //         dispatch(authFailure(''));
-  //         console.log(errorMessage);
-  //         return;
-  //       } else if (gError.code === statusCodes.IN_PROGRESS) {
-  //         errorMessage = 'Google Sign-In is already in progress.';
-  //         dispatch(authFailure(''));
-  //         console.log(errorMessage);
-  //         return;
-  //       } else if (gError.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-  //         errorMessage = 'Google Play Services not available or outdated.';
-  //       } else {
-  //         errorMessage = `Google Sign-In Error (${gError.code}): ${
-  //           gError.message || 'Unknown error'
-  //         }`;
-  //       }
-  //     } else if (error instanceof Error) {
-  //       errorMessage = error.message;
-  //     }
-
-  //     if (
-  //       errorMessage &&
-  //       !(errorMessage.includes('cancelled') || errorMessage.includes('in progress'))
-  //     ) {
-  //       dispatch(authFailure(errorMessage));
-  //       Alert.alert('Login Failed', errorMessage);
-  //     } else if (errorMessage) {
-  //       console.log(errorMessage);
-  //     } else {
-  //       dispatch(authFailure('An unknown login error occurred.'));
-  //       Alert.alert('Login Failed', 'An unknown error occurred.');
-  //     }
-  //     console.error('Google Sign-In Error:', error);
-  //   }
-  // };
-
-  // Facebook Login Handler
-  // const handleFacebookLogin = async () => {
-  //   dispatch(authStart());
-  //   try {
-  //     const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
-  //     if (result.isCancelled) {
-  //       console.log('Facebook Login cancelled');
-  //       dispatch(authFailure(''));
-  //       return;
-  //     }
-  //     const data = await AccessToken.getCurrentAccessToken();
-  //     if (!data?.accessToken) {
-  //       throw new Error('Something went wrong obtaining the Facebook access token');
-  //     }
-  //     console.log('Facebook Login Success, Access Token:', data.accessToken);
-  //     const response = await loginWithFacebook(data.accessToken);
-  //     dispatch(authSuccess({ user: response.user, token: response.token }));
-  //   } catch (error: unknown) {
-  //     let errorMessage = 'Facebook Login failed.';
-  //     if (error instanceof Error) {
-  //       errorMessage = error.message;
-  //     } else {
-  //       errorMessage = 'An unknown Facebook login error occurred.';
-  //     }
-  //     dispatch(authFailure(errorMessage));
-  //     Alert.alert('Login Failed', errorMessage);
-  //     console.error('Facebook Login Error:', error);
-  //   }
-  // };
-
-  // Apple Login Handler
-  // const handleAppleLogin = async () => {
-  //   if (Platform.OS !== 'ios') return;
-  //   dispatch(authStart());
-  //   try {
-  //     const appleAuthRequestResponse = await appleAuth.performRequest({
-  //       requestedOperation: AppleRequestOperation.LOGIN,
-  //       requestedScopes: [AppleRequestScope.EMAIL, AppleRequestScope.FULL_NAME],
-  //     });
-
-  //     const { identityToken } = appleAuthRequestResponse;
-
-  //     if (!identityToken) {
-  //       throw new Error('Apple Sign-In failed: No identity token received');
-  //     }
-
-  //     console.log('Apple Sign-In Success, Identity Token:', identityToken);
-  //     const response = await loginWithApple(identityToken);
-  //     dispatch(authSuccess({ user: response.user, token: response.token }));
-  //   } catch (error: unknown) {
-  //     let errorMessage = 'Apple Sign-In failed.';
-  //     if (typeof error === 'object' && error !== null && 'code' in error) {
-  //       const appleError = error as { code: string; message?: string };
-  //       if (appleError.code === appleAuth.Error.CANCELED) {
-  //         errorMessage = 'Apple Sign-In cancelled.';
-  //         dispatch(authFailure(''));
-  //         console.log(errorMessage);
-  //         return;
-  //       } else {
-  //         errorMessage = `Apple Sign-In Error (${appleError.code}): ${
-  //           appleError.message || 'Unknown error'
-  //         }`;
-  //       }
-  //     } else if (error instanceof Error) {
-  //       errorMessage = error.message;
-  //     } else {
-  //       errorMessage = 'An unknown Apple Sign-In error occurred.';
-  //     }
-
-  //     if (errorMessage && !errorMessage.includes('cancelled')) {
-  //       dispatch(authFailure(errorMessage));
-  //       Alert.alert('Login Failed', errorMessage);
-  //     } else if (errorMessage) {
-  //       console.log(errorMessage);
-  //     } else {
-  //       dispatch(authFailure('An unknown login error occurred.'));
-  //       Alert.alert('Login Failed', 'An unknown error occurred.');
-  //     }
-  //     console.error('Apple Sign-In Error:', error);
-  //   }
-  // };
+    if (valid) {
+      navigation.navigate('Home');
+    }
+  };
 
   const navigateToRegister = () => {
     navigation.navigate('Register');
@@ -248,13 +79,18 @@ const LoginScreen = ({ navigation }: Props) => {
 
   return (
     <SafeAreaView style={styles.container}>
+      {/* Header is placed outside the KeyboardAvoidingView to stay at top */}
+      <View style={styles.containerHeader}>
+        <Header />
+      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardAvoidingView}>
-        <View style={styles.content}>
-          <Header />
-
-          <View style={styles.form}>
+        style={styles.keyboardAvoidingView}
+        keyboardVerticalOffset={Platform.OS === 'ios' ? 0 : 20}>
+        <ScrollView
+          contentContainerStyle={styles.scrollContent}
+          showsVerticalScrollIndicator={false}>
+          <View style={styles.formContainer}>
             <Input
               label="Email"
               placeholder="Enter your email"
@@ -296,7 +132,7 @@ const LoginScreen = ({ navigation }: Props) => {
               variant="primary"
               size="md"
               fullWidth
-              // onPress={handleLogin}
+              onPress={handleLogin}
               loading={isLoading}
               disabled={isLoading}>
               Login
@@ -312,35 +148,19 @@ const LoginScreen = ({ navigation }: Props) => {
               Register
             </Button>
 
-            <View style={{ marginTop: theme.spacing.xl }}>
-              <View style={styles.divider}>
-                <View style={styles.dividerLine} />
-                <Text style={styles.dividerText}>Or sign in with</Text>
-                <View style={styles.dividerLine} />
-              </View>
+            <View style={styles.divider}>
+              <View style={styles.dividerLine} />
+              <Text style={styles.dividerText}>Or sign in with</Text>
+              <View style={styles.dividerLine} />
+            </View>
 
-              <View style={styles.socialButtons}>
-                <SocialButton
-                  iconName="google"
-                  // onPress={handleGoogleLogin}
-                  disabled={isLoading}
-                />
-                <SocialButton
-                  iconName="facebook"
-                  // onPress={handleFacebookLogin}
-                  disabled={isLoading}
-                />
-                {Platform.OS === 'ios' && (
-                  <SocialButton
-                    iconName="apple"
-                    //  onPress={handleAppleLogin}
-                    disabled={isLoading}
-                  />
-                )}
-              </View>
+            <View style={styles.socialButtons}>
+              <SocialButton iconName="google" disabled={isLoading} />
+              <SocialButton iconName="facebook" disabled={isLoading} />
+              {Platform.OS === 'ios' && <SocialButton iconName="apple" disabled={isLoading} />}
             </View>
           </View>
-        </View>
+        </ScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );
@@ -351,32 +171,22 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: theme.colors.background.primary,
   },
+  containerHeader: {
+  paddingTop:50
+  },
+
   keyboardAvoidingView: {
     flex: 1,
   },
-  content: {
-    flex: 1,
-    padding: theme.spacing.lg,
-    justifyContent: 'center',
+  scrollContent: {
+    flexGrow: 1,
+    paddingHorizontal: theme.spacing.lg,
+    paddingTop: theme.spacing.md,
+    paddingBottom: theme.spacing.xl,
   },
-  header: {
-    alignItems: 'center',
-    marginBottom: theme.spacing.xl,
-  },
-  logo: {
-    fontSize: theme.typography.fontSize['3xl'],
-    fontFamily: theme.typography.fontFamily.bold,
-    color: theme.colors.white,
-    marginBottom: theme.spacing.xs,
-  },
-  tagline: {
-    fontSize: theme.typography.fontSize.md,
-    fontFamily: theme.typography.fontFamily.regular,
-    color: theme.colors.text.secondary,
-    fontStyle: 'italic',
-  },
-  form: {
+  formContainer: {
     width: '100%',
+    marginTop: theme.spacing.xl,
   },
   forgotPasswordContainer: {
     alignSelf: 'flex-end',
