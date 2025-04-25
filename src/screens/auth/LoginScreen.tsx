@@ -13,6 +13,7 @@ import {
 import { useDispatch, useSelector } from 'react-redux';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Config from 'react-native-config';
 
 // Redux and Navigation
 import { authStart, authSuccess, authFailure, clearError } from '@store/slices/authSlice';
@@ -57,7 +58,7 @@ const LoginScreen = ({ navigation }: Props) => {
   // Google SignIn configuration
   useEffect(() => {
     GoogleSignin.configure({
-      webClientId: 'YOUR_GOOGLE_WEB_CLIENT_ID.apps.googleusercontent.com', // Replace this
+      webClientId: Config.WEB_CLIENT_ID,
       offlineAccess: false,
     });
   }, []);
@@ -101,60 +102,70 @@ const LoginScreen = ({ navigation }: Props) => {
   // };
 
   // Google Login Handler
-  // const handleGoogleLogin = async () => {
-  //   dispatch(authStart());
-  //   try {
-  //     await GoogleSignin.hasPlayServices();
-  //     const userInfo = await GoogleSignin.signIn();
-  //     // const idToken = userInfo.idToken;
+  const handleGoogleLogin = async () => {
+    dispatch(authStart());
+    try {
+      await GoogleSignin.hasPlayServices();
+      const userInfo = await GoogleSignin.signIn();
+      const idToken = userInfo?.data?.idToken;
+      if (idToken) {
+        console.log('idToken', idToken);
+        // const response = await loginWithGoogle(idToken);
+        // dispatch(authSuccess({ user: response.user, token: response.token }));
+      } else {
+        throw new Error('Google Sign-In failed: No ID token received in response');
+      }
+    } catch (error: unknown) {
+      let errorMessage = 'Google Sign-In failed.';
+      if (typeof error === 'object' && error !== null && 'code' in error) {
+        const gError = error as { code: string | number; message?: string };
+        if (gError.code === statusCodes.SIGN_IN_CANCELLED) {
+          errorMessage = 'Google Sign-In cancelled.';
+          dispatch(authFailure(''));
+          console.log(errorMessage);
+          return;
+        } else if (gError.code === statusCodes.IN_PROGRESS) {
+          errorMessage = 'Google Sign-In is already in progress.';
+          dispatch(authFailure(''));
+          console.log(errorMessage);
+          return;
+        } else if (gError.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
+          errorMessage = 'Google Play Services not available or outdated.';
+        } else {
+          errorMessage = `Google Sign-In Error (${gError.code}): ${
+            gError.message || 'Unknown error'
+          }`;
+        }
+      } else if (error instanceof Error) {
+        errorMessage = error.message;
+      }
 
-  //     if (idToken) {
-  //       console.log('Google Sign-In Success, ID Token:', idToken);
-  //       const response = await loginWithGoogle(idToken);
-  //       dispatch(authSuccess({ user: response.user, token: response.token }));
-  //     } else {
-  //       throw new Error('Google Sign-In failed: No ID token received in response');
-  //     }
-  //   } catch (error: unknown) {
-  //     let errorMessage = 'Google Sign-In failed.';
-  //     if (typeof error === 'object' && error !== null && 'code' in error) {
-  //       const gError = error as { code: string | number; message?: string };
-  //       if (gError.code === statusCodes.SIGN_IN_CANCELLED) {
-  //         errorMessage = 'Google Sign-In cancelled.';
-  //         dispatch(authFailure(''));
-  //         console.log(errorMessage);
-  //         return;
-  //       } else if (gError.code === statusCodes.IN_PROGRESS) {
-  //         errorMessage = 'Google Sign-In is already in progress.';
-  //         dispatch(authFailure(''));
-  //         console.log(errorMessage);
-  //         return;
-  //       } else if (gError.code === statusCodes.PLAY_SERVICES_NOT_AVAILABLE) {
-  //         errorMessage = 'Google Play Services not available or outdated.';
-  //       } else {
-  //         errorMessage = `Google Sign-In Error (${gError.code}): ${
-  //           gError.message || 'Unknown error'
-  //         }`;
-  //       }
-  //     } else if (error instanceof Error) {
-  //       errorMessage = error.message;
-  //     }
+      if (
+        errorMessage &&
+        !(errorMessage.includes('cancelled') || errorMessage.includes('in progress'))
+      ) {
+        dispatch(authFailure(errorMessage));
+        Alert.alert('Login Failed', errorMessage);
+      } else if (errorMessage) {
+        console.log(errorMessage);
+      } else {
+        dispatch(authFailure('An unknown login error occurred.'));
+        Alert.alert('Login Failed', 'An unknown error occurred.');
+      }
+      console.error('Google Sign-In Error:', error);
+    }
+  };
 
-  //     if (
-  //       errorMessage &&
-  //       !(errorMessage.includes('cancelled') || errorMessage.includes('in progress'))
-  //     ) {
-  //       dispatch(authFailure(errorMessage));
-  //       Alert.alert('Login Failed', errorMessage);
-  //     } else if (errorMessage) {
-  //       console.log(errorMessage);
-  //     } else {
-  //       dispatch(authFailure('An unknown login error occurred.'));
-  //       Alert.alert('Login Failed', 'An unknown error occurred.');
-  //     }
-  //     console.error('Google Sign-In Error:', error);
-  //   }
-  // };
+  // Google Logout Handler
+  const handleGoogleLogout = async () => {
+    try {
+      await GoogleSignin.signOut();
+      console.log('Google Sign-Out Success');
+      dispatch(authFailure(''));
+    } catch (error) {
+      console.error('Google Sign-Out Error:', error);
+    }
+  };
 
   // Facebook Login Handler
   // const handleFacebookLogin = async () => {
@@ -312,6 +323,18 @@ const LoginScreen = ({ navigation }: Props) => {
               Register
             </Button>
 
+
+            <Button
+                variant="outline"
+                size="md"
+                fullWidth
+                onPress={handleGoogleLogout}
+                disabled={isLoading}
+                // style={styles.logoutButton}
+                >
+                Logout
+              </Button>
+
             <View style={{ marginTop: theme.spacing.xl }}>
               <View style={styles.divider}>
                 <View style={styles.dividerLine} />
@@ -320,9 +343,9 @@ const LoginScreen = ({ navigation }: Props) => {
               </View>
 
               <View style={styles.socialButtons}>
-                <SocialButton
+              <SocialButton
                   iconName="google"
-                  // onPress={handleGoogleLogin}
+                  onPress={handleGoogleLogin}
                   disabled={isLoading}
                 />
                 <SocialButton

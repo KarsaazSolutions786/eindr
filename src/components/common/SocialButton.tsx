@@ -35,11 +35,13 @@ const SocialButton: React.FC<SocialButtonProps> = ({
             borderRadius: size / 2, // Make it circular
             borderColor: borderColor,
           },
+          
         ]}>
         <FontAwesome
           name={iconName}
           size={iconSize ?? defaultIconSize} // Use provided iconSize or default
           color={iconColor}
+          
         />
       </View>
     </TouchableOpacity>
