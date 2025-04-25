@@ -26,13 +26,18 @@ import { AuthStackParamList } from '@navigation/AuthNavigator';
 // Components
 import { Input, Button, SocialButton, Header } from '@components/common';
 import theme from '@theme/theme';
+import { AccessToken } from 'react-native-fbsdk-next';
+import { LoginManager } from 'react-native-fbsdk-next';
+import { loginWithFacebook } from '@services/authService';
 
 type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
 
 const LoginScreen = ({ navigation }: Props) => {
   // Redux state and dispatch
   const dispatch = useDispatch<AppDispatch>();
-  const { isLoading, error } = useSelector((state: RootState) => state.auth);
+  // const { isLoading, error } = useSelector((state: RootState) => state.auth);
+  const { error } = useSelector((state: RootState) => state.auth);
+  const [isLoading, setIsLoading] = useState(false);
 
   // Form state
   const [email, setEmail] = useState('');
@@ -75,7 +80,7 @@ const LoginScreen = ({ navigation }: Props) => {
     }
 
     if (valid) {
-      dispatch(authStart());
+      // dispatch(authStart());
       // try {
       //   const response = await loginUser({ email, password });
       //   dispatch(authSuccess({ user: response.user, token: response.token }));
@@ -153,34 +158,34 @@ const LoginScreen = ({ navigation }: Props) => {
   };
 
   // Facebook Login Handler
-  // const handleFacebookLogin = async () => {
-  //   dispatch(authStart());
-  //   try {
-  //     const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
-  //     if (result.isCancelled) {
-  //       console.log('Facebook Login cancelled');
-  //       dispatch(authFailure(''));
-  //       return;
-  //     }
-  //     const data = await AccessToken.getCurrentAccessToken();
-  //     if (!data?.accessToken) {
-  //       throw new Error('Something went wrong obtaining the Facebook access token');
-  //     }
-  //     console.log('Facebook Login Success, Access Token:', data.accessToken);
-  //     const response = await loginWithFacebook(data.accessToken);
-  //     dispatch(authSuccess({ user: response.user, token: response.token }));
-  //   } catch (error: unknown) {
-  //     let errorMessage = 'Facebook Login failed.';
-  //     if (error instanceof Error) {
-  //       errorMessage = error.message;
-  //     } else {
-  //       errorMessage = 'An unknown Facebook login error occurred.';
-  //     }
-  //     dispatch(authFailure(errorMessage));
-  //     Alert.alert('Login Failed', errorMessage);
-  //     console.error('Facebook Login Error:', error);
-  //   }
-  // };
+  const handleFacebookLogin = async () => {
+    dispatch(authStart());
+    try {
+      const result = await LoginManager.logInWithPermissions(['public_profile', 'email']);
+      if (result.isCancelled) {
+        console.log('Facebook Login cancelled');
+        dispatch(authFailure(''));
+        return;
+      }
+      const data = await AccessToken.getCurrentAccessToken();
+      if (!data?.accessToken) {
+        throw new Error('Something went wrong obtaining the Facebook access token');
+      }
+      console.log('Facebook Login Success, Access Token:', data.accessToken);
+      // const response = await loginWithFacebook(data.accessToken);
+      // dispatch(authSuccess({ user: response.user, token: response.token }));
+    } catch (error: unknown) {
+      let errorMessage = 'Facebook Login failed.';
+      if (error instanceof Error) {
+        errorMessage = error.message;
+      } else {
+        errorMessage = 'An unknown Facebook login error occurred.';
+      }
+      dispatch(authFailure(errorMessage));
+      Alert.alert('Login Failed', errorMessage);
+      console.error('Facebook Login Error:', error);
+    }
+  };
 
   // Apple Login Handler
   // const handleAppleLogin = async () => {
@@ -335,7 +340,7 @@ const LoginScreen = ({ navigation }: Props) => {
                 <SocialButton iconName="google" onPress={handleGoogleLogin} disabled={isLoading} />
                 <SocialButton
                   iconName="facebook"
-                  // onPress={handleFacebookLogin}
+                  onPress={handleFacebookLogin}
                   disabled={isLoading}
                 />
                 {Platform.OS === 'ios' && (
