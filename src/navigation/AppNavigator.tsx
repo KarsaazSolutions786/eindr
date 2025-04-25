@@ -2,7 +2,6 @@ import React from 'react';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 
 // Import Screens
-import HomeScreen from '@screens/app/HomeScreen';
 import RemindersScreen from '@screens/app/RemindersScreen';
 import NotesScreen from '@screens/app/NotesScreen';
 import FriendsScreen from '@screens/app/FriendsScreen';
@@ -10,6 +9,7 @@ import SettingsScreen from '@screens/app/SettingsScreen';
 
 // Import Custom Tab Bar (We will create this next)
 import CustomTabBar from './CustomTabBar'; 
+import HomeScreen from '@screens/Home/HomeScreen';
 
 // Define Param List
 export type AppTabParamList = {
