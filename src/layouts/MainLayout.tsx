@@ -17,8 +17,6 @@ interface MainLayoutProps {
     onProfilePress?: () => void;
     profileImage?: string;
   };
-  currentTab?: string;
-  onTabPress?: (tabKey: string) => void;
 }
 
 const MainLayout: React.FC<MainLayoutProps> = ({
@@ -26,16 +24,12 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   showHeader = true,
   showBottomBar = true,
   headerProps,
-  currentTab = 'notes',
-  onTabPress,
 }) => {
   return (
     <View style={styles.container}>
       {showHeader && <Header {...headerProps} />}
-
       <View style={styles.content}>{children}</View>
-
-      {showBottomBar && <BottomBar activeTab={currentTab} onTabPress={onTabPress || (() => {})} />}
+      {showBottomBar && <BottomBar />}
     </View>
   );
 };
@@ -43,7 +37,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background.primary,
   },
   content: {
     flex: 1,

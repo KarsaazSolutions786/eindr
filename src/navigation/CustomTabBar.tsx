@@ -22,7 +22,6 @@ interface PopupItem {
 
 // Define the items for the popup
 const popupItems: PopupItem[] = [
-  { label: 'Notes', iconName: 'note-text-outline', targetRoute: 'Notes' },
   { label: 'Friends', iconName: 'account-group-outline', targetRoute: 'Friends' },
   { label: 'Settings', iconName: 'cog-outline', targetRoute: 'Settings' },
   // Add other items here if needed
@@ -53,100 +52,100 @@ const CustomTabBar: React.FC<BottomTabBarProps> = ({ state, descriptors, navigat
 
   return (
     <View style={styles.outerContainer}>
-        {/* Optional: Add a subtle glow effect using shadow or a blurred view underneath */}
-        <View style={styles.tabBarContainer}>
-          {/* Hardcoded Tab Items for Home, Reminders, More */}
-          
-          {/* Home Button */}
-          <TabButton
-            routeName="Home"
-            iconName="home-variant-outline"
-            isFocused={focusedRouteName === 'Home'}
-            onPress={() => navigation.navigate('Home')}
-            label="Home"
-          />
+      {/* Optional: Add a subtle glow effect using shadow or a blurred view underneath */}
+      <View style={styles.tabBarContainer}>
+        {/* Hardcoded Tab Items for Home, Reminders, More */}
 
-          {/* Reminders Button */}
-          <TabButton
-            routeName="Reminders"
-            iconName="calendar-check-outline" // Using calendar-check
-            isFocused={focusedRouteName === 'Reminders'}
-            onPress={() => navigation.navigate('Reminders')}
-            label="Reminders" // Label for focused state
-          />
+        {/* Home Button */}
+        <TabButton
+          routeName="Home"
+          iconName="home-variant-outline"
+          isFocused={focusedRouteName === 'Home'}
+          onPress={() => navigation.navigate('Home')}
+          label="Home"
+        />
 
-          {/* More Button */}
-          <TabButton
-            routeName="More" // This is a logical route name for the button
-            iconName="dots-grid"
-            isFocused={isMoreSectionActive} // Focused if any popup route is active
-            onPress={onMorePress}
-            label="More" // Label for focused state
-          />
-        </View>
+        {/* Reminders Button */}
+        <TabButton
+          routeName="Reminders"
+          iconName="calendar-check-outline" // Using calendar-check
+          isFocused={focusedRouteName === 'Reminders'}
+          onPress={() => navigation.navigate('Reminders')}
+          label="Reminders" // Label for focused state
+        />
 
-        {/* Popup Modal for More */}
-        <Modal
-          transparent={true}
-          visible={isPopupVisible}
-          animationType="fade"
-          onRequestClose={() => setPopupVisible(false)}
-        >
-          <TouchableWithoutFeedback onPress={() => setPopupVisible(false)}>
-            <View style={styles.popupOverlay} >
-                {/* Position the popup content above the More button */}
-                {/* Calculation might need adjustment based on actual layout */}
-                <View style={styles.popupContent}>
-                  {popupItems.map((item) => (
-                    <TouchableOpacity
-                      key={item.targetRoute}
-                      style={styles.popupItem}
-                      onPress={() => onPopupItemPress(item.targetRoute)}
-                    >
-                      <Icon name={item.iconName} size={22} color={theme.colors.text.primary} />
-                      <Text style={styles.popupItemText}>{item.label}</Text>
-                    </TouchableOpacity>
-                  ))}
-                </View>
-              </View>
-            </TouchableWithoutFeedback>
-        </Modal>
+        {/* More Button */}
+        <TabButton
+          routeName="More" // This is a logical route name for the button
+          iconName="dots-grid"
+          isFocused={isMoreSectionActive} // Focused if any popup route is active
+          onPress={onMorePress}
+          label="More" // Label for focused state
+        />
+      </View>
+
+      {/* Popup Modal for More */}
+      <Modal
+        transparent={true}
+        visible={isPopupVisible}
+        animationType="fade"
+        onRequestClose={() => setPopupVisible(false)}>
+        <TouchableWithoutFeedback onPress={() => setPopupVisible(false)}>
+          <View style={styles.popupOverlay}>
+            {/* Position the popup content above the More button */}
+            {/* Calculation might need adjustment based on actual layout */}
+            <View style={styles.popupContent}>
+              {popupItems.map(item => (
+                <TouchableOpacity
+                  key={item.targetRoute}
+                  style={styles.popupItem}
+                  onPress={() => onPopupItemPress(item.targetRoute)}>
+                  <Icon name={item.iconName} size={22} color={theme.colors.text.primary} />
+                  <Text style={styles.popupItemText}>{item.label}</Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        </TouchableWithoutFeedback>
+      </Modal>
     </View>
   );
 };
 
 // Reusable Tab Button Component within the file
 interface TabButtonProps {
-    routeName: string;
-    iconName: string;
-    isFocused: boolean;
-    onPress: () => void;
-    label?: string; // Label is optional, shown when focused
+  routeName: string;
+  iconName: string;
+  isFocused: boolean;
+  onPress: () => void;
+  label?: string; // Label is optional, shown when focused
 }
 
-const TabButton: React.FC<TabButtonProps> = ({ routeName, iconName, isFocused, onPress, label }) => {
-    return (
-        <TouchableOpacity
-            style={styles.tabButton}
-            accessibilityRole="button"
-            accessibilityState={isFocused ? { selected: true } : {}}
-            onPress={onPress}
-            activeOpacity={0.7}
-        >
-            <View style={[styles.iconContainer, isFocused && styles.iconContainerFocused]}>
-                <Icon 
-                    name={iconName} 
-                    size={26} 
-                    color={isFocused ? theme.colors.text.primary : theme.colors.text.secondary}
-                />
-                {isFocused && label && (
-                    <Text style={styles.labelText}>{label}</Text>
-                )}
-            </View>
-        </TouchableOpacity>
-    );
+const TabButton: React.FC<TabButtonProps> = ({
+  routeName,
+  iconName,
+  isFocused,
+  onPress,
+  label,
+}) => {
+  return (
+    <TouchableOpacity
+      style={styles.tabButton}
+      accessibilityRole="button"
+      accessibilityState={isFocused ? { selected: true } : {}}
+      onPress={onPress}
+      activeOpacity={0.7}>
+      <View style={[styles.iconContainer, isFocused && styles.iconContainerFocused]}>
+        <Icon
+          name={iconName}
+          size={26}
+          color={isFocused ? theme.colors.text.primary : theme.colors.text.secondary}
+        />
+        {isFocused && label && <Text style={styles.labelText}>{label}</Text>}
+      </View>
+    </TouchableOpacity>
+  );
 };
-
 
 const styles = StyleSheet.create({
   outerContainer: {
@@ -155,7 +154,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     // Add padding or margin if needed to lift the bar slightly
-    paddingBottom: Platform.OS === 'ios' ? theme.spacing.lg : theme.spacing.md, 
+    paddingBottom: Platform.OS === 'ios' ? theme.spacing.lg : theme.spacing.md,
     paddingHorizontal: theme.spacing.md,
   },
   tabBarContainer: {
@@ -167,7 +166,7 @@ const styles = StyleSheet.create({
     paddingVertical: theme.spacing.sm, // Vertical padding for the bar
     paddingHorizontal: theme.spacing.sm,
     // Shadow/Glow effect (adjust as needed)
-    shadowColor: theme.colors.accentStroke, 
+    shadowColor: theme.colors.accentStroke,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.6,
     shadowRadius: 10,
@@ -201,9 +200,9 @@ const styles = StyleSheet.create({
   },
   // Popup Styles
   popupOverlay: {
-      flex: 1,
-      // Semi-transparent background if needed, but positioning is key
-      // backgroundColor: 'rgba(0, 0, 0, 0.1)', 
+    flex: 1,
+    // Semi-transparent background if needed, but positioning is key
+    // backgroundColor: 'rgba(0, 0, 0, 0.1)',
   },
   popupContent: {
     position: 'absolute',
@@ -230,4 +229,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default CustomTabBar; 
+export default CustomTabBar;

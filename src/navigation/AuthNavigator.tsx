@@ -10,7 +10,7 @@ import OtpVerificationScreen from '@screens/Auth/OtpVerificationScreen';
 import NewPasswordScreen from '@screens/Auth/NewPasswordScreen';
 import PasswordResetSuccessScreen from '@screens/Auth/PasswordResetSuccessScreen';
 import RegisteredScreen from '@screens/Auth/RegisteredScreen';
-import HomeScreen from '@screens/Home/HomeScreen';
+// import HomeScreen from '@screens/Home/HomeScreen';
 
 // Update your AuthStackParamList type
 export type AuthStackParamList = {
@@ -21,7 +21,7 @@ export type AuthStackParamList = {
   NewPassword: undefined;
   PasswordResetSuccess: undefined;
   Registered: undefined;
-  Home: undefined;
+  // Home: undefined;
 };
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
@@ -41,7 +41,7 @@ const AuthNavigator = () => {
       <Stack.Screen name="NewPassword" component={NewPasswordScreen} />
       <Stack.Screen name="PasswordResetSuccess" component={PasswordResetSuccessScreen} />
       <Stack.Screen name="Registered" component={RegisteredScreen} />
-      <Stack.Screen name="Home" component={HomeScreen} />
+      {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
     </Stack.Navigator>
   );
 };

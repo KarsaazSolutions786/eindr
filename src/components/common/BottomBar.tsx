@@ -1,41 +1,36 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, Platform, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Platform } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { BlurView } from '@react-native-community/blur';
 import theme from '@theme/theme';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { AppStackParamList } from '../../navigation/AppNavigator';
 
 type TabItem = {
-  key: string;
+  key: keyof AppStackParamList;
   icon: string;
   label?: string;
   isMain?: boolean;
 };
 
-interface BottomBarProps {
-  activeTab: string;
-  onTabPress: (tabKey: string) => void;
-}
-
 const TABS: TabItem[] = [
-  { key: 'calendar', icon: 'calendar-today' },
-  { key: 'scan', icon: 'crop-free' },
-  { key: 'notes', icon: 'edit', label: 'Notes', isMain: true },
+  { key: 'Calendar', icon: 'calendar-today' },
+  { key: 'Scan', icon: 'crop-free' },
+  { key: 'Notes', icon: 'edit', label: 'Notes', isMain: true },
 ];
 
-const BottomBar: React.FC<BottomBarProps> = ({ activeTab, onTabPress }) => {
+const BottomBar: React.FC = () => {
+  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
+
   const renderTab = (tab: TabItem) => {
-    const isActive = activeTab === tab.key;
     const isMain = tab.isMain;
 
     return (
       <TouchableOpacity
         key={tab.key}
-        style={[
-          styles.tab,
-          isMain && styles.mainTab,
-          isActive && (isMain ? styles.activeMainTab : styles.activeTab),
-        ]}
-        onPress={() => onTabPress(tab.key)}>
+        style={[styles.tab, isMain && styles.mainTab]}
+        onPress={() => navigation.navigate(tab.key)}>
         <MaterialIcons
           name={tab.icon}
           size={24}
@@ -53,7 +48,7 @@ const BottomBar: React.FC<BottomBarProps> = ({ activeTab, onTabPress }) => {
       <View style={styles.mainBackground}>
         <BlurView
           style={StyleSheet.absoluteFill}
-          blurType="dark"
+          blurType="light"
           blurAmount={10}
           reducedTransparencyFallbackColor="rgba(20, 20, 35, 0.9)"
         />
@@ -61,9 +56,17 @@ const BottomBar: React.FC<BottomBarProps> = ({ activeTab, onTabPress }) => {
         <View style={styles.leftSide}>{TABS.map(tab => renderTab(tab))}</View>
       </View>
 
-      {/* Keyboard button with its own background */}
-      <TouchableOpacity style={styles.keyboardButton} onPress={() => onTabPress('keyboard')}>
-        <MaterialIcons name="keyboard" size={24} color="#333" />
+      {/* Keyboard button with blur effect */}
+      <TouchableOpacity
+        style={styles.keyboardButton}
+        onPress={() => navigation.navigate('Keyboard')}>
+        <BlurView
+          style={StyleSheet.absoluteFill}
+          blurType="light"
+          blurAmount={10}
+          reducedTransparencyFallbackColor="rgba(20, 20, 35, 0.9)"
+        />
+        <MaterialIcons name="keyboard" size={24} color="#ffffff" />
       </TouchableOpacity>
     </View>
   );
@@ -82,33 +85,25 @@ const styles = StyleSheet.create({
     alignItems: 'center',
   },
   mainBackground: {
-    height: 60,
-    borderRadius: 30,
+    height: 70,
+    borderRadius: 35,
     overflow: 'hidden',
-    backgroundColor: 'rgba(25, 25, 40, 0.75)',
+    // backgroundColor: 'rgba(25, 25, 40, 0.75)',
     marginRight: 20,
-    width: 300,
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 4,
-    },
-    shadowOpacity: 0.3,
-    shadowRadius: 4.65,
-    elevation: 8,
+    width: 250,
   },
   leftSide: {
     flexDirection: 'row',
     alignItems: 'center',
     height: '100%',
-    paddingHorizontal: 20,
+    paddingHorizontal: 15,
   },
   tab: {
     justifyContent: 'center',
     width: 34,
     height: 44,
     borderRadius: 22,
-    marginHorizontal: 10,
+    marginHorizontal: 5,
   },
   activeTab: {
     backgroundColor: 'rgba(255, 255, 255, 0.1)',
@@ -116,13 +111,11 @@ const styles = StyleSheet.create({
   mainTab: {
     backgroundColor: 'rgba(50, 52, 70, 0.95)',
     flexDirection: 'row',
-    paddingHorizontal: 20,
     borderRadius: 25,
     width: 120,
     height: 50,
     alignItems: 'center',
     justifyContent: 'center',
-    marginHorizontal: 10,
   },
   activeMainTab: {
     backgroundColor: 'rgba(60, 62, 80, 0.95)',
@@ -139,17 +132,10 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    backgroundColor: 'white',
+    overflow: 'hidden', // Important for BlurView to be contained within the rounded corners
+    // backgroundColor: 'white', // Removed as requested
     alignItems: 'center',
     justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOffset: {
-      width: 0,
-      height: 2,
-    },
-    shadowOpacity: 0.25,
-    shadowRadius: 3.84,
-    elevation: 5,
   },
 });
 

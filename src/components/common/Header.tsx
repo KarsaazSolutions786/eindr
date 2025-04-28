@@ -72,7 +72,7 @@ const Header: React.FC<HeaderProps> = ({
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.colors.background.primary} />
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       <View style={styles.header}>
         {renderLeftSide()}
 
@@ -98,13 +98,9 @@ const Header: React.FC<HeaderProps> = ({
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: theme.colors.background.primary,
+    backgroundColor: 'transparent',
     zIndex: 10,
-    elevation: 3, // Android shadow
-    shadowColor: '#000', // iOS shadow
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowOpacity: 0,
     paddingTop: 40,
   },
   header: {
@@ -112,7 +108,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.md,
-    backgroundColor: theme.colors.background.primary,
+    backgroundColor: 'transparent',
     justifyContent: 'space-between',
     width: '100%',
   },

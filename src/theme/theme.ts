@@ -20,6 +20,7 @@ export const colors = {
     primary: '#16182A', // Dark background
     secondary: '#2C2C54', // Slightly lighter dark bg (from input example)
     tertiary: '#4C4C7A', // Even lighter dark bg (from input example)
+    transparent: null,
   },
   text: {
     primary: '#FFFFFF', // White text on dark background
@@ -145,6 +146,38 @@ export const layout = {
   isSmallDevice: width < 375,
 };
 
+// Linear gradient backgrounds
+export const gradients = {
+  // Main app background - dark purple to deeper purple
+  primary: {
+    colors: ['#292C4A', '#16182A'],
+    locations: [0, 1],
+    start: { x: 0, y: 0 },
+    end: { x: 0, y: 1 },
+  },
+  // Secondary gradient - purple accent to dark
+  secondary: {
+    colors: ['#A6A1F6', '#7067CF'],
+    locations: [0, 1],
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 1 },
+  },
+  // Button gradient
+  button: {
+    colors: ['#B2A1FF', '#8369F0'],
+    locations: [0, 1],
+    start: { x: 0, y: 0 },
+    end: { x: 1, y: 0 },
+  },
+  // Card background
+  card: {
+    colors: ['rgba(45, 47, 70, 0.8)', 'rgba(35, 37, 60, 0.9)'],
+    locations: [0, 1],
+    start: { x: 0, y: 0 },
+    end: { x: 0, y: 1 },
+  },
+};
+
 export const theme = {
   colors,
   typography,
@@ -152,6 +185,7 @@ export const theme = {
   borderRadius,
   shadows,
   layout,
+  gradients,
 };
 
 export type Theme = typeof theme;
