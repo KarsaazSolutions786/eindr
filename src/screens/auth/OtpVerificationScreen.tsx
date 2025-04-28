@@ -3,12 +3,12 @@ import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, TouchableOpacity, Platform } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import { AuthStackParamList } from '@navigation/AuthNavigator';
+import { RootStackParamList } from '@navigation/RootNavigator';
 import { Button, Header } from '@components/common';
 import OtpInput from '@components/common/OtpInput';
 import theme from '@theme/theme';
 
-type Props = NativeStackScreenProps<AuthStackParamList, 'OtpVerification'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'OtpVerification'>;
 
 const RESEND_TIMER_SECONDS = 30;
 const INITIAL_OTP = ['', '', '', ''] as string[];
@@ -85,8 +85,6 @@ const OtpVerificationScreen = ({ navigation }: Props) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header showBackArrow onBackPress={() => navigation.goBack()} />
-
       <View style={styles.container}>
         <View style={styles.content}>
           <Text style={styles.title}>Enter your 4 digit OTP</Text>

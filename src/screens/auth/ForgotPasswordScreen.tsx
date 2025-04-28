@@ -2,14 +2,14 @@ import React, { useState } from 'react';
 import { View, Text, Alert, StyleSheet, SafeAreaView } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { AuthStackParamList } from '@navigation/AuthNavigator';
+import { RootStackParamList } from '@navigation/RootNavigator';
 import { requestPasswordReset } from '@services/authService';
 
 // Common Component Imports
 import { Input, Button, Header } from '@components/common';
 import theme from '@theme/theme';
 
-type Props = NativeStackScreenProps<AuthStackParamList, 'ForgotPassword'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'ForgotPassword'>;
 
 const ForgotPasswordScreen = ({ navigation }: Props) => {
   const [email, setEmail] = useState('');
@@ -56,12 +56,6 @@ const ForgotPasswordScreen = ({ navigation }: Props) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      {/* Header fixed at the top */}
-      <Header
-        showBackArrow={true}
-        onBackPress={() => navigation.goBack()}
-      />
-
       <View style={styles.contentContainer}>
         {/* Top Section with Email Input */}
         <View style={styles.topSection}>
@@ -100,7 +94,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: theme.colors.background.primary,
-    paddingTop:40
+    paddingTop: 40,
   },
   contentContainer: {
     flex: 1,

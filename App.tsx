@@ -9,8 +9,10 @@ import React from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { NavigationContainer } from '@react-navigation/native';
+import { Provider } from 'react-redux';
 import RootLayout from './src/navigation/RootLayout';
 import LinearGradient from 'react-native-linear-gradient';
+import { store } from './src/store';
 
 const { width, height } = Dimensions.get('window');
 
@@ -25,22 +27,24 @@ const { width, height } = Dimensions.get('window');
  */
 const App = () => {
   return (
-    <View style={styles.root}>
-      {/* Root level gradient background */}
-      <LinearGradient
-        colors={['#1E203A', '#161830', '#121225', '#161830', '#1E203A']}
-        style={[StyleSheet.absoluteFillObject, styles.gradient]}
-        start={{ x: 0.5, y: 0 }}
-        end={{ x: 0.5, y: 1 }}
-        locations={[0, 0.25, 0.5, 0.75, 1]}
-      />
+    <Provider store={store}>
+      <View style={styles.root}>
+        {/* Root level gradient background */}
+        <LinearGradient
+          colors={['#1E203A', '#161830', '#121225', '#161830', '#1E203A']}
+          style={[StyleSheet.absoluteFillObject, styles.gradient]}
+          start={{ x: 0.5, y: 0 }}
+          end={{ x: 0.5, y: 1 }}
+          locations={[0, 0.25, 0.5, 0.75, 1]}
+        />
 
-      <SafeAreaProvider>
-        <NavigationContainer>
-          <RootLayout />
-        </NavigationContainer>
-      </SafeAreaProvider>
-    </View>
+        <SafeAreaProvider>
+          <NavigationContainer>
+            <RootLayout />
+          </NavigationContainer>
+        </SafeAreaProvider>
+      </View>
+    </Provider>
   );
 };
 

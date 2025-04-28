@@ -19,9 +19,8 @@ import Config from 'react-native-config';
 
 // Redux and Navigation
 import { authStart, authSuccess, authFailure, clearError } from '@store/slices/authSlice';
-import { RootState } from '@store/rootReducer';
-import { AppDispatch } from '@store/index';
-import { AuthStackParamList } from '@navigation/AuthNavigator';
+import { AppDispatch, RootState, useAppDispatch, useAppSelector } from '@store/index';
+import { RootStackParamList } from '@navigation/RootNavigator';
 
 // Components
 import { Input, Button, SocialButton, Header } from '@components/common';
@@ -30,7 +29,7 @@ import { AccessToken } from 'react-native-fbsdk-next';
 import { LoginManager } from 'react-native-fbsdk-next';
 import { loginWithFacebook } from '@services/authService';
 
-type Props = NativeStackScreenProps<AuthStackParamList, 'Login'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
 const LoginScreen = ({ navigation }: Props) => {
   // Redux state and dispatch
@@ -88,6 +87,7 @@ const LoginScreen = ({ navigation }: Props) => {
       //   const errorMessage = error.message || 'Login failed. Please try again.';
       //   dispatch(authFailure(errorMessage));
       // }
+      navigation.navigate('Home');
     }
   };
 
@@ -249,10 +249,6 @@ const LoginScreen = ({ navigation }: Props) => {
 
   return (
     <SafeAreaView style={styles.container}>
-      {/* Header is placed outside the KeyboardAvoidingView to stay at top */}
-      <View style={styles.containerHeader}>
-        <Header />
-      </View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}
@@ -318,7 +314,7 @@ const LoginScreen = ({ navigation }: Props) => {
               Register
             </Button>
 
-            <Button
+            {/* <Button
               variant="outline"
               size="md"
               fullWidth
@@ -327,7 +323,7 @@ const LoginScreen = ({ navigation }: Props) => {
               // style={styles.logoutButton}
             >
               Logout
-            </Button>
+            </Button> */}
 
             <View style={{ marginTop: theme.spacing.xl }}>
               <View style={styles.divider}>

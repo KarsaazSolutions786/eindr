@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import MainLayout from '../layouts/MainLayout';
-import AppNavigator from './AppNavigator';
+import RootNavigator from './RootNavigator';
 import Sidebar from '../components/common/Sidebar';
 
 const RootLayout: React.FC = () => {
@@ -26,7 +26,7 @@ const RootLayout: React.FC = () => {
   return (
     <>
       <MainLayout headerProps={headerProps}>
-        <AppNavigator />
+        <RootNavigator />
       </MainLayout>
 
       <Sidebar

@@ -18,7 +18,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { authStart, authSuccess, authFailure } from '@store/slices/authSlice';
 import { RootState } from '@store/rootReducer';
 import { AppDispatch } from '@store/index';
-import { AuthStackParamList } from '@navigation/AuthNavigator';
+import { RootStackParamList } from '@navigation/RootNavigator';
 
 // Service imports
 import { registerUser } from '@services/authService';
@@ -36,7 +36,7 @@ interface ApiError {
   message: string;
 }
 
-type Props = NativeStackScreenProps<AuthStackParamList, 'Register'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Register'>;
 
 const RegisterScreen = ({ navigation }: Props) => {
   // Redux state and dispatch
@@ -147,18 +147,12 @@ const RegisterScreen = ({ navigation }: Props) => {
     if (genderError) setGenderError('');
   };
 
-  const navigateBack = () => {
-    navigation.goBack();
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={styles.keyboardAvoidingView}>
         <ScrollView contentContainerStyle={styles.scrollContent}>
-          <Header showBackArrow onBackPress={navigateBack} />
-
           <View style={styles.form}>
             <Input
               label="Full Name"

@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, StatusBar } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AppStackParamList } from '@navigation/AppNavigator';
+import { RootStackParamList } from '@navigation/RootNavigator';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import HomeScreenMiddleSection from './HomeScreenMiddleSection';
 import theme from '@theme/theme';
 
-// Define props type for HomeScreen using the AppStackParamList
-type Props = NativeStackScreenProps<AppStackParamList, 'Home'>;
+// Define props type for HomeScreen using the RootStackParamList
+type Props = NativeStackScreenProps<RootStackParamList, 'Home'>;
 
 const HomeScreen = ({ navigation }: Props) => {
   const [listening, setListening] = useState(false);
