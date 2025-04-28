@@ -5,10 +5,10 @@ import { BlurView } from '@react-native-community/blur';
 import theme from '@theme/theme';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { AppStackParamList } from '../../navigation/AppNavigator';
+import { RootStackParamList } from '../../navigation/RootNavigator';
 
 type TabItem = {
-  key: keyof AppStackParamList;
+  key: keyof RootStackParamList;
   icon: string;
   label?: string;
   isMain?: boolean;
@@ -21,7 +21,7 @@ const TABS: TabItem[] = [
 ];
 
 const BottomBar: React.FC = () => {
-  const navigation = useNavigation<NativeStackNavigationProp<AppStackParamList>>();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const renderTab = (tab: TabItem) => {
     const isMain = tab.isMain;

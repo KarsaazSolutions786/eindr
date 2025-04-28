@@ -4,9 +4,9 @@ import { View, Text, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Button } from '@components/common';
 import theme from '@theme/theme';
-import { AuthStackParamList } from '@navigation/AuthNavigator';
+import { RootStackParamList } from '@navigation/RootNavigator';
 
-type Props = NativeStackScreenProps<AuthStackParamList, 'Registered'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'Registered'>;
 
 const RegisteredScreen = ({ navigation }: Props) => {
 

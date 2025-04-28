@@ -3,14 +3,14 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, SafeAreaView, Alert } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
-import { AuthStackParamList } from '@navigation/AuthNavigator';
+import { RootStackParamList } from '@navigation/RootNavigator';
 // import { resetPassword } from '@services/authService';
 
 // Common Component Imports
 import { Input, Button, Header } from '@components/common';
 import theme from '@theme/theme';
 
-type Props = NativeStackScreenProps<AuthStackParamList, 'NewPassword'>;
+type Props = NativeStackScreenProps<RootStackParamList, 'NewPassword'>;
 
 const NewPasswordScreen = ({ navigation }: Props) => {
   const [newPassword, setNewPassword] = useState('');
@@ -46,9 +46,9 @@ const NewPasswordScreen = ({ navigation }: Props) => {
       isValid = false;
     }
 
-       if (isValid) {
-         navigation.navigate('PasswordResetSuccess');
-       }
+    if (isValid) {
+      navigation.navigate('PasswordResetSuccess');
+    }
 
     // setIsLoading(true);
 
@@ -69,8 +69,6 @@ const NewPasswordScreen = ({ navigation }: Props) => {
 
   return (
     <SafeAreaView style={styles.safeArea}>
-      <Header />
-
       <View style={styles.container}>
         <View style={styles.inputsContainer}>
           <View style={styles.inputWrapper}>
@@ -124,7 +122,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     backgroundColor: theme.colors.background.primary,
-    paddingTop:50
+    paddingTop: 50,
   },
   container: {
     flex: 1,
