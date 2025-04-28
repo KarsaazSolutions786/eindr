@@ -6,12 +6,12 @@ import RemindersScreen from '@screens/app/RemindersScreen';
 import NotesScreen from '@screens/app/NotesScreen';
 import FriendsScreen from '@screens/app/FriendsScreen';
 import SettingsScreen from '@screens/app/SettingsScreen';
-import HomeScreen from '@screens/home/HomeScreen';
 
 // Import screens from RootLayout
 import CalendarScreen from '@screens/CalendarScreen';
 import ScanScreen from '@screens/ScanScreen';
 import KeyboardScreen from '@screens/KeyboardScreen';
+import HomeScreen from '@screens/home/HomeScreen';
 
 // Define Param List
 export type AppStackParamList = {
