@@ -19,10 +19,10 @@ export type AuthStackParamList = {
   Register: undefined;
   ForgotPassword: undefined;
   OtpVerification: undefined;
-  NewPassword: undefined; // Add this line
+  NewPassword: undefined;
   PasswordResetSuccess: undefined;
   Registered: undefined;
-  Home: undefined;
+  // Home: undefined;
 };
 
 const Stack = createNativeStackNavigator<AuthStackParamList>();
@@ -42,6 +42,7 @@ const AuthNavigator = () => {
       <Stack.Screen name="NewPassword" component={NewPasswordScreen} />
       <Stack.Screen name="PasswordResetSuccess" component={PasswordResetSuccessScreen} />
       <Stack.Screen name="Registered" component={RegisteredScreen} />
+      {/* <Stack.Screen name="Home" component={HomeScreen} /> */}
     </Stack.Navigator>
   );
 };

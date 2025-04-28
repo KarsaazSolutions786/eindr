@@ -15,37 +15,82 @@ interface HeaderProps {
   showBackArrow?: boolean;
   onBackPress?: () => void;
   subtitle?: string;
+  isLoggedIn?: boolean;
+  onMenuPress?: () => void;
+  onProfilePress?: () => void;
+  profileImage?: string; // URL for profile image
 }
 
 const Header: React.FC<HeaderProps> = ({
   showBackArrow = false,
   onBackPress,
   subtitle = 'Forget Forgetting',
+  isLoggedIn = false,
+  onMenuPress,
+  onProfilePress,
+  profileImage,
 }) => {
+  // Render left side of header
+  const renderLeftSide = () => {
+    if (isLoggedIn) {
+      return (
+        <TouchableOpacity onPress={onMenuPress} style={styles.menuButton}>
+          <FontAwesome name="bars" size={20} color={theme.colors.white} />
+        </TouchableOpacity>
+      );
+    }
+
+    if (showBackArrow) {
+      return (
+        <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
+          <FontAwesome name="arrow-left" size={20} color={theme.colors.white} />
+        </TouchableOpacity>
+      );
+    }
+
+    return <View style={styles.backButtonPlaceholder} />;
+  };
+
+  // Render right side of header
+  const renderRightSide = () => {
+    if (isLoggedIn) {
+      return (
+        <TouchableOpacity onPress={onProfilePress} style={styles.profileButton}>
+          {profileImage ? (
+            <Image source={{ uri: profileImage }} style={styles.profileImage} />
+          ) : (
+            <View style={styles.profilePlaceholder}>
+              <FontAwesome name="user" size={20} color={theme.colors.white} />
+            </View>
+          )}
+        </TouchableOpacity>
+      );
+    }
+
+    return <View style={styles.backButtonPlaceholder} />;
+  };
+
   return (
     <SafeAreaView style={styles.safeArea}>
-      <StatusBar barStyle="light-content" backgroundColor={theme.colors.background.primary} />
+      <StatusBar barStyle="light-content" translucent backgroundColor="transparent" />
       <View style={styles.header}>
-        {showBackArrow ? (
-          <TouchableOpacity onPress={onBackPress} style={styles.backButton}>
-            <FontAwesome name="arrow-left" size={20} color={theme.colors.white} />
-          </TouchableOpacity>
-        ) : (
-          <View style={styles.backButtonPlaceholder} />
-        )}
+        {renderLeftSide()}
 
-        <View style={[styles.titleContainer, !showBackArrow && styles.titleContainerCenter]}>
-          {/* Replace text logo with Image component */}
+        <View
+          style={[
+            styles.titleContainer,
+            !showBackArrow && !isLoggedIn && styles.titleContainerCenter,
+          ]}>
+          {/* Logo Image */}
           <Image
             source={require('../../assets/Logo/indr.png')}
             style={styles.logoImage}
             resizeMode="contain"
           />
-          <Text style={styles.tagline}>{subtitle}</Text>
+          {!isLoggedIn && <Text style={styles.tagline}>{subtitle}</Text>}
         </View>
 
-        {/* Add empty view for proper spacing when back arrow is shown */}
-        <View style={styles.backButtonPlaceholder} />
+        {renderRightSide()}
       </View>
     </SafeAreaView>
   );
@@ -53,26 +98,36 @@ const Header: React.FC<HeaderProps> = ({
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: theme.colors.background.primary,
+    backgroundColor: 'transparent',
     zIndex: 10,
-    elevation: 3, // Android shadow
-    shadowColor: '#000', // iOS shadow
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 3,
+    shadowOpacity: 0,
+    paddingTop: 40,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.md,
-    backgroundColor: theme.colors.background.primary,
+    backgroundColor: 'transparent',
     justifyContent: 'space-between',
     width: '100%',
   },
   backButton: {
     padding: theme.spacing.sm,
     width: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  menuButton: {
+    padding: theme.spacing.sm,
+    width: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  profileButton: {
+    padding: theme.spacing.sm,
+    width: 44,
+    height: 44,
     alignItems: 'center',
     justifyContent: 'center',
   },
@@ -85,7 +140,7 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   titleContainerCenter: {
-    // Center styling when no back button
+    // Center styling when no back button and not logged in
   },
   logoImage: {
     width: 170,
@@ -97,6 +152,23 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.fontFamily.regular,
     color: theme.colors.text.secondary,
     fontStyle: 'italic',
+  },
+  profileImage: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    borderWidth: 1,
+    borderColor: theme.colors.border.primary,
+  },
+  profilePlaceholder: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: theme.colors.background.secondary,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderWidth: 1,
+    borderColor: theme.colors.border.primary,
   },
 });
 

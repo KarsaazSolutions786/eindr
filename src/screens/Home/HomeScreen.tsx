@@ -1,29 +1,44 @@
-import React from 'react';
-import { View, Text, Button, StyleSheet } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, StatusBar } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { AuthStackParamList } from '@navigation/AuthNavigator';
+import { AppStackParamList } from '@navigation/AppNavigator';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import HomeScreenMiddleSection from './HomeScreenMiddleSection';
+import theme from '@theme/theme';
 
-// Define props type for HomeScreen using the RootStackParamList
-type Props = NativeStackScreenProps<AuthStackParamList, 'Home'>;
+// Define props type for HomeScreen using the AppStackParamList
+type Props = NativeStackScreenProps<AppStackParamList, 'Home'>;
 
 const HomeScreen = ({ navigation }: Props) => {
+  const [listening, setListening] = useState(false);
+
+  const handleOrbPress = () => {
+    setListening(true);
+    // Simulate listening and then stop after 3 seconds
+    setTimeout(() => {
+      setListening(false);
+    }, 3000);
+  };
+
   return (
-    <View style={styles.container}>
-      <Text style={styles.text}>Home Screen</Text>
-      <Button title="Go to Details" />
-    </View>
+    <SafeAreaView style={styles.container}>
+      <StatusBar translucent backgroundColor="transparent" barStyle="light-content" />
+      <View style={styles.middleContainer}>
+        <HomeScreenMiddleSection onOrbPress={handleOrbPress} />
+      </View>
+    </SafeAreaView>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
+    // backgroundColor: 'transparent',
+    backgroundColor: theme.colors.background.primary,
   },
-  text: {
-    fontSize: 20,
-    marginBottom: 20,
+  middleContainer: {
+    flex: 1,
+    paddingBottom: 70, // Add space for the bottom navigation bar
   },
 });
 

@@ -1,44 +1,50 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 // Import Screens
-import HomeScreen from '@screens/app/HomeScreen';
 import RemindersScreen from '@screens/app/RemindersScreen';
 import NotesScreen from '@screens/app/NotesScreen';
 import FriendsScreen from '@screens/app/FriendsScreen';
 import SettingsScreen from '@screens/app/SettingsScreen';
+import HomeScreen from '@screens/home/HomeScreen';
 
-// Import Custom Tab Bar (We will create this next)
-import CustomTabBar from './CustomTabBar'; 
+// Import screens from RootLayout
+import CalendarScreen from '@screens/CalendarScreen';
+import ScanScreen from '@screens/ScanScreen';
+import KeyboardScreen from '@screens/KeyboardScreen';
 
 // Define Param List
-export type AppTabParamList = {
+export type AppStackParamList = {
   Home: undefined;
   Reminders: undefined;
   Notes: undefined;
   Friends: undefined;
   Settings: undefined;
+  Calendar: undefined;
+  Scan: undefined;
+  Keyboard: undefined;
 };
 
-const Tab = createBottomTabNavigator<AppTabParamList>();
+const Stack = createNativeStackNavigator<AppStackParamList>();
 
 const AppNavigator = () => {
   return (
-    <Tab.Navigator
-      // Use the custom tab bar component
-      tabBar={(props) => <CustomTabBar {...props} />}
+    <Stack.Navigator
+      initialRouteName="Home"
       screenOptions={{
-        headerShown: false, // Hide default header, we might add custom ones later
-      }}
-    >
-      {/* These screens are part of the navigator state but won't all be directly shown in the custom bar */}
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="Reminders" component={RemindersScreen} />
-      <Tab.Screen name="Notes" component={NotesScreen} />
-      <Tab.Screen name="Friends" component={FriendsScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
-    </Tab.Navigator>
+        headerShown: false,
+        animation: 'slide_from_right',
+      }}>
+      <Stack.Screen name="Home" component={HomeScreen} />
+      <Stack.Screen name="Reminders" component={RemindersScreen} />
+      <Stack.Screen name="Notes" component={NotesScreen} />
+      <Stack.Screen name="Friends" component={FriendsScreen} />
+      <Stack.Screen name="Settings" component={SettingsScreen} />
+      <Stack.Screen name="Calendar" component={CalendarScreen} />
+      <Stack.Screen name="Scan" component={ScanScreen} />
+      <Stack.Screen name="Keyboard" component={KeyboardScreen} />
+    </Stack.Navigator>
   );
 };
 
-export default AppNavigator; 
+export default AppNavigator;
