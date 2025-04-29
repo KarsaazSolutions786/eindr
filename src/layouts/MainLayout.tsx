@@ -4,7 +4,7 @@ import Header from '../components/common/Header';
 import BottomBar from '../components/common/BottomBar';
 import theme from '@theme/theme';
 import { useSelector } from 'react-redux';
-import { RootState,  } from '@store/index';
+import { RootState } from '@store/index';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -21,16 +21,8 @@ interface MainLayoutProps {
   };
 }
 
-
-
-const MainLayout: React.FC<MainLayoutProps> = ({
-  children,
-  showHeader = true,
-  headerProps,
-}) => {
-
+const MainLayout: React.FC<MainLayoutProps> = ({ children, showHeader = true, headerProps }) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-  console.log('=========', isAuthenticated);
   return (
     <View style={styles.container}>
       {showHeader && <Header {...headerProps} />}

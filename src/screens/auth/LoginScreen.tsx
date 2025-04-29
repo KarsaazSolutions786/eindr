@@ -15,7 +15,6 @@ import { useDispatch, useSelector } from 'react-redux';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Config from 'react-native-config';
 
 // Redux and Navigation
 import { authStart, authSuccess, authFailure, clearError } from '@store/slices/authSlice';
@@ -43,14 +42,6 @@ const LoginScreen = ({ navigation }: Props) => {
   const [password, setPassword] = useState('');
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
-
-  // Google SignIn configuration
-  useEffect(() => {
-    GoogleSignin.configure({
-      webClientId: Config.WEB_CLIENT_ID,
-      offlineAccess: false,
-    });
-  }, []);
 
   // Clear any previous auth errors when component mounts
   useEffect(() => {
@@ -93,11 +84,17 @@ const LoginScreen = ({ navigation }: Props) => {
 
   // Google Login Handler
   const handleGoogleLogin = async () => {
+    console.log('========= handleGoogleLogin');
     dispatch(authStart());
+    console.log('========= handleGoogleLogin 2');
     try {
+      console.log('========= handleGoogleLogin 3');
       await GoogleSignin.hasPlayServices();
+      console.log('========= handleGoogleLogin 4');
       const userInfo = await GoogleSignin.signIn();
+      console.log('========= handleGoogleLogin 5', userInfo);
       const idToken = userInfo?.data?.idToken;
+      console.log('========= userInfo', userInfo);
       if (idToken) {
         console.log('idToken', idToken);
         // const response = await loginWithGoogle(idToken);

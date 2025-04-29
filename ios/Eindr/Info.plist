@@ -77,6 +77,14 @@
 				<string>fb711116024929895</string>
 			</array>
 		</dict>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.813342688602-qt5555umgevm60no9ueievaitr4kvtep</string>
+			</array>
+		</dict>
 	</array>
 	<key>FacebookAppID</key>
 	<string>711116024929895</string>
