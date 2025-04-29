@@ -73,6 +73,7 @@ export const typography = {
     '3xl': 30, // Matches 30px Semi Bold from image
     '4xl': 36,
     '6xl': 50,
+    '7xl': 100,
   },
   // Line heights can be adjusted based on font specifics if needed
   lineHeight: {
@@ -96,6 +97,8 @@ export const spacing = {
   '2xl': 40,
   '3xl': 48,
   '4xl': 56,
+  '6xl': 60,
+  '7xl': 100,
 };
 
 export const borderRadius = {

@@ -384,7 +384,7 @@ const styles = StyleSheet.create({
     fontFamily: theme.typography.fontFamily.medium,
   },
   registerButton: {
-    marginTop: theme.spacing.sm,
+    // marginTop: theme.spacing.sm,
   },
   divider: {
     flexDirection: 'row',

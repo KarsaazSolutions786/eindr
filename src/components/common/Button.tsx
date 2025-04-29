@@ -7,7 +7,9 @@ import {
   ViewStyle,
   TextStyle,
   TouchableOpacityProps,
+  View,
 } from 'react-native';
+import LinearGradient from 'react-native-linear-gradient';
 import theme from '@theme/theme';
 
 type ButtonVariant = 'primary' | 'outline';
@@ -26,6 +28,42 @@ interface ButtonProps extends TouchableOpacityProps {
   children: React.ReactNode;
 }
 
+const getButtonStyles = (variant: ButtonVariant, disabled: boolean) => {
+  const baseStyles = {
+    primary: {
+      backgroundColor: disabled ? theme.colors.gray[700] : theme.colors.background.secondary,
+      borderColor: disabled ? theme.colors.gray[600] : theme.colors.border.primary,
+      textColor: disabled ? theme.colors.gray[500] : theme.colors.text.primary,
+    },
+    outline: {
+      backgroundColor: disabled ? theme.colors.gray[700] : theme.colors.background.primary,
+      borderColor: disabled ? theme.colors.gray[600] : theme.colors.accentStroke,
+      textColor: disabled ? theme.colors.gray[500] : theme.colors.text.secondary,
+    },
+  };
+
+  return baseStyles[variant];
+};
+
+const getSizeStyles = (size: ButtonSize) => {
+  const sizes = {
+    sm: {
+      paddingVertical: theme.spacing.sm,
+      fontSize: theme.typography.fontSize.sm,
+    },
+    md: {
+      paddingVertical: theme.spacing.md,
+      fontSize: theme.typography.fontSize.md,
+    },
+    lg: {
+      paddingVertical: theme.spacing.lg,
+      fontSize: theme.typography.fontSize.lg,
+    },
+  };
+
+  return sizes[size];
+};
+
 const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
@@ -39,93 +77,75 @@ const Button: React.FC<ButtonProps> = ({
   children,
   ...props
 }) => {
-  const getPrimaryStyles = () => ({
-    backgroundColor: disabled ? theme.colors.gray[700] : theme.colors.background.secondary,
-    borderColor: disabled ? theme.colors.gray[600] : theme.colors.border.primary,
-    textColor: disabled ? theme.colors.gray[500] : theme.colors.text.primary,
-  });
-
-  const getOutlineStyles = () => ({
-    backgroundColor: 'transparent',
-    borderColor: disabled ? theme.colors.gray[600] : theme.colors.accentStroke,
-    textColor: disabled ? theme.colors.gray[500] : theme.colors.text.secondary,
-  });
-
-  const currentStyles = variant === 'primary' ? getPrimaryStyles() : getOutlineStyles();
-
-  const getPaddingVertical = () => {
-    switch (size) {
-      case 'sm':
-        return theme.spacing.sm;
-      case 'lg':
-        return theme.spacing.lg;
-      default:
-        return theme.spacing.md;
-    }
-  };
-
-  const getFontSize = () => {
-    switch (size) {
-      case 'sm':
-        return theme.typography.fontSize.sm;
-      case 'lg':
-        return theme.typography.fontSize.lg;
-      default:
-        return theme.typography.fontSize.md;
-    }
-  };
+  const buttonStyles = getButtonStyles(variant, disabled);
+  const sizeStyles = getSizeStyles(size);
 
   return (
-    <TouchableOpacity
-      style={[
-        styles.button,
-        {
-          backgroundColor: currentStyles.backgroundColor,
-          borderColor: currentStyles.borderColor,
-          paddingVertical: getPaddingVertical(),
-          borderRadius: theme.borderRadius.sm,
-          width: fullWidth ? '100%' : 'auto',
-        },
-        style,
-      ]}
-      disabled={disabled || loading}
-      activeOpacity={0.7}
-      {...props}
-    >
-      {loading ? (
-        <ActivityIndicator color={currentStyles.textColor} />
-      ) : (
-        <>
-          {leftIcon}
-          <Text
-            style={[
-              styles.text,
-              {
-                color: currentStyles.textColor,
-                fontSize: getFontSize(),
-                marginLeft: leftIcon ? theme.spacing.sm : 0,
-                marginRight: rightIcon ? theme.spacing.sm : 0,
-              },
-              textStyle,
-            ]}
-          >
-            {children}
-          </Text>
-          {rightIcon}
-        </>
-      )}
-    </TouchableOpacity>
+    <View style={[styles.buttonContainer, { width: fullWidth ? '100%' : 'auto' }]}>
+      <LinearGradient
+        colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
+        start={{ x: 1, y: 1 }}
+        end={{ x: 1, y: 0 }}
+        style={[
+          styles.gradientBorder,
+          { borderRadius: theme.borderRadius.md, shadowColor: '#c07ddf' },
+        ]}>
+        <TouchableOpacity
+          style={[
+            styles.button,
+            {
+              backgroundColor: buttonStyles.backgroundColor,
+              paddingVertical: sizeStyles.paddingVertical,
+              borderRadius: theme.borderRadius.md,
+            },
+            style,
+          ]}
+          disabled={disabled || loading}
+          activeOpacity={0.7}
+          {...props}>
+          {loading ? (
+            <ActivityIndicator color={buttonStyles.textColor} />
+          ) : (
+            <>
+              {leftIcon}
+              <Text
+                style={[
+                  styles.text,
+                  {
+                    color: buttonStyles.textColor,
+                    fontSize: sizeStyles.fontSize,
+                    marginLeft: leftIcon ? theme.spacing.sm : 0,
+                    marginRight: rightIcon ? theme.spacing.sm : 0,
+                  },
+                  textStyle,
+                ]}>
+                {children}
+              </Text>
+              {rightIcon}
+            </>
+          )}
+        </TouchableOpacity>
+      </LinearGradient>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
+  buttonContainer: {
+    marginBottom: theme.spacing.sm,
+  },
+  gradientBorder: {
+    padding: 1,
+    borderRadius: theme.borderRadius.md,
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.11,
+    shadowRadius: 10,
+    elevation: 3,
+  },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    borderWidth: 1,
-    paddingHorizontal: theme.spacing.lg,
-    marginBottom: theme.spacing.sm,
   },
   text: {
     fontFamily: theme.typography.fontFamily.medium,
@@ -133,4 +153,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Button; 
+export default Button;

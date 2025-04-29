@@ -49,7 +49,7 @@ const BottomBar: React.FC = () => {
         <BlurView
           style={StyleSheet.absoluteFill}
           blurType="light"
-          blurAmount={10}
+          blurAmount={5}
           reducedTransparencyFallbackColor="rgba(20, 20, 35, 0.9)"
         />
 
@@ -89,7 +89,7 @@ const styles = StyleSheet.create({
     borderRadius: 35,
     overflow: 'hidden',
     // backgroundColor: 'rgba(25, 25, 40, 0.75)',
-    marginRight: 20,
+    marginRight: 59,
     width: 250,
   },
   leftSide: {
@@ -132,8 +132,7 @@ const styles = StyleSheet.create({
     width: 56,
     height: 56,
     borderRadius: 28,
-    overflow: 'hidden', // Important for BlurView to be contained within the rounded corners
-    // backgroundColor: 'white', // Removed as requested
+    overflow: 'hidden', 
     alignItems: 'center',
     justifyContent: 'center',
   },
