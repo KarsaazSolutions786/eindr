@@ -30,7 +30,6 @@ const MainLayout: React.FC<MainLayoutProps> = ({
 }) => {
 
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
-  console.log('=========', isAuthenticated);
   return (
     <View style={styles.container}>
       {showHeader && <Header {...headerProps} />}

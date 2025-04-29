@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import theme from '@theme/theme';
 import Icon from 'react-native-vector-icons/FontAwesome';
+import LinearGradient from 'react-native-linear-gradient';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -23,6 +24,9 @@ interface InputProps extends TextInputProps {
   secureTextEntry?: boolean;
   leftIcon?: React.ReactNode;
   style?: ViewStyle | TextStyle;
+  backgroundColor?: string;
+  borderRadius?: number;
+  fontSize?: number;
 }
 
 const Input: React.FC<InputProps> = ({
@@ -36,6 +40,9 @@ const Input: React.FC<InputProps> = ({
   secureTextEntry: initialSecureTextEntry = false,
   leftIcon,
   style,
+  backgroundColor = theme.colors.background.secondary,
+  borderRadius = theme.borderRadius.sm,
+  fontSize = theme.typography.fontSize.md,
   ...props
 }) => {
   const [isPasswordVisible, setIsPasswordVisible] = useState(!initialSecureTextEntry);
@@ -49,27 +56,38 @@ const Input: React.FC<InputProps> = ({
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
-      <View style={[styles.inputContainer, error && styles.inputContainerError]}>
-        {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
-        <TextInput
-          style={[styles.input, leftIcon ? styles.inputWithIcon : null, style]}
-          placeholderTextColor={`${theme.colors.text.placeholder}33`}
-          secureTextEntry={effectiveSecureTextEntry}
-          {...props}
-        />
-        {isPassword && (
-          <TouchableOpacity
-            onPress={togglePasswordVisibility}
-            style={styles.iconContainer}
-            hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            <Icon
-              name={isPasswordVisible ? 'eye' : 'eye-slash'}
-              size={theme.typography.fontSize.xl}
-              color={theme.colors.text.secondary}
-            />
-          </TouchableOpacity>
-        )}
-      </View>
+      <LinearGradient
+        colors={['#6c6c85', '#2c2d3c']}
+        start={{ x: 0, y: 1 }}
+        end={{ x: 1, y: 0 }}
+        style={[styles.gradientBorder, error && styles.gradientBorderError, { borderRadius }]}>
+        <View
+          style={[
+            styles.inputContainer,
+            error && styles.inputContainerError,
+            { backgroundColor, borderRadius },
+          ]}>
+          {leftIcon && <View style={styles.iconContainer}>{leftIcon}</View>}
+          <TextInput
+            style={[styles.input, leftIcon ? styles.inputWithIcon : null, { fontSize }, style]}
+            placeholderTextColor={`${theme.colors.text.placeholder}33`}
+            secureTextEntry={effectiveSecureTextEntry}
+            {...props}
+          />
+          {isPassword && (
+            <TouchableOpacity
+              onPress={togglePasswordVisibility}
+              style={styles.iconContainer}
+              hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+              <Icon
+                name={isPasswordVisible ? 'eye' : 'eye-slash'}
+                size={theme.typography.fontSize.xl}
+                color={theme.colors.text.secondary}
+              />
+            </TouchableOpacity>
+          )}
+        </View>
+      </LinearGradient>
       {error && <Text style={[styles.error, errorStyle]}>{error}</Text>}
     </View>
   );
@@ -78,6 +96,14 @@ const Input: React.FC<InputProps> = ({
 const styles = StyleSheet.create({
   container: {
     marginBottom: theme.spacing.md,
+  },
+  gradientBorder: {
+    borderRadius: theme.borderRadius.sm,
+    padding: 1,
+    backgroundColor: 'transparent',
+  },
+  gradientBorderError: {
+    opacity: 0.5,
   },
   label: {
     fontSize: theme.typography.fontSize.lg,
@@ -88,8 +114,7 @@ const styles = StyleSheet.create({
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    borderWidth: 1,
-    borderColor: theme.colors.border.primary,
+    borderWidth: 0,
     borderRadius: theme.borderRadius.sm,
     backgroundColor: theme.colors.background.secondary,
     paddingHorizontal: theme.spacing.md,

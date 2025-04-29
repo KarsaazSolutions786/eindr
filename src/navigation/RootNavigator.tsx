@@ -13,7 +13,7 @@ import RegisteredScreen from '@screens/auth/RegisteredScreen';
 // App Screens
 import HomeScreen from '@screens/home/HomeScreen';
 import RemindersScreen from '@screens/app/RemindersScreen';
-import NotesScreen from '@screens/app/NotesScreen';
+import NotesScreen from '@screens/notes/NotesScreen';
 import FriendsScreen from '@screens/app/FriendsScreen';
 import SettingsScreen from '@screens/app/SettingsScreen';
 import CalendarScreen from '@screens/CalendarScreen';
@@ -40,6 +40,7 @@ export type RootStackParamList = {
   Calendar: undefined;
   Scan: undefined;
   Keyboard: undefined;
+  NoteEdit: { id: string; content: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -70,6 +71,7 @@ const RootNavigator = () => {
       <Stack.Screen name="Calendar" component={CalendarScreen} />
       <Stack.Screen name="Scan" component={ScanScreen} />
       <Stack.Screen name="Keyboard" component={KeyboardScreen} />
+      <Stack.Screen name="NoteEdit" component={require('@screens/notes/NoteEdit').default} />
     </Stack.Navigator>
   );
 };

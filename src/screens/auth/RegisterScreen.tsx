@@ -321,7 +321,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   registerButton: {
-    marginTop: theme.spacing.md,
+    // marginTop: theme.spacing.md,
   },
   divider: {
     flexDirection: 'row',

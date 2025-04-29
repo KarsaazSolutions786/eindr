@@ -10,6 +10,8 @@ import {
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import theme from '@theme/theme';
+import { RootState } from '@store/index';
+import { useSelector } from 'react-redux';
 
 interface HeaderProps {
   showBackArrow?: boolean;
@@ -31,8 +33,9 @@ const Header: React.FC<HeaderProps> = ({
   profileImage,
 }) => {
   // Render left side of header
+    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const renderLeftSide = () => {
-    if (isLoggedIn) {
+    if (isAuthenticated) {
       return (
         <TouchableOpacity onPress={onMenuPress} style={styles.menuButton}>
           <FontAwesome name="bars" size={20} color={theme.colors.white} />
@@ -53,7 +56,7 @@ const Header: React.FC<HeaderProps> = ({
 
   // Render right side of header
   const renderRightSide = () => {
-    if (isLoggedIn) {
+    if (isAuthenticated) {
       return (
         <TouchableOpacity onPress={onProfilePress} style={styles.profileButton}>
           {profileImage ? (

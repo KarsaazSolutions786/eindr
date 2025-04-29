@@ -1,6 +1,5 @@
 // HomeScreenMiddleSection.tsx
-import theme from '@theme/theme';
-import React from 'react';
+import React, { useState } from 'react';
 import {
   View,
   Text,
@@ -10,6 +9,8 @@ import {
   FlatList,
   Dimensions,
 } from 'react-native';
+import theme from '@theme/theme';
+import MessageContainer from '@components/chat/MessageContainer';
 
 // Interface for the reminder item data
 interface ReminderItem {
@@ -39,13 +40,70 @@ const REMINDERS: ReminderItem[] = [
     timeRange: '11:00PM - 12:00PM',
     title: 'Mother Birthday',
     completed: true,
-  }
+  },
 ];
 
 const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
   onOrbPress,
   onReminderPress,
 }) => {
+  const [messages] = useState([
+    {
+      id: '1',
+      text: 'Hello! How can I help you today?',
+      isUser: false,
+      timestamp: '10:30 AM',
+    },
+    {
+      id: '2',
+      text: 'I need to set a reminder for tomorrow',
+      isUser: true,
+      timestamp: '10:31 AM',
+    },
+    {
+      id: '3',
+      text: 'Sure! What would you like to be reminded about?',
+      isUser: false,
+      timestamp: '10:31 AM',
+    },
+    {
+      id: '4',
+      text: 'Got it! What time should I set the reminder for?',
+      isUser: false,
+      timestamp: '10:32 AM',
+    },
+    {
+      id: '5',
+      text: 'Set it for 3 PM tomorrow.',
+      isUser: true,
+      timestamp: '10:33 AM',
+    },
+    {
+      id: '6',
+      text: 'Great! Your reminder is set for 3 PM tomorrow.',
+      isUser: false,
+      timestamp: '10:34 AM',
+    },
+    {
+      id: '7',
+      text: 'Would you like me to add anything else?',
+      isUser: false,
+      timestamp: '10:35 AM',
+    },
+    {
+      id: '8',
+      text: 'No, that’s all for now. Thanks!',
+      isUser: true,
+      timestamp: '10:36 AM',
+    },
+    {
+      id: '9',
+      text: 'You’re welcome! Feel free to reach out if you need anything else.',
+      isUser: false,
+      timestamp: '10:37 AM',
+    },
+  ]);
+
   // Render each reminder item
   const renderReminderItem = ({ item, index }: { item: ReminderItem; index: number }) => {
     const isFirst = index === 0;
@@ -75,8 +133,6 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       {/* Animated Orb */}
       <View style={styles.orbContainer}>
         <TouchableOpacity style={styles.orbTouchable} onPress={onOrbPress} activeOpacity={0.9}>
-
-          {/* Alternatively, if you have an image */}
           <Image
             source={require('../../assets/Logo/orb.png')}
             style={styles.orbImage}
@@ -85,20 +141,17 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
         </TouchableOpacity>
       </View>
 
-      {/* Activation Text */}
-      <Text style={styles.activationText}>Say "Hey Eindr" to activate</Text>
+      {/* Message Container */}
+      <MessageContainer messages={messages} style={styles.messageContainer} />
 
-      {/* Suggestions Section */}
-      <View style={styles.suggestionsContainer}>
+      {/* <View style={styles.suggestionsContainer}>
         <Text style={styles.sectionTitle}>Suggested for you:</Text>
 
-        {/* Today section */}
         <View style={styles.daySection}>
           <Text style={styles.dayTitle}>Today</Text>
           {renderReminderItem({ item: REMINDERS[0], index: 0 })}
         </View>
 
-        {/* Tomorrow section */}
         <View style={styles.daySection}>
           <View style={styles.tomorrowHeader}>
             <Text style={styles.dayTitle}>Tomorrow</Text>
@@ -108,7 +161,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
           </View>
           {renderReminderItem({ item: REMINDERS[1], index: 0 })}
         </View>
-      </View>
+      </View> */}
     </View>
   );
 };
@@ -139,13 +192,11 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
   },
-  // Activation Text
-  activationText: {
-    textAlign: 'center',
-    color: '#FFFFFF',
-    fontSize: 16,
-    marginBottom: 40,
-    fontFamily: theme.typography.fontFamily.medium,
+  // Message Container
+  messageContainer: {
+    flex: 1,
+    marginBottom: -70,
+    // marginBottom: 20,
   },
   // Suggestions section
   suggestionsContainer: {
