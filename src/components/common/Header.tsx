@@ -33,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({
   profileImage,
 }) => {
   // Render left side of header
-    const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   const renderLeftSide = () => {
     if (isAuthenticated) {
       return (
@@ -101,31 +101,37 @@ const Header: React.FC<HeaderProps> = ({
 
 const styles = StyleSheet.create({
   safeArea: {
-    // backgroundColor: 'transparent',
+    backgroundColor: 'transparent',
     zIndex: 10,
-    // shadowOpacity: 0,
-    paddingTop: 40,
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    paddingBottom: 40,
   },
   header: {
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing.md,
-    // backgroundColor: 'transparent',
+    paddingVertical: theme.spacing['2xl'],
+    backgroundColor: 'transparent',
     justifyContent: 'space-between',
     width: '100%',
+    marginBottom: 10,
   },
   backButton: {
     padding: theme.spacing.sm,
     width: 44,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
   menuButton: {
     padding: theme.spacing.sm,
     width: 44,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
   profileButton: {
     padding: theme.spacing.sm,
@@ -133,17 +139,20 @@ const styles = StyleSheet.create({
     height: 44,
     alignItems: 'center',
     justifyContent: 'center',
+    backgroundColor: 'transparent',
   },
   backButtonPlaceholder: {
-    width: 44, // Same width as backButton
+    width: 44,
+    backgroundColor: 'transparent',
   },
   titleContainer: {
     alignItems: 'center',
     justifyContent: 'center',
     flex: 1,
+    backgroundColor: 'transparent',
   },
   titleContainerCenter: {
-    // Center styling when no back button and not logged in
+    backgroundColor: 'transparent',
   },
   logoImage: {
     width: 170,
@@ -161,17 +170,17 @@ const styles = StyleSheet.create({
     height: 36,
     borderRadius: 18,
     borderWidth: 1,
-    borderColor: theme.colors.border.primary,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
   profilePlaceholder: {
     width: 36,
     height: 36,
     borderRadius: 18,
-    backgroundColor: theme.colors.background.secondary,
+    backgroundColor: 'rgba(255, 255, 255, 0.1)',
     alignItems: 'center',
     justifyContent: 'center',
     borderWidth: 1,
-    borderColor: theme.colors.border.primary,
+    borderColor: 'rgba(255, 255, 255, 0.2)',
   },
 });
 

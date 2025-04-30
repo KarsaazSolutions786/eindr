@@ -20,6 +20,7 @@ import SettingsScreen from '@screens/app/SettingsScreen';
 import CalendarScreen from '@screens/CalendarScreen';
 import ScanScreen from '@screens/ScanScreen';
 import KeyboardScreen from '@screens/KeyboardScreen';
+import NoteEdit from '@screens/notes/NoteEdit';
 
 // Define combined Param List
 export type RootStackParamList = {
@@ -47,8 +48,8 @@ export type RootStackParamList = {
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 // Wrapper component to add BackgroundScreen to each screen
-const withBackground = (Component: React.ComponentType<any>) => {
-  return (props: any) => (
+const withBackground = <P extends object>(Component: React.ComponentType<P>) => {
+  return (props: P) => (
     <BackgroundScreen>
       <Component {...props} />
     </BackgroundScreen>
@@ -79,15 +80,12 @@ const RootNavigator = () => {
       <Stack.Screen name="Home" component={withBackground(HomeScreen)} />
       <Stack.Screen name="Reminders" component={withBackground(RemindersScreen)} />
       <Stack.Screen name="Notes" component={withBackground(NotesScreen)} />
+      <Stack.Screen name="NoteEdit" component={withBackground(NoteEdit)} />
       <Stack.Screen name="Friends" component={withBackground(FriendsScreen)} />
       <Stack.Screen name="Settings" component={withBackground(SettingsScreen)} />
       <Stack.Screen name="Calendar" component={withBackground(CalendarScreen)} />
       <Stack.Screen name="Scan" component={withBackground(ScanScreen)} />
       <Stack.Screen name="Keyboard" component={withBackground(KeyboardScreen)} />
-      <Stack.Screen
-        name="NoteEdit"
-        component={withBackground(require('@screens/notes/NoteEdit').default)}
-      />
     </Stack.Navigator>
   );
 };

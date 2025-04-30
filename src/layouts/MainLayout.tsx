@@ -5,6 +5,7 @@ import BottomBar from '../components/common/BottomBar';
 import theme from '@theme/theme';
 import { useSelector } from 'react-redux';
 import { RootState } from '@store/index';
+import BackgroundScreen from '@components/BackgroundScreen';
 
 interface MainLayoutProps {
   children: React.ReactNode;
@@ -21,13 +22,20 @@ interface MainLayoutProps {
   };
 }
 
-const MainLayout: React.FC<MainLayoutProps> = ({ children, showHeader = true, headerProps }) => {
+const MainLayout: React.FC<MainLayoutProps> = ({
+  children,
+  showHeader = true,
+  showBottomBar = true,
+  headerProps,
+}) => {
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
   return (
     <View style={styles.container}>
-      {showHeader && <Header {...headerProps} />}
-      <View style={styles.content}>{children}</View>
-      {isAuthenticated && <BottomBar />}
+      <BackgroundScreen>
+        {showHeader && <Header {...headerProps} />}
+        {children}
+        {isAuthenticated && showBottomBar && <BottomBar />}
+      </BackgroundScreen>
     </View>
   );
 };
@@ -35,9 +43,11 @@ const MainLayout: React.FC<MainLayoutProps> = ({ children, showHeader = true, he
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    position: 'relative',
+    backgroundColor: 'transparent',
   },
-  content: {
-    flex: 1,
+  contentNoHeader: {
+    paddingTop: 0,
   },
 });
 

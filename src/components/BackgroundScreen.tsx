@@ -13,7 +13,7 @@ const BackgroundScreen: React.FC<BackgroundScreenProps> = ({ children }) => {
       <SafeAreaView style={styles.safeArea}>
         <View style={styles.container}>
           {/* Main background with gradient */}
-          <LinearGradient colors={[ '#2e2e49','#121322']} style={styles.backgroundContainer} />
+          <LinearGradient colors={['#2e2e49', '#121322']} style={styles.backgroundContainer} />
 
           {/* Spotlight effect using another gradient */}
           <LinearGradient
@@ -34,11 +34,12 @@ const BackgroundScreen: React.FC<BackgroundScreenProps> = ({ children }) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#16182A',
+    backgroundColor: 'transparent',
   },
   container: {
     flex: 1,
     position: 'relative',
+    backgroundColor: 'transparent',
   },
   backgroundContainer: {
     position: 'absolute',
@@ -57,8 +58,9 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 20,
+    padding: 10,
     zIndex: 1,
+    backgroundColor: 'transparent',
   },
 });
 
