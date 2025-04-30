@@ -16,7 +16,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
-
+import SearchBar from '@components/SearchBar';
 interface Note {
   id: string;
   title: string;
@@ -95,19 +95,7 @@ const NotesScreen = () => {
       <StatusBar barStyle="light-content" backgroundColor="#141524" />
       <ScrollView style={styles.container} contentContainerStyle={styles.contentContainer}>
         {/* Search Bar */}
-        <View style={styles.searchContainer}>
-          <Input
-            placeholder="Search"
-            value={searchText}
-            onChangeText={setSearchText}
-            leftIcon={<MaterialIcons name="search" size={28} color="#8E8E93" />}
-            containerStyle={styles.searchInputContainer}
-            inputStyle={styles.searchInput}
-            backgroundColor="#292B3E"
-            borderRadius={30}
-            fontSize={22}
-          />
-        </View>
+        <SearchBar value={searchText} onChangeText={setSearchText} />
 
         {/* Pinned Notes Section */}
         {pinnedNotes.length > 0 && (
@@ -175,6 +163,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     // backgroundColor: '#141524', // Dark background color
+    marginTop:170
   },
   container: {
     flex: 1,
@@ -183,17 +172,7 @@ const styles = StyleSheet.create({
   contentContainer: {
     paddingBottom: 20,
   },
-  searchContainer: {
-    marginHorizontal: 16,
-    marginTop: 10,
-    marginBottom: 20,
-  },
-  searchInputContainer: {
-    marginBottom: 0,
-  },
-  searchInput: {
-    fontSize: 30,
-  },
+
   section: {
     marginBottom: 20,
   },

@@ -43,13 +43,6 @@ const App = () => {
     <ErrorBoundary>
       <Provider store={store}>
         <View style={styles.root}>
-          {/* Root level gradient background */}
-          {/* <LinearGradient
-            colors={['#16182A', '#A6A1F6']}
-            style={StyleSheet.absoluteFill}
-            start={{ x: 1, y: 0 }}
-            end={{ x: 0, y: 0 }}
-          /> */}
           <SafeAreaProvider>
             <NavigationContainer>
               <RootLayout />

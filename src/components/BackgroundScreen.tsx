@@ -58,7 +58,7 @@ const styles = StyleSheet.create({
   },
   content: {
     flex: 1,
-    padding: 10,
+    padding: 4,
     zIndex: 1,
     backgroundColor: 'transparent',
   },

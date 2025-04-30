@@ -113,7 +113,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     paddingHorizontal: theme.spacing.md,
-    paddingVertical: theme.spacing['2xl'],
+    paddingVertical: theme.spacing['4xl'],
     backgroundColor: 'transparent',
     justifyContent: 'space-between',
     width: '100%',
