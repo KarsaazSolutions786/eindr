@@ -356,6 +356,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // backgroundColor: theme.colors.background.primary,
+    marginTop:120
   },
   containerHeader: {
     paddingTop: 50,
@@ -366,7 +367,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: theme.spacing.lg,
+    // paddingHorizontal: theme.spacing.sm,
     paddingTop: theme.spacing.md,
     paddingBottom: theme.spacing.xl,
   },
