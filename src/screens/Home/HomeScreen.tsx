@@ -43,11 +43,11 @@ const HomeScreen = ({ navigation }: Props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#16182A',
+    // backgroundColor: '#16182A',
   },
   overlay: {
     ...StyleSheet.absoluteFillObject,
-    backgroundColor: 'rgba(0, 0, 0, 0.20)',
+    // backgroundColor: 'rgba(0, 0, 0, 0.20)',
   },
   safeArea: {
     flex: 1,

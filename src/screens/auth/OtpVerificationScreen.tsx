@@ -136,7 +136,7 @@ const OtpVerificationScreen = ({ navigation }: Props) => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: theme.colors.background.primary,
+    // backgroundColor: theme.colors.background.primary,
     paddingTop: 40,
   },
   container: {

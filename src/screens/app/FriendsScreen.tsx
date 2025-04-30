@@ -15,7 +15,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: theme.colors.background.primary,
   },
   text: {
     color: theme.colors.text.primary,
@@ -23,4 +22,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default FriendsScreen; 
+export default FriendsScreen;

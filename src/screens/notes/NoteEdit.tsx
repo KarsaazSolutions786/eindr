@@ -41,14 +41,14 @@ const NoteEdit = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#141524',
+    // backgroundColor: '#141524',
   },
   scrollContent: {
     flexGrow: 1,
     paddingHorizontal: theme.spacing.lg,
     paddingTop: theme.spacing.md,
     paddingBottom: theme.spacing.xl,
-    backgroundColor: '#141524',
+    // backgroundColor: '#141524',
   },
   formContainer: {
     width: '100%',

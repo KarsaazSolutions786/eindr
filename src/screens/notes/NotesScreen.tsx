@@ -174,11 +174,11 @@ const NotesScreen = () => {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#141524', // Dark background color
+    // backgroundColor: '#141524', // Dark background color
   },
   container: {
     flex: 1,
-    backgroundColor: '#141524',
+    // backgroundColor: '#141524',
   },
   contentContainer: {
     paddingBottom: 20,
