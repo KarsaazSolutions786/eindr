@@ -34,7 +34,6 @@ export const processReminderFromSpeech = (text: string): Reminder | null => {
   if (!isReminder) {
     return null;
   }
-
   // Extract title and time from the text
   let title = '';
   let dateTime = new Date();
@@ -43,13 +42,17 @@ export const processReminderFromSpeech = (text: string): Reminder | null => {
 
   // Extract title based on common phrases
   if (lowerText.includes('remind me to ')) {
-    title = text.split('remind me to ')[1];
+    const parts = text.split('remind me to ');
+    title = parts.length > 1 ? parts[1] : text;
   } else if (lowerText.includes('set a reminder to ')) {
-    title = text.split('set a reminder to ')[1];
+    const parts = text.split('set a reminder to ');
+    title = parts.length > 1 ? parts[1] : text;
   } else if (lowerText.includes('create a reminder to ')) {
-    title = text.split('create a reminder to ')[1];
+    const parts = text.split('create a reminder to ');
+    title = parts.length > 1 ? parts[1] : text;
   } else if (lowerText.includes('add a reminder to ')) {
-    title = text.split('add a reminder to ')[1];
+    const parts = text.split('add a reminder to ');
+    title = parts.length > 1 ? parts[1] : text;
   } else {
     // If no specific pattern found, use the whole text
     title = text;

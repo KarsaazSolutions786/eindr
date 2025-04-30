@@ -11,6 +11,7 @@ import {
   Modal,
   ActivityIndicator,
   Animated,
+  TextInput,
 } from 'react-native';
 import Voice, {
   SpeechRecognizedEvent,
@@ -48,6 +49,7 @@ const VoiceReminder: React.FC = () => {
   const [response, setResponse] = useState<string>('');
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
+  const [manualText, setManualText] = useState<string>('');
 
   // Habit detection states
   const [habitPatterns, setHabitPatterns] = useState<HabitPattern[]>([]);
@@ -308,7 +310,6 @@ const VoiceReminder: React.FC = () => {
 
   const processVoiceInput = async (text: string): Promise<void> => {
     setIsProcessing(true);
-
     // Try to extract reminder information
     const reminder = processReminderFromSpeech(text);
 
@@ -319,11 +320,9 @@ const VoiceReminder: React.FC = () => {
 
       // Save the updated reminders
       await saveReminders(updatedReminders);
-
       // Generate a response for the reminder
       const aiResponse = generateReminderResponse(reminder);
       setResponse(aiResponse);
-
       // Speak the response
       speakResponse(aiResponse);
     } else {
@@ -517,6 +516,26 @@ const VoiceReminder: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      <View style={styles.inputContainer}>
+        <TextInput
+          style={styles.textInput}
+          value={manualText}
+          onChangeText={setManualText}
+          placeholder="Type or speak your reminder..."
+          placeholderTextColor="#666"
+        />
+        <TouchableOpacity
+          style={styles.sendButton}
+          onPress={() => {
+            if (manualText.trim()) {
+              processVoiceInput(manualText);
+              setManualText('');
+            }
+          }}>
+          <Text style={styles.sendButtonText}>Send</Text>
+        </TouchableOpacity>
+      </View>
+
       {/* Assistant response */}
       {response ? (
         <View style={[styles.responseContainer, isSpeaking && styles.speakingContainer]}>
@@ -810,6 +829,37 @@ const styles = StyleSheet.create({
     width: 4,
     backgroundColor: '#2196F3',
     marginHorizontal: 2,
+  },
+  inputContainer: {
+    flexDirection: 'row',
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    margin: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  textInput: {
+    flex: 1,
+    height: 40,
+    color: '#000',
+    fontSize: 16,
+  },
+  sendButton: {
+    backgroundColor: '#2196F3',
+    paddingHorizontal: 15,
+    paddingVertical: 8,
+    borderRadius: 6,
+    marginLeft: 10,
+    justifyContent: 'center',
+  },
+  sendButtonText: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: '600',
   },
 });
 
