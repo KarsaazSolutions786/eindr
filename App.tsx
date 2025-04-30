@@ -16,6 +16,9 @@ import RootLayout from './src/navigation/RootLayout';
 import { store } from './src/store';
 import Toast from 'react-native-toast-message';
 import ErrorBoundary from '@components/ErrorBoundary';
+import SpeechToText from '@screens/SpeechToText';
+import VoiceReminder from '@screens/VoiceReminder';
+import TestHabitDetection from '@screens/TestHabitDetection';
 
 const { width, height } = Dimensions.get('window');
 
@@ -41,7 +44,7 @@ const App = () => {
 
   return (
     <ErrorBoundary>
-      <Provider store={store}>
+      {/* <Provider store={store}>
         <View style={styles.root}>
           <SafeAreaProvider>
             <NavigationContainer>
@@ -50,7 +53,9 @@ const App = () => {
             <Toast />
           </SafeAreaProvider>
         </View>
-      </Provider>
+      </Provider> */}
+      {/* <TestHabitDetection /> */}
+      <VoiceReminder />
     </ErrorBoundary>
   );
 };

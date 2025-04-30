@@ -97,5 +97,9 @@
 		<string>fbapi</string>
 		<string>fb-messenger-share-api</string>
 	</array>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>We need access to your microphone for voice commands</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>We need access to speech recognition for voice commands</string>
 </dict>
 </plist>
