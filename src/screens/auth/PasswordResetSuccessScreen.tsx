@@ -34,7 +34,7 @@ const PasswordResetSuccessScreen = ({ navigation }: Props) => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background.primary,
+    // backgroundColor: theme.colors.background.primary,
   },
   contentContainer: {
     flex: 1,

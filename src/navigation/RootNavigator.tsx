@@ -1,5 +1,6 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import BackgroundScreen from '@components/BackgroundScreen';
 
 // Auth Screens
 import LoginScreen from '@screens/auth/LoginScreen';
@@ -45,6 +46,15 @@ export type RootStackParamList = {
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
+// Wrapper component to add BackgroundScreen to each screen
+const withBackground = (Component: React.ComponentType<any>) => {
+  return (props: any) => (
+    <BackgroundScreen>
+      <Component {...props} />
+    </BackgroundScreen>
+  );
+};
+
 const RootNavigator = () => {
   return (
     <Stack.Navigator
@@ -54,24 +64,30 @@ const RootNavigator = () => {
         animation: 'slide_from_right',
       }}>
       {/* Auth Screens */}
-      <Stack.Screen name="Login" component={LoginScreen} />
-      <Stack.Screen name="Register" component={RegisterScreen} />
-      <Stack.Screen name="ForgotPassword" component={ForgotPasswordScreen} />
-      <Stack.Screen name="OtpVerification" component={OtpVerificationScreen} />
-      <Stack.Screen name="NewPassword" component={NewPasswordScreen} />
-      <Stack.Screen name="PasswordResetSuccess" component={PasswordResetSuccessScreen} />
-      <Stack.Screen name="Registered" component={RegisteredScreen} />
+      <Stack.Screen name="Login" component={withBackground(LoginScreen)} />
+      <Stack.Screen name="Register" component={withBackground(RegisterScreen)} />
+      <Stack.Screen name="ForgotPassword" component={withBackground(ForgotPasswordScreen)} />
+      <Stack.Screen name="OtpVerification" component={withBackground(OtpVerificationScreen)} />
+      <Stack.Screen name="NewPassword" component={withBackground(NewPasswordScreen)} />
+      <Stack.Screen
+        name="PasswordResetSuccess"
+        component={withBackground(PasswordResetSuccessScreen)}
+      />
+      <Stack.Screen name="Registered" component={withBackground(RegisteredScreen)} />
 
       {/* App Screens */}
-      <Stack.Screen name="Home" component={HomeScreen} />
-      <Stack.Screen name="Reminders" component={RemindersScreen} />
-      <Stack.Screen name="Notes" component={NotesScreen} />
-      <Stack.Screen name="Friends" component={FriendsScreen} />
-      <Stack.Screen name="Settings" component={SettingsScreen} />
-      <Stack.Screen name="Calendar" component={CalendarScreen} />
-      <Stack.Screen name="Scan" component={ScanScreen} />
-      <Stack.Screen name="Keyboard" component={KeyboardScreen} />
-      <Stack.Screen name="NoteEdit" component={require('@screens/notes/NoteEdit').default} />
+      <Stack.Screen name="Home" component={withBackground(HomeScreen)} />
+      <Stack.Screen name="Reminders" component={withBackground(RemindersScreen)} />
+      <Stack.Screen name="Notes" component={withBackground(NotesScreen)} />
+      <Stack.Screen name="Friends" component={withBackground(FriendsScreen)} />
+      <Stack.Screen name="Settings" component={withBackground(SettingsScreen)} />
+      <Stack.Screen name="Calendar" component={withBackground(CalendarScreen)} />
+      <Stack.Screen name="Scan" component={withBackground(ScanScreen)} />
+      <Stack.Screen name="Keyboard" component={withBackground(KeyboardScreen)} />
+      <Stack.Screen
+        name="NoteEdit"
+        component={withBackground(require('@screens/notes/NoteEdit').default)}
+      />
     </Stack.Navigator>
   );
 };

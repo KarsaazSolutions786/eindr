@@ -101,9 +101,9 @@ const Header: React.FC<HeaderProps> = ({
 
 const styles = StyleSheet.create({
   safeArea: {
-    backgroundColor: 'transparent',
+    // backgroundColor: 'transparent',
     zIndex: 10,
-    shadowOpacity: 0,
+    // shadowOpacity: 0,
     paddingTop: 40,
   },
   header: {
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingHorizontal: theme.spacing.md,
     paddingVertical: theme.spacing.md,
-    backgroundColor: 'transparent',
+    // backgroundColor: 'transparent',
     justifyContent: 'space-between',
     width: '100%',
   },
