@@ -23,6 +23,7 @@ import KeyboardScreen from '@screens/KeyboardScreen';
 import NoteEdit from '@screens/notes/NoteEdit';
 import FriendRequests from '@screens/friends/FriendRequests';
 import { ProfileScreen } from '@screens/profile';
+import NotificationsScreen from '@screens/notification/NotificationsScreen';
 
 // Define Friend type
 interface Friend {
@@ -59,6 +60,7 @@ export type RootStackParamList = {
   FriendRequests: undefined;
   NoteEdit: { id: string; content: string };
   ProfileScreen: { friend: Friend; isFriend: boolean };
+  NotificationsScreen: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -104,6 +106,7 @@ const RootNavigator = () => {
       <Stack.Screen name="Keyboard" component={withBackground(KeyboardScreen)} />
       <Stack.Screen name="FriendRequests" component={withBackground(FriendRequests)} />
       <Stack.Screen name="ProfileScreen" component={withBackground(ProfileScreen)} />
+      <Stack.Screen name="NotificationsScreen" component={withBackground(NotificationsScreen)} />
     </Stack.Navigator>
   );
 };

@@ -13,6 +13,9 @@ import {
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import { BlurView } from '@react-native-community/blur';
 import theme from '@theme/theme';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@navigation/RootNavigator';
 
 interface SidebarProps {
   isVisible: boolean;
@@ -21,7 +24,6 @@ interface SidebarProps {
   userImage?: string;
   onLanguageChange?: () => void;
   onRingPress?: () => void;
-  onNotificationPress?: () => void;
   onRemindersPress?: () => void;
 }
 
@@ -34,11 +36,11 @@ const Sidebar: React.FC<SidebarProps> = ({
   userImage,
   onLanguageChange,
   onRingPress,
-  onNotificationPress,
   onRemindersPress,
 }) => {
   // Animation value for the sidebar sliding
   const slideAnim = useRef(new Animated.Value(-300)).current;
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   // Format current date in DD-MM-YYYY format
   const formatDate = () => {
@@ -70,6 +72,11 @@ const Sidebar: React.FC<SidebarProps> = ({
       }).start();
     }
   }, [isVisible, slideAnim]);
+
+  const handleNotificationPress = () => {
+    onClose();
+    navigation.navigate('NotificationsScreen');
+  };
 
   return (
     <Modal animationType="none" transparent={true} visible={isVisible} onRequestClose={onClose}>
@@ -128,7 +135,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 <Text style={styles.menuItemText}>Ring</Text>
               </TouchableOpacity>
 
-              <TouchableOpacity style={styles.menuItem} onPress={onNotificationPress}>
+              <TouchableOpacity style={styles.menuItem} onPress={handleNotificationPress}>
                 <FontAwesome
                   name="bell"
                   size={20}
@@ -183,8 +190,8 @@ const styles = StyleSheet.create({
   sidebarContent: {
     flex: 1,
     padding: theme.spacing.lg,
-    marginLeft:1060,
-    marginTop:270
+    marginLeft: 1060,
+    marginTop: 270,
   },
   closeButton: {
     alignSelf: 'flex-start',

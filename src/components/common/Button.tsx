@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -80,10 +80,32 @@ const Button: React.FC<ButtonProps> = ({
   const buttonStyles = getButtonStyles(variant, disabled);
   const sizeStyles = getSizeStyles(size);
 
+  // Define all color sets with high contrast colors
+  const colorSets = [
+    ['#f5f3ff', '#c4b7ff'],
+    ['#c4b7ff', '#f5f3ff'],
+  ];
+
+  // State to track current color set
+  const [currentColorIndex, setCurrentColorIndex] = useState(0);
+
+  useEffect(() => {
+    // Setup timer for color changes
+    const timer = setTimeout(() => {
+      setCurrentColorIndex(prevIndex => (prevIndex + 1) % colorSets.length);
+    }, 800); // Change color every 800ms for more visible change
+
+    // Cleanup
+    return () => clearTimeout(timer);
+  }, [currentColorIndex]); // Depends on currentColorIndex to create continuous chain
+
+  // Get current colors
+  const currentColors = colorSets[currentColorIndex];
+
   return (
     <View style={[styles.buttonContainer, { width: fullWidth ? '100%' : 'auto' }]}>
       <LinearGradient
-        colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
+        colors={currentColors}
         start={{ x: 1, y: 1 }}
         end={{ x: 1, y: 0 }}
         style={[
