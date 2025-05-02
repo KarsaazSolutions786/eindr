@@ -34,6 +34,7 @@ import {
   getHabitSuggestions,
   generateHabitSuggestionResponse,
 } from '../services/HabitDetectionService';
+import { Picker } from '@react-native-picker/picker';
 
 interface RecognizedText {
   value: string;
@@ -50,6 +51,7 @@ const VoiceReminder: React.FC = () => {
   const [isProcessing, setIsProcessing] = useState<boolean>(false);
   const [isSpeaking, setIsSpeaking] = useState<boolean>(false);
   const [manualText, setManualText] = useState<string>('');
+  const [selectedLanguage, setSelectedLanguage] = useState('en-US');
 
   // Habit detection states
   const [habitPatterns, setHabitPatterns] = useState<HabitPattern[]>([]);
@@ -60,6 +62,19 @@ const VoiceReminder: React.FC = () => {
   const bar1Anim = useRef(new Animated.Value(10)).current;
   const bar2Anim = useRef(new Animated.Value(16)).current;
   const bar3Anim = useRef(new Animated.Value(12)).current;
+
+  const languages = [
+    { code: 'en-US', name: 'English (US)' },
+    { code: 'hi-IN', name: 'Hindi' },
+    { code: 'ur-PK', name: 'Urdu' },
+    { code: 'es-ES', name: 'Spanish' },
+    { code: 'fr-FR', name: 'French' },
+    { code: 'de-DE', name: 'German' },
+    { code: 'it-IT', name: 'Italian' },
+    { code: 'ja-JP', name: 'Japanese' },
+    { code: 'ko-KR', name: 'Korean' },
+    { code: 'zh-CN', name: 'Chinese' },
+  ];
 
   useEffect(() => {
     // Initialize Voice
@@ -135,7 +150,7 @@ const VoiceReminder: React.FC = () => {
   const initializeTts = async () => {
     try {
       // Set default language and properties
-      await Tts.setDefaultLanguage('en-US');
+      await Tts.setDefaultLanguage(selectedLanguage);
       await Tts.setDefaultRate(0.5); // Slower speech rate for clarity
       await Tts.setDefaultPitch(1.0);
 
@@ -187,14 +202,15 @@ const VoiceReminder: React.FC = () => {
   };
 
   // Set TTS language based on user preference
-  const setTtsLanguage = (languageCode: string) => {
+  const setTtsLanguage = async (languageCode: string) => {
     try {
-      Tts.setDefaultLanguage(languageCode);
+      await Tts.setDefaultLanguage(languageCode);
+      setSelectedLanguage(languageCode);
       console.log(`TTS language set to: ${languageCode}`);
     } catch (error) {
       console.error('Failed to set TTS language:', error);
-      // Fallback to English
-      Tts.setDefaultLanguage('en-US');
+      // Don't fallback to English, keep the selected language
+      setSelectedLanguage(languageCode);
     }
   };
 
@@ -514,8 +530,26 @@ const VoiceReminder: React.FC = () => {
     </View>
   );
 
+  const renderLanguageSelector = () => (
+    <View style={styles.languageContainer}>
+      <Text style={styles.languageLabel}>Select Language:</Text>
+      <View style={styles.pickerContainer}>
+        <Picker
+          selectedValue={selectedLanguage}
+          onValueChange={value => setTtsLanguage(value)}
+          style={styles.picker}
+          dropdownIconColor="#2196F3">
+          {languages.map(lang => (
+            <Picker.Item key={lang.code} label={lang.name} value={lang.code} color="#333" />
+          ))}
+        </Picker>
+      </View>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
+      {renderLanguageSelector()}
       <View style={styles.inputContainer}>
         <TextInput
           style={styles.textInput}
@@ -860,6 +894,34 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontSize: 16,
     fontWeight: '600',
+  },
+  languageContainer: {
+    padding: 10,
+    backgroundColor: '#fff',
+    borderRadius: 8,
+    margin: 10,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  languageLabel: {
+    fontSize: 16,
+    fontWeight: '600',
+    marginBottom: 10,
+    color: '#333',
+  },
+  pickerContainer: {
+    borderWidth: 1,
+    borderColor: '#ddd',
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  picker: {
+    height: 50,
+    width: '100%',
+    backgroundColor: '#fff',
   },
 });
 
