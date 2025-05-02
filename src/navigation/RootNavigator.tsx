@@ -24,6 +24,7 @@ import NoteEdit from '@screens/notes/NoteEdit';
 import FriendRequests from '@screens/friends/FriendRequests';
 import { ProfileScreen } from '@screens/profile';
 import NotificationsScreen from '@screens/notification/NotificationsScreen';
+import BackgroundScreen2 from '@components/common/BackgroundScreen2';
 
 // Define Friend type
 interface Friend {
@@ -71,6 +72,14 @@ const withBackground = <P extends object>(Component: React.ComponentType<P>) => 
     <BackgroundScreen>
       <Component {...props} />
     </BackgroundScreen>
+  );
+};
+
+const withBackground2 = <P extends object>(Component: React.ComponentType<P>) => {
+  return (props: P) => (
+    <BackgroundScreen2>
+      <Component {...props} />
+    </BackgroundScreen2>
   );
 };
 

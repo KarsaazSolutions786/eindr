@@ -63,7 +63,7 @@ const Header: React.FC<HeaderProps> = ({
             <Image source={{ uri: profileImage }} style={styles.profileImage} />
           ) : (
             <View style={styles.profilePlaceholder}>
-              <FontAwesome name="user" size={20} color={theme.colors.white} />
+              <FontAwesome name="message" size={20} color={theme.colors.white} />
             </View>
           )}
         </TouchableOpacity>
