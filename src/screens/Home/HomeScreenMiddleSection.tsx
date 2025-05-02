@@ -175,7 +175,7 @@ const styles = StyleSheet.create({
   orbContainer: {
     alignItems: 'center',
     justifyContent: 'center',
-    marginTop: 20,
+    marginTop: 120,
     marginBottom: 20,
   },
   orbTouchable: {

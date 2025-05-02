@@ -21,6 +21,20 @@ import CalendarScreen from '@screens/CalendarScreen';
 import ScanScreen from '@screens/ScanScreen';
 import KeyboardScreen from '@screens/KeyboardScreen';
 import NoteEdit from '@screens/notes/NoteEdit';
+import FriendRequests from '@screens/friends/FriendRequests';
+import { ProfileScreen } from '@screens/profile';
+
+// Define Friend type
+interface Friend {
+  id: string;
+  name: string;
+  username: string;
+  profilePic: string;
+  bio?: string;
+  followers?: number;
+  following?: number;
+  isTrusted?: boolean;
+}
 
 // Define combined Param List
 export type RootStackParamList = {
@@ -42,7 +56,9 @@ export type RootStackParamList = {
   Calendar: undefined;
   Scan: undefined;
   Keyboard: undefined;
+  FriendRequests: undefined;
   NoteEdit: { id: string; content: string };
+  ProfileScreen: { friend: Friend; isFriend: boolean };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -86,6 +102,8 @@ const RootNavigator = () => {
       <Stack.Screen name="Calendar" component={withBackground(CalendarScreen)} />
       <Stack.Screen name="Scan" component={withBackground(ScanScreen)} />
       <Stack.Screen name="Keyboard" component={withBackground(KeyboardScreen)} />
+      <Stack.Screen name="FriendRequests" component={withBackground(FriendRequests)} />
+      <Stack.Screen name="ProfileScreen" component={withBackground(ProfileScreen)} />
     </Stack.Navigator>
   );
 };

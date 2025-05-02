@@ -45,14 +45,14 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     flexGrow: 1,
-    paddingHorizontal: theme.spacing.lg,
-    paddingTop: theme.spacing.md,
+    paddingHorizontal: theme.spacing.md,
+    paddingTop: theme.spacing.lg,
     paddingBottom: theme.spacing.xl,
     // backgroundColor: '#141524',
   },
   formContainer: {
     width: '100%',
-    marginTop: theme.spacing.xl,
+    marginTop: 130,
     alignItems: 'center',
   },
   gradientBorder: {

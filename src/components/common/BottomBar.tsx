@@ -15,8 +15,8 @@ type TabItem = {
 };
 
 const TABS: TabItem[] = [
-  { key: 'Calendar', icon: 'calendar-today' },
-  { key: 'Scan', icon: 'crop-free' },
+  { key: 'ProfileScreen', icon: 'calendar-today' },
+  { key: 'FriendRequests', icon: 'crop-free' },
   { key: 'Notes', icon: 'edit', label: 'Notes', isMain: true },
 ];
 
@@ -75,7 +75,7 @@ const BottomBar: React.FC = () => {
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 25,
+    bottom: 20,
     left: 0,
     right: 0,
     height: 80,
