@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     // backgroundColor: theme.colors.background.primary,
-    paddingTop: 40,
+    paddingTop: 190,
   },
   container: {
     flex: 1,

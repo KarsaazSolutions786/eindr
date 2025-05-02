@@ -284,6 +284,7 @@ const styles = StyleSheet.create({
     flex: 1,
     // backgroundColor: theme.colors.background.primary,
     paddingBottom: theme.spacing.xl,
+    marginTop: 160,
   },
   keyboardAvoidingView: {
     flex: 1,
