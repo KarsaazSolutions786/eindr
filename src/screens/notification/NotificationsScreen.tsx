@@ -99,8 +99,18 @@ const NotificationsScreen: React.FC = () => {
           ))}
         </View>
 
-        <TouchableOpacity style={styles.viewOldButton}>
-          <Text style={styles.viewOldText}>View old notifications</Text>
+        <TouchableOpacity style={styles.viewOldButtonContainer}>
+          <View style={styles.viewOldButtonWrapper}>
+            <LinearGradient
+              colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 1 }}
+              style={styles.viewOldBorder}
+            />
+            <View style={styles.viewOldButton}>
+              <Text style={styles.viewOldText}>View old notifications</Text>
+            </View>
+          </View>
         </TouchableOpacity>
       </ScrollView>
     </View>
@@ -146,17 +156,38 @@ const styles = StyleSheet.create({
   notificationsContainer: {
     marginBottom: 24,
   },
+  viewOldButtonContainer: {
+    position: 'relative',
+    marginBottom: 150,
+    alignSelf: 'center',
+    width: '40%',
+  },
+  viewOldButtonWrapper: {
+    position: 'relative',
+    borderRadius: 12,
+    overflow: 'hidden',
+  },
+  viewOldBorder: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    borderRadius: 12,
+  },
   viewOldButton: {
-    backgroundColor: '#2D2F3E',
-    borderRadius: 20,
+    borderRadius: 10,
     paddingVertical: 12,
     alignItems: 'center',
-    marginTop: 8,
-    marginBottom: 100,
+    justifyContent: 'center',
+    backgroundColor: '#30304E',
+    overflow: 'hidden',
+    margin: 1.5,
   },
   viewOldText: {
     color: '#FFF',
     fontSize: 14,
+    // fontWeight: '500',
   },
   sortButtonGradient: {
     borderRadius: 20,

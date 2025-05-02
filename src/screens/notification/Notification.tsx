@@ -176,7 +176,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   notificationItem: {
-    backgroundColor: '#3a3b55',
+    backgroundColor: '#2A2B38',
     borderRadius: 12,
     flexDirection: 'row',
     padding: 15,
