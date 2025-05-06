@@ -161,7 +161,8 @@ const FriendsScreen = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#161329',
+    // backgroundColor: '#161329',
+    marginTop: 190,
   },
   tabContainer: {
     flexDirection: 'row',

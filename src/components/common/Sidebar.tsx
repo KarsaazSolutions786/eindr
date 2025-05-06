@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import {
   View,
   Text,
@@ -9,50 +9,69 @@ import {
   Dimensions,
   Pressable,
   Animated,
+  ScrollView,
+  TextStyle,
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { BlurView } from '@react-native-community/blur';
 import theme from '@theme/theme';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
+import LinearGradient from 'react-native-linear-gradient';
+import MaskedView from '@react-native-masked-view/masked-view';
 
 interface SidebarProps {
   isVisible: boolean;
   onClose: () => void;
   userName?: string;
+  userEmail?: string;
   userImage?: string;
-  onLanguageChange?: () => void;
-  onRingPress?: () => void;
-  onRemindersPress?: () => void;
+  onLogout?: () => void;
 }
 
 const { width } = Dimensions.get('window');
 
+// Gradient Text component
+const GradientText = ({
+  text,
+  colors,
+  style,
+}: {
+  text: string;
+  colors: string[];
+  style?: TextStyle | TextStyle[];
+}) => {
+  return (
+    <MaskedView maskElement={<Text style={style}>{text}</Text>}>
+      <LinearGradient colors={colors} start={{ x: 0, y: 0 }} end={{ x: 1, y: 0 }}>
+        <Text style={[style, { opacity: 0 }]}>{text}</Text>
+      </LinearGradient>
+    </MaskedView>
+  );
+};
+
 const Sidebar: React.FC<SidebarProps> = ({
   isVisible,
   onClose,
-  userName = 'Kamran',
+  userName = 'Ahmad Ali',
+  userEmail = 'kamran@gmail.com',
   userImage,
-  onLanguageChange,
-  onRingPress,
-  onRemindersPress,
+  onLogout,
 }) => {
   // Animation value for the sidebar sliding
   const slideAnim = useRef(new Animated.Value(-300)).current;
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
-  // Format current date in DD-MM-YYYY format
-  const formatDate = () => {
-    const date = new Date();
-    const day = String(date.getDate()).padStart(2, '0');
-    const month = String(date.getMonth() + 1).padStart(2, '0');
-    const year = date.getFullYear();
-    const hours = String(date.getHours()).padStart(2, '0');
-    const minutes = String(date.getMinutes()).padStart(2, '0');
-
-    return `${day}-${month}-${year} ${hours}:${minutes}`;
-  };
+  // Collapsible section states
+  const [chatsExpanded, setChatsExpanded] = useState(true);
+  const [settingsExpanded, setSettingsExpanded] = useState(true);
+  const [todayExpanded, setTodayExpanded] = useState(true);
+  const [oneWeekExpanded, setOneWeekExpanded] = useState(false);
+  const [oneMonthExpanded, setOneMonthExpanded] = useState(false);
+  const [reminderSettingsExpanded, setReminderSettingsExpanded] = useState(true);
+  const [supportExpanded, setSupportExpanded] = useState(false);
 
   // Control animation when visibility changes
   useEffect(() => {
@@ -73,13 +92,41 @@ const Sidebar: React.FC<SidebarProps> = ({
     }
   }, [isVisible, slideAnim]);
 
-  const handleNotificationPress = () => {
+  const handleLogout = () => {
+    if (onLogout) {
+      onLogout();
+    }
     onClose();
-    navigation.navigate('NotificationsScreen');
+  };
+
+  // New function to handle navigation - fixed with proper typing
+  const navigateToScreen = (screenName: keyof RootStackParamList) => {
+    onClose();
+    // Fix the typing by passing the screen name directly
+    if (screenName === 'NotificationSettingsScreen') {
+      navigation.navigate('NotificationSettingsScreen');
+    } else if (screenName === 'NotificationsScreen') {
+      navigation.navigate('NotificationsScreen');
+    } else if (screenName === 'Settings') {
+      navigation.navigate('Settings');
+    } else if (screenName === 'LanguageSettingsScreen') {
+      navigation.navigate('LanguageSettingsScreen');
+    } else if (screenName === 'ChangePasswordScreen') {
+      navigation.navigate('ChangePasswordScreen');
+    } else if (screenName === 'SupportAndAboutScreen') {
+      navigation.navigate('SupportAndAboutScreen');
+    } else if (screenName === 'PrivacyPolicyScreen') {
+      navigation.navigate('PrivacyPolicyScreen');
+    }
   };
 
   return (
-    <Modal animationType="none" transparent={true} visible={isVisible} onRequestClose={onClose}>
+    <Modal
+      animationType="none"
+      transparent={true}
+      visible={isVisible}
+      onRequestClose={onClose}
+      statusBarTranslucent={true}>
       <View style={styles.modalContainer}>
         <Animated.View
           style={[
@@ -88,74 +135,226 @@ const Sidebar: React.FC<SidebarProps> = ({
               transform: [{ translateX: slideAnim }],
             },
           ]}>
-          <BlurView
-            style={StyleSheet.absoluteFill}
-            blurType="dark"
-            blurAmount={15}
-            reducedTransparencyFallbackColor="rgba(30, 32, 58, 0.95)"
-          />
-          <View style={styles.overlay} />
-          <View style={styles.sidebarContent}>
-            {/* Close button */}
-            <TouchableOpacity style={styles.closeButton} onPress={onClose}>
-              <FontAwesome name="times" size={24} color={theme.colors.white} />
-            </TouchableOpacity>
+          {/* Background with dark color */}
+          <View style={[StyleSheet.absoluteFill, styles.sidebarBackground]} />
 
-            {/* User profile section */}
-            <View style={styles.profileSection}>
-              {userImage ? (
-                <Image source={{ uri: userImage }} style={styles.profileImage} />
-              ) : (
-                <View style={styles.profileImagePlaceholder}>
-                  <FontAwesome name="user" size={24} color={theme.colors.white} />
+          {/* Right edge */}
+          <View style={styles.sidebarEdge} />
+
+          <BlurView style={StyleSheet.absoluteFill} blurType="dark" blurAmount={15} />
+
+          <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
+            <View style={styles.sidebarContent}>
+              {/* Close button */}
+              <TouchableOpacity style={styles.closeButton} onPress={onClose}>
+                <FontAwesome name="times" size={24} color={theme.colors.white} />
+              </TouchableOpacity>
+
+              {/* User profile section */}
+              <View style={styles.profileSection}>
+                {userImage ? (
+                  <Image source={{ uri: userImage }} style={styles.profileImage} />
+                ) : (
+                  <View style={styles.profileImagePlaceholder}>
+                    <FontAwesome name="user" size={24} color={theme.colors.white} />
+                  </View>
+                )}
+
+                <View style={styles.profileTextContainer}>
+                  <GradientText
+                    text={userName}
+                    colors={['#B2A1FF', '#C07DDF']}
+                    style={styles.userName}
+                  />
+                  <Text style={styles.userEmail}>{userEmail}</Text>
                 </View>
-              )}
-              <Text style={styles.userName}>{userName}</Text>
-              <Text style={styles.dateTime}>{formatDate()}</Text>
-            </View>
+              </View>
 
-            {/* Language selector */}
-            <View style={styles.menuSection}>
-              <Text style={styles.sectionLabel}>Language</Text>
-              <TouchableOpacity style={styles.menuItem} onPress={onLanguageChange}>
-                <Text style={styles.menuItemText}>English</Text>
-                {/* <FontAwesome name="chevron-down" size={12} color={theme.colors.white} /> */}
-              </TouchableOpacity>
-            </View>
+              {/* Chats Section */}
+              <View style={styles.sectionContainer}>
+                <TouchableOpacity
+                  style={styles.sectionHeader}
+                  onPress={() => setChatsExpanded(!chatsExpanded)}>
+                  <GradientText
+                    text="Chats"
+                    colors={['#B2A1FF', '#C07DDF']}
+                    style={styles.sectionTitle}
+                  />
+                  <MaterialIcons
+                    name={chatsExpanded ? 'keyboard-arrow-down' : 'keyboard-arrow-right'}
+                    size={24}
+                    color={theme.colors.white}
+                  />
+                </TouchableOpacity>
 
-            {/* Menu options */}
-            <View style={styles.menuSection}>
-              <TouchableOpacity style={styles.menuItem} onPress={onRingPress}>
-                <FontAwesome
-                  name="bell-o"
-                  size={20}
-                  color={theme.colors.white}
-                  style={styles.menuIcon}
+                {chatsExpanded && (
+                  <View style={styles.sectionContent}>
+                    {/* Today subsection */}
+                    <TouchableOpacity
+                      style={styles.subsectionHeader}
+                      onPress={() => setTodayExpanded(!todayExpanded)}>
+                      <MaterialIcons
+                        name={todayExpanded ? 'keyboard-arrow-down' : 'keyboard-arrow-right'}
+                        size={20}
+                        color={theme.colors.white}
+                      />
+                      <Text style={styles.subsectionTitle}>Today</Text>
+                    </TouchableOpacity>
+
+                    {todayExpanded && (
+                      <View style={styles.subsectionContent}>
+                        <TouchableOpacity style={styles.menuItem}>
+                          <Text style={styles.menuItemText}>Dad's Appointment</Text>
+                        </TouchableOpacity>
+                      </View>
+                    )}
+
+                    {/* 1 Week ago subsection */}
+                    <TouchableOpacity
+                      style={styles.subsectionHeader}
+                      onPress={() => setOneWeekExpanded(!oneWeekExpanded)}>
+                      <MaterialIcons
+                        name={oneWeekExpanded ? 'keyboard-arrow-down' : 'keyboard-arrow-right'}
+                        size={20}
+                        color={theme.colors.white}
+                      />
+                      <Text style={styles.subsectionTitle}>1 Week ago</Text>
+                    </TouchableOpacity>
+
+                    {/* 1 Month ago subsection */}
+                    <TouchableOpacity
+                      style={styles.subsectionHeader}
+                      onPress={() => setOneMonthExpanded(!oneMonthExpanded)}>
+                      <MaterialIcons
+                        name={oneMonthExpanded ? 'keyboard-arrow-down' : 'keyboard-arrow-right'}
+                        size={20}
+                        color={theme.colors.white}
+                      />
+                      <Text style={styles.subsectionTitle}>1 Month ago</Text>
+                    </TouchableOpacity>
+                  </View>
+                )}
+              </View>
+
+              {/* Settings Section */}
+              <View style={styles.sectionContainer}>
+                <TouchableOpacity
+                  style={styles.sectionHeader}
+                  onPress={() => setSettingsExpanded(!settingsExpanded)}>
+                  <GradientText
+                    text="Settings"
+                    colors={['#B2A1FF', '#C07DDF']}
+                    style={styles.sectionTitle}
+                  />
+                  <MaterialIcons
+                    name={settingsExpanded ? 'keyboard-arrow-down' : 'keyboard-arrow-right'}
+                    size={24}
+                    color={theme.colors.white}
+                  />
+                </TouchableOpacity>
+
+                {settingsExpanded && (
+                  <View style={styles.sectionContent}>
+                    {/* Reminder Settings subsection */}
+                    <TouchableOpacity
+                      style={styles.subsectionHeader}
+                      onPress={() => setReminderSettingsExpanded(!reminderSettingsExpanded)}>
+                      <MaterialIcons
+                        name={
+                          reminderSettingsExpanded ? 'keyboard-arrow-down' : 'keyboard-arrow-right'
+                        }
+                        size={20}
+                        color={theme.colors.white}
+                      />
+                      <Text style={styles.subsectionTitle}>Reminder Settings</Text>
+                    </TouchableOpacity>
+
+                    {reminderSettingsExpanded && (
+                      <View style={styles.subsectionContent}>
+                        <TouchableOpacity
+                          style={styles.menuItem}
+                          onPress={() => navigateToScreen('NotificationSettingsScreen')}>
+                          <GradientText
+                            text="Notification Sound"
+                            colors={['#FFFFFF', '#CCD2FF']}
+                            style={styles.menuItemText}
+                          />
+                        </TouchableOpacity>
+                        <TouchableOpacity
+                          style={styles.menuItem}
+                          onPress={() => navigateToScreen('LanguageSettingsScreen')}>
+                          <GradientText
+                            text="Language Settings"
+                            colors={['#FFFFFF', '#CCD2FF']}
+                            style={styles.menuItemText}
+                          />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity
+                          style={styles.menuItem}
+                          onPress={() => navigateToScreen('ChangePasswordScreen')}>
+                          <GradientText
+                            text="Change Password"
+                            colors={['#FFFFFF', '#CCD2FF']}
+                            style={styles.menuItemText}
+                          />
+                        </TouchableOpacity>
+
+                        <TouchableOpacity style={styles.menuItem}>
+                          <GradientText
+                            text="Account Management"
+                            colors={['#FFFFFF', '#CCD2FF']}
+                            style={styles.menuItemText}
+                          />
+                        </TouchableOpacity>
+                      </View>
+                    )}
+
+                    {/* Support & Abouts subsection */}
+                    <TouchableOpacity
+                      style={styles.subsectionHeader}
+                      onPress={() => setSupportExpanded(!supportExpanded)}>
+                      <MaterialIcons
+                        name={supportExpanded ? 'keyboard-arrow-down' : 'keyboard-arrow-right'}
+                        size={20}
+                        color={theme.colors.white}
+                      />
+                      <Text style={styles.subsectionTitle}>Support & Abouts</Text>
+                    </TouchableOpacity>
+
+                    {supportExpanded && (
+                      <>
+                        <View style={styles.subsectionContent}>
+                          <TouchableOpacity
+                            style={styles.menuItem}
+                            onPress={() => navigateToScreen('SupportAndAboutScreen')}>
+                            <Text style={styles.menuItemText}>About App</Text>
+                          </TouchableOpacity>
+                        </View>
+                        <View style={styles.subsectionContent}>
+                          <TouchableOpacity
+                            style={styles.menuItem}
+                            onPress={() => navigateToScreen('PrivacyPolicyScreen')}>
+                            <Text style={styles.menuItemText}>Terms of policy</Text>
+                          </TouchableOpacity>
+                        </View>
+                      </>
+                    )}
+                  </View>
+                )}
+              </View>
+
+              {/* Logout Button */}
+              <TouchableOpacity style={styles.logoutButton} onPress={handleLogout}>
+                <GradientText
+                  text="Logout"
+                  colors={['#B2A1FF', '#C07DDF']}
+                  style={styles.logoutText}
                 />
-                <Text style={styles.menuItemText}>Ring</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.menuItem} onPress={handleNotificationPress}>
-                <FontAwesome
-                  name="bell"
-                  size={20}
-                  color={theme.colors.white}
-                  style={styles.menuIcon}
-                />
-                <Text style={styles.menuItemText}>Notification</Text>
-              </TouchableOpacity>
-
-              <TouchableOpacity style={styles.menuItem} onPress={onRemindersPress}>
-                <FontAwesome
-                  name="clock-o"
-                  size={20}
-                  color={theme.colors.white}
-                  style={styles.menuIcon}
-                />
-                <Text style={styles.menuItemText}>See All Reminder</Text>
+                <MaterialIcons name="logout" size={20} color="#9E6CFF" style={styles.logoutIcon} />
               </TouchableOpacity>
             </View>
-          </View>
+          </ScrollView>
         </Animated.View>
 
         <Pressable style={styles.dismissArea} onPress={onClose} />
@@ -168,90 +367,133 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     flexDirection: 'row',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   dismissArea: {
     flex: 1,
-    // backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    backgroundColor: 'transparent',
   },
   sidebar: {
-    // width: width * 0.75,
-    width: 1350,
-    height: 1350,
-    // height: height,
+    width: width * 0.7,
+    height: '100%',
     overflow: 'hidden',
-    borderRadius: 600,
-    marginTop: -250,
-    marginLeft: -1050,
   },
-  overlay: {
-    ...StyleSheet.absoluteFillObject,
-    // backgroundColor: 'rgba(30, 32, 58, 0.5)',
+  sidebarBackground: {
+    backgroundColor: 'rgba(30, 32, 58, 0.95)',
+  },
+  sidebarEdge: {
+    position: 'absolute',
+    right: 0,
+    top: 0,
+    width: 2,
+    height: '100%',
+    zIndex: 2,
+  },
+  scrollView: {
+    flex: 1,
   },
   sidebarContent: {
     flex: 1,
-    padding: theme.spacing.lg,
-    marginLeft: 1060,
-    marginTop: 270,
+    padding: 16,
+    paddingBottom: 40,
   },
   closeButton: {
     alignSelf: 'flex-start',
-    padding: theme.spacing.sm,
-    marginBottom: theme.spacing.md,
+    padding: 8,
+    marginBottom: 16,
   },
   profileSection: {
-    alignItems: 'flex-start',
-    marginBottom: theme.spacing.xl,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: 24,
+    paddingLeft: 8,
+    paddingRight: 8,
+  },
+  profileTextContainer: {
+    flex: 1,
+    marginRight: 20,
   },
   profileImage: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    marginBottom: theme.spacing.sm,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
   },
   profileImagePlaceholder: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    backgroundColor: theme.colors.background.secondary,
+    marginRight: 5,
+    width: 42,
+    height: 42,
+    borderRadius: 21,
+    backgroundColor: 'rgba(84, 84, 124, 0.7)',
     alignItems: 'center',
     justifyContent: 'center',
-    marginBottom: theme.spacing.sm,
   },
   userName: {
-    fontSize: theme.typography.fontSize.lg,
-    fontFamily: theme.typography.fontFamily.medium,
+    fontSize: 16,
+    fontWeight: '500',
     color: theme.colors.white,
     marginBottom: 2,
   },
-  dateTime: {
-    fontSize: theme.typography.fontSize.sm,
-    fontFamily: theme.typography.fontFamily.regular,
-    color: 'rgba(255, 255, 255, 0.7)',
+  userEmail: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.6)',
   },
-  menuSection: {
-    marginBottom: theme.spacing.xl,
+  sectionContainer: {
+    marginBottom: 16,
   },
-  sectionLabel: {
-    fontSize: theme.typography.fontSize.md,
-    fontFamily: theme.typography.fontFamily.regular,
+  sectionHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 8,
+    paddingHorizontal: 8,
+    borderTopWidth: 0.5,
+    borderTopColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  sectionTitle: {
+    fontSize: 25,
+    fontWeight: '400',
     color: theme.colors.white,
-    marginBottom: theme.spacing.sm,
   },
-  menuItem: {
+  sectionContent: {
+    paddingLeft: 8,
+  },
+  subsectionHeader: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingVertical: theme.spacing.md,
+    paddingVertical: 10,
   },
-  menuIcon: {
-    marginRight: theme.spacing.md,
-    width: 24,
-    textAlign: 'center',
+  subsectionTitle: {
+    fontSize: 14,
+    color: theme.colors.white,
+    marginLeft: 8,
+  },
+  subsectionContent: {
+    paddingLeft: 28,
+  },
+  menuItem: {
+    paddingVertical: 8,
+    paddingRight: 8,
   },
   menuItemText: {
-    fontSize: theme.typography.fontSize.md,
-    fontFamily: theme.typography.fontFamily.regular,
+    fontSize: 14,
     color: theme.colors.white,
-    flex: 1,
+  },
+  logoutButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginTop: 24,
+    paddingVertical: 8,
+    paddingHorizontal: 12,
+  },
+  logoutText: {
+    fontSize: 20,
+    fontWeight: '400',
+    color: '#9E6CFF',
+  },
+  logoutIcon: {
+    marginLeft: 4,
   },
 });
 

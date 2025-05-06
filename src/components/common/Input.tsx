@@ -107,7 +107,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: theme.typography.fontSize.lg,
-    color: theme.colors.text.secondary,
+    color: theme.colors.text.primary,
     marginBottom: theme.spacing.sm,
     fontFamily: theme.typography.fontFamily.medium,
   },

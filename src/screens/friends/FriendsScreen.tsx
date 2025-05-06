@@ -175,6 +175,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.08)',
+    
   },
   friendInfo: {
     flexDirection: 'row',

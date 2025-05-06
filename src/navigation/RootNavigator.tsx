@@ -23,8 +23,15 @@ import KeyboardScreen from '@screens/KeyboardScreen';
 import NoteEdit from '@screens/notes/NoteEdit';
 import FriendRequests from '@screens/friends/FriendRequests';
 import { ProfileScreen } from '@screens/profile';
+import ChangePasswordScreen from '@screens/profile/ChangePasswordScreen';
+import SupportAndAboutScreen from '@screens/app/SupportAndAboutScreen';
+import PrivacyPolicyScreen from '@screens/app/PrivacyPolicyScreen';
+import LedgerScreen from '@screens/app/LedgerScreen';
 import NotificationsScreen from '@screens/notification/NotificationsScreen';
+import NotificationSettingsScreen from '@screens/notification/NotificationSettingsScreen';
+import LanguageSettingsScreen from '@screens/notification/LanguageSettingsScreen';
 import BackgroundScreen2 from '@components/common/BackgroundScreen2';
+import DashboardScreen from '@screens/dashboard/DashboardScreen';
 
 // Define Friend type
 interface Friend {
@@ -37,6 +44,12 @@ interface Friend {
   following?: number;
   isTrusted?: boolean;
 }
+
+// Navigation Options Type
+export type NavigationOptions = {
+  showHeader?: boolean;
+  showBottomBar?: boolean;
+};
 
 // Define combined Param List
 export type RootStackParamList = {
@@ -51,6 +64,8 @@ export type RootStackParamList = {
 
   // App Screens
   Home: undefined;
+  Dashboard: undefined;
+  Ledger: undefined;
   Reminders: undefined;
   Notes: undefined;
   Friends: undefined;
@@ -61,10 +76,48 @@ export type RootStackParamList = {
   FriendRequests: undefined;
   NoteEdit: { id: string; content: string };
   ProfileScreen: { friend: Friend; isFriend: boolean };
+  ChangePasswordScreen: undefined;
+  SupportAndAboutScreen: undefined;
+  PrivacyPolicyScreen: undefined;
   NotificationsScreen: undefined;
+  NotificationSettingsScreen: undefined;
+  LanguageSettingsScreen: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
+
+// Screen configuration with navigation options
+export const screenConfig: Record<keyof RootStackParamList, NavigationOptions> = {
+  // Auth Screens
+  Login: {},
+  Register: {},
+  ForgotPassword: {},
+  OtpVerification: {},
+  NewPassword: {},
+  PasswordResetSuccess: {},
+  Registered: {},
+
+  // App Screens
+  Home: { showHeader: true, showBottomBar: true },
+  Dashboard: { showHeader: true, showBottomBar: true },
+  Ledger: { showHeader: true, showBottomBar: true },
+  Reminders: { showHeader: true, showBottomBar: true },
+  Notes: { showHeader: true, showBottomBar: true },
+  Friends: { showHeader: true, showBottomBar: true },
+  Settings: { showHeader: true, showBottomBar: true },
+  Calendar: { showHeader: true, showBottomBar: true },
+  Scan: { showHeader: true, showBottomBar: true },
+  Keyboard: { showHeader: true, showBottomBar: true },
+  FriendRequests: { showHeader: true, showBottomBar: true },
+  NoteEdit: { showHeader: true, showBottomBar: true },
+  ProfileScreen: { showHeader: true, showBottomBar: true },
+  ChangePasswordScreen: { showHeader: false, showBottomBar: true },
+  SupportAndAboutScreen: { showHeader: false, showBottomBar: true },
+  PrivacyPolicyScreen: { showHeader: false, showBottomBar: true },
+  NotificationsScreen: { showHeader: true, showBottomBar: true },
+  NotificationSettingsScreen: { showHeader: false, showBottomBar: true },
+  LanguageSettingsScreen: { showHeader: false, showBottomBar: true },
+};
 
 // Wrapper component to add BackgroundScreen to each screen
 const withBackground = <P extends object>(Component: React.ComponentType<P>) => {
@@ -105,6 +158,8 @@ const RootNavigator = () => {
 
       {/* App Screens */}
       <Stack.Screen name="Home" component={withBackground(HomeScreen)} />
+      <Stack.Screen name="Dashboard" component={withBackground2(DashboardScreen)} />
+      <Stack.Screen name="Ledger" component={withBackground(LedgerScreen)} />
       <Stack.Screen name="Reminders" component={withBackground(RemindersScreen)} />
       <Stack.Screen name="Notes" component={withBackground(NotesScreen)} />
       <Stack.Screen name="NoteEdit" component={withBackground(NoteEdit)} />
@@ -115,7 +170,21 @@ const RootNavigator = () => {
       <Stack.Screen name="Keyboard" component={withBackground(KeyboardScreen)} />
       <Stack.Screen name="FriendRequests" component={withBackground(FriendRequests)} />
       <Stack.Screen name="ProfileScreen" component={withBackground(ProfileScreen)} />
+      <Stack.Screen name="ChangePasswordScreen" component={withBackground(ChangePasswordScreen)} />
+      <Stack.Screen
+        name="SupportAndAboutScreen"
+        component={withBackground(SupportAndAboutScreen)}
+      />
+      <Stack.Screen name="PrivacyPolicyScreen" component={withBackground(PrivacyPolicyScreen)} />
       <Stack.Screen name="NotificationsScreen" component={withBackground(NotificationsScreen)} />
+      <Stack.Screen
+        name="NotificationSettingsScreen"
+        component={withBackground(NotificationSettingsScreen)}
+      />
+      <Stack.Screen
+        name="LanguageSettingsScreen"
+        component={withBackground(LanguageSettingsScreen)}
+      />
     </Stack.Navigator>
   );
 };

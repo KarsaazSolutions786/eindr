@@ -1,15 +1,20 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import Notification, { NotificationProps } from './Notification';
 import SearchBar from '@components/SearchBar';
 import LinearGradient from 'react-native-linear-gradient';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@navigation/RootNavigator';
 
 // Sample profile image - in a real app, this would come from your assets or a remote URL
 const sampleProfileImage = { uri: 'https://randomuser.me/api/portraits/women/44.jpg' };
 
 const NotificationsScreen: React.FC = () => {
   const [searchText, setSearchText] = useState('');
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
 
   const notifications: NotificationProps[] = [
     {
@@ -60,15 +65,17 @@ const NotificationsScreen: React.FC = () => {
     <View style={styles.container}>
       <ScrollView style={styles.notificationList} showsVerticalScrollIndicator={false}>
         <View style={styles.header}>
-          <SearchBar
-            value={searchText}
-            onChangeText={setSearchText}
-            placeholder="Search"
-            backgroundColor="#2D2F3E"
-            fontSize={16}
-            iconColor="#FFF"
-            containerStyle={styles.searchBarContainer}
-          />
+          <View style={styles.headerRow}>
+            <SearchBar
+              value={searchText}
+              onChangeText={setSearchText}
+              placeholder="Search"
+              backgroundColor="#2D2F3E"
+              fontSize={16}
+              iconColor="#FFF"
+              containerStyle={styles.searchBarContainer}
+            />
+          </View>
         </View>
 
         <View style={styles.sortContainer}>
@@ -126,7 +133,22 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 12,
   },
+  headerRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+  },
+  headerButtonsContainer: {
+    flexDirection: 'row',
+  },
+  headerButton: {
+    marginLeft: 12,
+    padding: 8,
+    backgroundColor: 'rgba(58, 59, 85, 0.8)',
+    borderRadius: 12,
+  },
   searchBarContainer: {
+    flex: 1,
     paddingHorizontal: 0,
     marginVertical: 0,
   },
