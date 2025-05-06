@@ -5,13 +5,13 @@ interface BackgroundScreenProps {
   children?: React.ReactNode;
 }
 
-const BackgroundScreen: React.FC<BackgroundScreenProps> = ({ children }) => {
+const BackgroundScreen2: React.FC<BackgroundScreenProps> = ({ children }) => {
   return (
     <>
       <StatusBar barStyle="light-content" backgroundColor="#16182A" />
       <SafeAreaView style={styles.safeArea}>
         <ImageBackground
-          source={require('../assets/images/background1.png')}
+          source={require('../../assets/images/background2.png')}
           style={styles.backgroundImage}
           resizeMode="cover">
           <View style={styles.content}>{children}</View>
@@ -38,4 +38,4 @@ const styles = StyleSheet.create({
   },
 });
 
-export default BackgroundScreen;
+export default BackgroundScreen2;

@@ -12,6 +12,10 @@ import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import theme from '@theme/theme';
 import { RootState } from '@store/index';
 import { useSelector } from 'react-redux';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '../../navigation/RootNavigator';
 
 interface HeaderProps {
   showBackArrow?: boolean;
@@ -19,7 +23,7 @@ interface HeaderProps {
   subtitle?: string;
   isLoggedIn?: boolean;
   onMenuPress?: () => void;
-  onProfilePress?: () => void;
+  onNotificationPress?: () => void;
   profileImage?: string; // URL for profile image
 }
 
@@ -29,11 +33,13 @@ const Header: React.FC<HeaderProps> = ({
   subtitle = 'Forget Forgetting',
   isLoggedIn = false,
   onMenuPress,
-  onProfilePress,
+  onNotificationPress,
   profileImage,
 }) => {
   // Render left side of header
   const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+
   const renderLeftSide = () => {
     if (isAuthenticated) {
       return (
@@ -58,14 +64,10 @@ const Header: React.FC<HeaderProps> = ({
   const renderRightSide = () => {
     if (isAuthenticated) {
       return (
-        <TouchableOpacity onPress={onProfilePress} style={styles.profileButton}>
-          {profileImage ? (
-            <Image source={{ uri: profileImage }} style={styles.profileImage} />
-          ) : (
-            <View style={styles.profilePlaceholder}>
-              <FontAwesome name="user" size={20} color={theme.colors.white} />
-            </View>
-          )}
+        <TouchableOpacity
+          onPress={() => navigation.navigate('NotificationsScreen')}
+          style={styles.profileButton}>
+          <MaterialIcons name="notifications" size={29} color={theme.colors.white} />
         </TouchableOpacity>
       );
     }
@@ -107,7 +109,7 @@ const styles = StyleSheet.create({
     top: 0,
     left: 0,
     right: 0,
-    paddingBottom: 40,
+    // paddingBottom: 1,
   },
   header: {
     flexDirection: 'row',
@@ -117,7 +119,7 @@ const styles = StyleSheet.create({
     backgroundColor: 'transparent',
     justifyContent: 'space-between',
     width: '100%',
-    marginBottom: 10,
+    // marginBottom: 10,
   },
   backButton: {
     padding: theme.spacing.sm,

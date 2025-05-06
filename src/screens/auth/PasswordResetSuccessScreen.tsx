@@ -40,6 +40,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'space-between',
     padding: theme.spacing.lg,
+    paddingBottom: 40,
   },
   messageContainer: {
     flex: 1,
