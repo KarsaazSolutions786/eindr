@@ -21,6 +21,7 @@ import Voice, {
 import { request, PERMISSIONS, RESULTS } from 'react-native-permissions';
 import Tts from 'react-native-tts';
 import moment from 'moment';
+import { Picker } from '@react-native-picker/picker';
 import {
   Reminder,
   processReminderFromSpeech,
@@ -34,7 +35,7 @@ import {
   getHabitSuggestions,
   generateHabitSuggestionResponse,
 } from '../services/HabitDetectionService';
-import { Picker } from '@react-native-picker/picker';
+import WakeWordService from '../services/WakeWordService';
 
 interface RecognizedText {
   value: string;
@@ -58,6 +59,9 @@ const VoiceReminder: React.FC = () => {
   const [habitSuggestions, setHabitSuggestions] = useState<HabitPattern[]>([]);
   const [showHabitModal, setShowHabitModal] = useState<boolean>(false);
   const [currentHabitSuggestion, setCurrentHabitSuggestion] = useState<HabitPattern | null>(null);
+
+  // Add new state variable for wake word status
+  const [wakeWordActive, setWakeWordActive] = useState<boolean>(false);
 
   const bar1Anim = useRef(new Animated.Value(10)).current;
   const bar2Anim = useRef(new Animated.Value(16)).current;
@@ -92,6 +96,9 @@ const VoiceReminder: React.FC = () => {
 
     // Initialize Text-to-Speech
     initializeTts();
+
+    // Initialize wake word detection
+    initializeWakeWord();
 
     // Load saved reminders
     loadSavedReminders();
@@ -143,8 +150,49 @@ const VoiceReminder: React.FC = () => {
       // Cleanup
       Voice.destroy().then(Voice.removeAllListeners);
       cleanupTts();
+
+      // Cleanup wake word detection
+      WakeWordService.cleanup();
     };
   }, []);
+
+  // Add this function
+  const initializeWakeWord = async () => {
+    try {
+      const initialized = await WakeWordService.initialize();
+
+      if (initialized) {
+        console.log('Wake word detection initialized successfully');
+
+        // Set callback for wake word detection
+        WakeWordService.setWakeWordCallback(handleWakeWordDetected);
+
+        // Start listening for wake word
+        const listening = await WakeWordService.startListening();
+        setWakeWordActive(listening);
+      } else {
+        console.error('Failed to initialize wake word detection');
+      }
+    } catch (error) {
+      console.error('Error initializing wake word detection:', error);
+    }
+  };
+
+  // Add this function
+  const handleWakeWordDetected = () => {
+    console.log('Wake word detected!');
+
+    // Stop wake word detection while processing command
+    WakeWordService.stopListening();
+    setWakeWordActive(false);
+
+    // Provide feedback to user
+    setResponse("I'm listening...");
+    speakResponse("I'm listening");
+
+    // Start listening for command
+    startListening();
+  };
 
   // Initialize TTS
   const initializeTts = async () => {
@@ -278,10 +326,35 @@ const VoiceReminder: React.FC = () => {
     setRecognized('✓');
   };
 
+  // Update onSpeechEnd to resume wake word detection
   const onSpeechEnd = () => {
     console.log('Speech ended');
     setIsListening(false);
+
+    // Resume wake word detection after short delay
+    setTimeout(() => {
+      if (!wakeWordActive) {
+        WakeWordService.startListening().then(success => {
+          setWakeWordActive(success);
+        });
+      }
+    }, 1000);
   };
+
+  // Add this function to render wake word status indicator
+  const renderWakeWordStatus = () => (
+    <View style={styles.wakeWordContainer}>
+      <Text style={styles.wakeWordText}>
+        {wakeWordActive ? 'Listening for "Hey Google"...' : 'Wake word detection inactive'}
+      </Text>
+      <View
+        style={[
+          styles.statusIndicator,
+          wakeWordActive ? styles.activeIndicator : styles.inactiveIndicator,
+        ]}
+      />
+    </View>
+  );
 
   const onSpeechError = (e: SpeechErrorEvent) => {
     console.log('Speech error:', JSON.stringify(e));
@@ -549,6 +622,8 @@ const VoiceReminder: React.FC = () => {
 
   return (
     <View style={styles.container}>
+      {/* Wake word status */}
+      {renderWakeWordStatus()}
       {renderLanguageSelector()}
       <View style={styles.inputContainer}>
         <TextInput
@@ -922,6 +997,32 @@ const styles = StyleSheet.create({
     height: 50,
     width: '100%',
     backgroundColor: '#fff',
+  },
+  wakeWordContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f0f0f0',
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 16,
+    marginBottom: 12,
+  },
+  wakeWordText: {
+    fontSize: 14,
+    color: '#555',
+    marginRight: 8,
+  },
+  statusIndicator: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  activeIndicator: {
+    backgroundColor: '#4CAF50',
+  },
+  inactiveIndicator: {
+    backgroundColor: '#ccc',
   },
 });
 

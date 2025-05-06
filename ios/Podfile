@@ -19,6 +19,10 @@ target 'Eindr' do
 
   pod 'RNVectorIcons', :path => '../node_modules/react-native-vector-icons'
 
+  # Add react-native-permissions MICROPHONE handler
+  permissions_path = '../node_modules/react-native-permissions/ios'
+  # pod 'Permission-Microphone', :path => "#{permissions_path}/Microphone"
+
   use_react_native!(
     :path => config[:reactNativePath],
     # An absolute path to your application root.
@@ -41,7 +45,7 @@ target 'Eindr' do
         config.build_settings['IPHONEOS_DEPLOYMENT_TARGET'] = min_ios_version_supported
         
         # Fix for architecture issues
-        config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
+        # config.build_settings["EXCLUDED_ARCHS[sdk=iphonesimulator*]"] = "arm64"
       end
     end
   end

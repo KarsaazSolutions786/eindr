@@ -38,6 +38,12 @@ PODS:
   - hermes-engine (0.79.1):
     - hermes-engine/Pre-built (= 0.79.1)
   - hermes-engine/Pre-built (0.79.1)
+  - ios-voice-processor (1.2.0)
+  - Porcupine-iOS (3.0.4):
+    - ios-voice-processor (~> 1.2.0)
+  - porcupine-react-native (3.0.3):
+    - Porcupine-iOS (~> 3.0.4)
+    - React
   - RCT-Folly (2024.11.18.00):
     - boost
     - DoubleConversion
@@ -77,6 +83,7 @@ PODS:
     - React-RCTText (= 0.79.1)
     - React-RCTVibration (= 0.79.1)
   - React-callinvoker (0.79.1)
+  - React-Codegen (0.1.0)
   - React-Core (0.79.1):
     - glog
     - hermes-engine
@@ -1482,6 +1489,14 @@ PODS:
     - Yoga
   - react-native-voice (3.2.4):
     - React-Core
+  - react-native-voice-processor (1.2.3):
+    - ios-voice-processor (~> 1.2.0)
+    - RCT-Folly
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Codegen
+    - React-Core
+    - ReactCommon/turbomodule/core
   - React-NativeModulesApple (0.79.1):
     - glog
     - hermes-engine
@@ -2020,6 +2035,7 @@ DEPENDENCIES:
   - fmt (from `../node_modules/react-native/third-party-podspecs/fmt.podspec`)
   - glog (from `../node_modules/react-native/third-party-podspecs/glog.podspec`)
   - hermes-engine (from `../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec`)
+  - "porcupine-react-native (from `../node_modules/@picovoice/porcupine-react-native`)"
   - RCT-Folly (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCT-Folly/Fabric (from `../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec`)
   - RCTDeprecation (from `../node_modules/react-native/ReactApple/Libraries/RCTFoundation/RCTDeprecation`)
@@ -2058,6 +2074,7 @@ DEPENDENCIES:
   - react-native-fbsdk-next (from `../node_modules/react-native-fbsdk-next`)
   - react-native-safe-area-context (from `../node_modules/react-native-safe-area-context`)
   - "react-native-voice (from `../node_modules/@react-native-voice/voice`)"
+  - "react-native-voice-processor (from `../node_modules/@picovoice/react-native-voice-processor`)"
   - React-NativeModulesApple (from `../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios`)
   - React-oscompat (from `../node_modules/react-native/ReactCommon/oscompat`)
   - React-perflogger (from `../node_modules/react-native/ReactCommon/reactperflogger`)
@@ -2114,6 +2131,9 @@ SPEC REPOS:
     - GoogleSignIn
     - GTMAppAuth
     - GTMSessionFetcher
+    - ios-voice-processor
+    - Porcupine-iOS
+    - React-Codegen
     - SocketRocket
 
 EXTERNAL SOURCES:
@@ -2134,6 +2154,8 @@ EXTERNAL SOURCES:
   hermes-engine:
     :podspec: "../node_modules/react-native/sdks/hermes-engine/hermes-engine.podspec"
     :tag: hermes-2025-03-03-RNv0.79.0-bc17d964d03743424823d7dd1a9f37633459c5c5
+  porcupine-react-native:
+    :path: "../node_modules/@picovoice/porcupine-react-native"
   RCT-Folly:
     :podspec: "../node_modules/react-native/third-party-podspecs/RCT-Folly.podspec"
   RCTDeprecation:
@@ -2206,6 +2228,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-safe-area-context"
   react-native-voice:
     :path: "../node_modules/@react-native-voice/voice"
+  react-native-voice-processor:
+    :path: "../node_modules/@picovoice/react-native-voice-processor"
   React-NativeModulesApple:
     :path: "../node_modules/react-native/ReactCommon/react/nativemodule/core/platform/ios"
   React-oscompat:
@@ -2312,12 +2336,16 @@ SPEC CHECKSUMS:
   GTMAppAuth: f69bd07d68cd3b766125f7e072c45d7340dea0de
   GTMSessionFetcher: 5aea5ba6bd522a239e236100971f10cb71b96ab6
   hermes-engine: c32f2e405098bc1ebe30630a051ddce6f21d3c2e
+  ios-voice-processor: 6b5ca08962f39e434fe39dca0f483d923a3b1b97
+  Porcupine-iOS: da103a8848ce6b36acd4a5e42bb811d4532dd515
+  porcupine-react-native: 6f5ebf219982026ff463140bb04f4327c831d21b
   RCT-Folly: e78785aa9ba2ed998ea4151e314036f6c49e6d82
   RCTDeprecation: 0ada4fb1e5c5637bff940dc40b94e2d3bf96b0ab
   RCTRequired: 76ca80ff10acb3834ed0dacba9645645009578a2
   RCTTypeSafety: 01b27f48153eb2d222c0ad4737fe291e9549946a
   React: 1195b4ef93124e47a492ec43d8aceb770618ceb0
   React-callinvoker: f8d4f94d6d5da7230803fa4fce2da27c9c843478
+  React-Codegen: 4b8b4817cea7a54b83851d4c1f91f79aa73de30a
   React-Core: b5a77faf86a0da01bce62f0b9bd1e3e77020090d
   React-CoreModules: 597e6f05526da8c133f726961f333d62becd97bf
   React-cxxreact: 25b20d44eaf2ef8774c7fefa3517cbfa18b16d7b
@@ -2348,6 +2376,7 @@ SPEC CHECKSUMS:
   react-native-fbsdk-next: 52f81e60eb3e8e0e06cf9728b4572d3509ca9d01
   react-native-safe-area-context: 562163222d999b79a51577eda2ea8ad2c32b4d06
   react-native-voice: 908a0eba96c8c3d643e4f98b7232c6557d0a6f9c
+  react-native-voice-processor: cd43770e5323f5ae421f6b94a7ce272a6d40ed93
   React-NativeModulesApple: 8a465be9a58afc56f48c1322331ffbdecd3d4877
   React-oscompat: 74eb4badd12e93899f37a5dbb03d8a638011a292
   React-perflogger: dba4ffef10c54537fa33cb2580cf6d4c48458d36
@@ -2393,6 +2422,6 @@ SPEC CHECKSUMS:
   TextToSpeech: 89b239221ec378d213af422d14789a729705360b
   Yoga: d15f5aa644c466e917569ac43b19cbf17975239a
 
-PODFILE CHECKSUM: b95828355187cb71a646e40dc4019a6c34902443
+PODFILE CHECKSUM: 5768741a0a4756075f7f4d87b4864d8db9a31b91
 
 COCOAPODS: 1.16.2
