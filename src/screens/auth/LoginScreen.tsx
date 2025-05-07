@@ -296,6 +296,7 @@ const LoginScreen = ({ navigation }: Props) => {
               size="md"
               fullWidth
               onPress={handleLogin}
+              animatedBorder
               loading={isLoading}
               disabled={isLoading}>
               Login
@@ -307,6 +308,7 @@ const LoginScreen = ({ navigation }: Props) => {
               fullWidth
               onPress={navigateToRegister}
               disabled={isLoading}
+              animatedBorder
               style={styles.registerButton}>
               Register
             </Button>

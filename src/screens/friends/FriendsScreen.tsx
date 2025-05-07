@@ -9,7 +9,7 @@ const MOCK_FRIENDS = [
     name: 'Jenny Wilson',
     username: '@Jenny Wilson11',
     profilePic: 'https://randomuser.me/api/portraits/women/1.jpg',
-    isTrusted: true,
+    isTrusted: false,
   },
   {
     id: '2',

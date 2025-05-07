@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useRef, useEffect } from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -10,8 +10,13 @@ import {
   View,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
+import LottieView from 'lottie-react-native';
 import theme from '@theme/theme';
 
+// Import the animation json file
+import borderAnimationJson from './animations/borderAnimation.json';
+
+// Types
 type ButtonVariant = 'primary' | 'outline';
 type ButtonSize = 'sm' | 'md' | 'lg';
 
@@ -26,8 +31,29 @@ interface ButtonProps extends TouchableOpacityProps {
   style?: ViewStyle;
   textStyle?: TextStyle;
   children: React.ReactNode;
+  gradientBorder?: boolean;
+  animatedBorder?: boolean;
 }
 
+// Define interface for ButtonContent props
+interface ButtonContentProps {
+  loading: boolean;
+  buttonStyles: {
+    backgroundColor: string;
+    borderColor: string;
+    textColor: string;
+  };
+  sizeStyles: {
+    paddingVertical: number;
+    fontSize: number;
+  };
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  textStyle?: TextStyle;
+  children: React.ReactNode;
+}
+
+// Helper functions
 const getButtonStyles = (variant: ButtonVariant, disabled: boolean) => {
   const baseStyles = {
     primary: {
@@ -64,6 +90,42 @@ const getSizeStyles = (size: ButtonSize) => {
   return sizes[size];
 };
 
+// Button inner content component - extracted for reuse
+const ButtonContent: React.FC<ButtonContentProps> = ({
+  loading,
+  buttonStyles,
+  sizeStyles,
+  leftIcon,
+  rightIcon,
+  textStyle,
+  children,
+}) => (
+  <>
+    {loading ? (
+      <ActivityIndicator color={buttonStyles.textColor} />
+    ) : (
+      <>
+        {leftIcon}
+        <Text
+          style={[
+            styles.text,
+            {
+              color: buttonStyles.textColor,
+              fontSize: sizeStyles.fontSize,
+              marginLeft: leftIcon ? theme.spacing.sm : 0,
+              marginRight: rightIcon ? theme.spacing.sm : 0,
+            },
+            textStyle,
+          ]}>
+          {children}
+        </Text>
+        {rightIcon}
+      </>
+    )}
+  </>
+);
+
+// Main Button component
 const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
   size = 'md',
@@ -75,94 +137,140 @@ const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
   children,
+  gradientBorder = false,
+  animatedBorder = false,
   ...props
 }) => {
   const buttonStyles = getButtonStyles(variant, disabled);
   const sizeStyles = getSizeStyles(size);
+  const lottieRef = useRef<LottieView>(null);
 
-  // Define all color sets with high contrast colors
-  const colorSets = [
-    ['#f5f3ff', '#c4b7ff'],
-    ['#c4b7ff', '#f5f3ff'],
-  ];
-
-  // State to track current color set
-  const [currentColorIndex, setCurrentColorIndex] = useState(0);
-
+  // Setup lottie animation to play properly
   useEffect(() => {
-    // Setup timer for color changes
-    const timer = setTimeout(() => {
-      setCurrentColorIndex(prevIndex => (prevIndex + 1) % colorSets.length);
-    }, 800); // Change color every 800ms for more visible change
+    if (lottieRef.current && animatedBorder) {
+      // Ensure animation plays after component mounts
+      setTimeout(() => {
+        if (lottieRef.current) {
+          lottieRef.current.play();
+        }
+      }, 100);
+    }
+  }, [animatedBorder]);
 
-    // Cleanup
-    return () => clearTimeout(timer);
-  }, [currentColorIndex]); // Depends on currentColorIndex to create continuous chain
+  // Static gradient colors
+  const borderColors = ['#f5f3ff', '#c4b7ff'];
 
-  // Get current colors
-  const currentColors = colorSets[currentColorIndex];
+  // Render button with animated border
+  if (animatedBorder) {
+    return (
+      <View style={[styles.buttonContainer, { width: fullWidth ? '100%' : 'auto' }]}>
+        <View
+          style={[
+            styles.animatedBorderContainer,
+            fullWidth && { width: '100%' },
+            { backgroundColor: buttonStyles.backgroundColor },
+          ]}>
+          {/* Animated border with moving segment */}
+          <LottieView
+            ref={lottieRef}
+            source={borderAnimationJson}
+            style={styles.lottieAnimation}
+            autoPlay
+            loop
+            speed={0.8} // Control the speed of the animation
+            colorFilters={[
+              {
+                keypath: 'Moving Line.Line Stroke',
+                color: '#FFFFFF', // Moving line color
+              },
+              {
+                keypath: 'Border Path.Static Stroke',
+                color: '#B2A1FF', // Static border color
+              },
+            ]}
+          />
 
+          {/* Button content */}
+          <View style={styles.buttonContent}>
+            <TouchableOpacity
+              style={[
+                styles.button,
+                {
+                  backgroundColor: 'transparent',
+                  paddingVertical: sizeStyles.paddingVertical,
+                },
+                style,
+              ]}
+              disabled={disabled || loading}
+              activeOpacity={0.7}
+              {...props}>
+              <ButtonContent
+                loading={loading}
+                buttonStyles={buttonStyles}
+                sizeStyles={sizeStyles}
+                leftIcon={leftIcon}
+                rightIcon={rightIcon}
+                textStyle={textStyle}
+                children={children}
+              />
+            </TouchableOpacity>
+          </View>
+        </View>
+      </View>
+    );
+  }
+
+  // Standard button with optional gradient border
   return (
     <View style={[styles.buttonContainer, { width: fullWidth ? '100%' : 'auto' }]}>
-      <LinearGradient
-        colors={currentColors}
-        start={{ x: 1, y: 1 }}
-        end={{ x: 1, y: 0 }}
+      {/* <LinearGradient
+        colors={borderColors}
+        start={{ x: 0, y: 0 }}
+        end={{ x: 1, y: 1 }}
         style={[
           styles.gradientBorder,
-          { borderRadius: theme.borderRadius.md, shadowColor: '#c07ddf' },
-        ]}>
+          {
+            borderRadius: theme.borderRadius.md,
+            shadowColor: gradientBorder ? '#f5f3ff' : '#c07ddf',
+            padding: gradientBorder ? 2 : 1,
+          },
+        ]}> */}
         <TouchableOpacity
           style={[
             styles.button,
             {
               backgroundColor: buttonStyles.backgroundColor,
               paddingVertical: sizeStyles.paddingVertical,
-              borderRadius: theme.borderRadius.md,
+              borderRadius: theme.borderRadius.md - (gradientBorder ? 1 : 0),
             },
             style,
           ]}
           disabled={disabled || loading}
           activeOpacity={0.7}
           {...props}>
-          {loading ? (
-            <ActivityIndicator color={buttonStyles.textColor} />
-          ) : (
-            <>
-              {leftIcon}
-              <Text
-                style={[
-                  styles.text,
-                  {
-                    color: buttonStyles.textColor,
-                    fontSize: sizeStyles.fontSize,
-                    marginLeft: leftIcon ? theme.spacing.sm : 0,
-                    marginRight: rightIcon ? theme.spacing.sm : 0,
-                  },
-                  textStyle,
-                ]}>
-                {children}
-              </Text>
-              {rightIcon}
-            </>
-          )}
+          <ButtonContent
+            loading={loading}
+            buttonStyles={buttonStyles}
+            sizeStyles={sizeStyles}
+            leftIcon={leftIcon}
+            rightIcon={rightIcon}
+            textStyle={textStyle}
+            children={children}
+          />
         </TouchableOpacity>
-      </LinearGradient>
+      {/* </LinearGradient> */}
     </View>
   );
 };
 
+// Styles
 const styles = StyleSheet.create({
   buttonContainer: {
-    marginBottom: theme.spacing.sm,
+    marginBottom: theme.spacing.md,
   },
   gradientBorder: {
     padding: 1,
-    borderRadius: theme.borderRadius.md,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.11,
-    shadowRadius: 10,
-    elevation: 3,
+    borderRadius: 0,
   },
   button: {
     flexDirection: 'row',
@@ -172,6 +280,25 @@ const styles = StyleSheet.create({
   text: {
     fontFamily: theme.typography.fontFamily.medium,
     textAlign: 'center',
+  },
+  animatedBorderContainer: {
+    position: 'relative',
+    borderRadius: 4,
+    overflow: 'hidden',
+    minHeight: 42, // Ensure minimum height for proper rendering
+  },
+  lottieAnimation: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    zIndex: 1,
+  },
+  buttonContent: {
+    flex: 1,
+    margin: 5, // Give some space for the border
+    zIndex: 2,
   },
 });
 
