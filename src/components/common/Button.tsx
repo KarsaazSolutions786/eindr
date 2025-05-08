@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -8,13 +8,11 @@ import {
   TextStyle,
   TouchableOpacityProps,
   View,
+  Animated,
+  Easing,
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import LottieView from 'lottie-react-native';
 import theme from '@theme/theme';
-
-// Import the animation json file
-import borderAnimationJson from './animations/borderAnimation.json';
 
 // Types
 type ButtonVariant = 'primary' | 'outline';
@@ -32,7 +30,6 @@ interface ButtonProps extends TouchableOpacityProps {
   textStyle?: TextStyle;
   children: React.ReactNode;
   gradientBorder?: boolean;
-  animatedBorder?: boolean;
 }
 
 // Define interface for ButtonContent props
@@ -125,6 +122,173 @@ const ButtonContent: React.FC<ButtonContentProps> = ({
   </>
 );
 
+// Animated Border Component
+const AnimatedBorder = ({
+  children,
+  isPressed,
+  borderRadius,
+}: {
+  children: React.ReactNode;
+  isPressed: boolean;
+  borderRadius: number;
+}) => {
+  const animation = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // Create an infinite loop animation with smooth transitions
+    const animationLoop = Animated.loop(
+      Animated.timing(animation, {
+        toValue: 1,
+        duration: 8000,
+        easing: Easing.linear, // Linear easing ensures constant speed
+        useNativeDriver: false,
+      }),
+      { iterations: -1 }, // Explicitly set to infinite iterations
+    );
+
+    // Start the animation
+    animationLoop.start();
+
+    // Proper cleanup
+    return () => {
+      animationLoop.stop();
+      animation.setValue(0); // Reset value on unmount
+    };
+  }, []);
+
+  // Create smoother color transitions with more interpolation points
+  const colorInterpolation1 = animation.interpolate({
+    inputRange: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+    outputRange: [
+      '#FFFFFF',
+      '#F0EBFF',
+      '#E2D8FF',
+      '#D3C5FF',
+      '#C4B3FF',
+      '#B2A1FF',
+      '#C4B3FF',
+      '#D3C5FF',
+      '#E2D8FF',
+      '#F0EBFF',
+      '#FFFFFF',
+    ],
+  });
+
+  const colorInterpolation2 = animation.interpolate({
+    inputRange: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
+    outputRange: [
+      '#B2A1FF',
+      '#C4B3FF',
+      '#D3C5FF',
+      '#E2D8FF',
+      '#F0EBFF',
+      '#FFFFFF',
+      '#F0EBFF',
+      '#E2D8FF',
+      '#D3C5FF',
+      '#C4B3FF',
+      '#B2A1FF',
+    ],
+  });
+
+  const borderWidth = isPressed ? 2.5 : 2;
+  const opacity = isPressed ? 1 : 0.9; // Slightly higher default opacity for better visibility
+
+  // Shadow styles based on user specifications
+  const shadowStyle1 = {
+    shadowColor: '#FF7D73',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.38,
+    shadowRadius: 4,
+    elevation: 4,
+  };
+
+  const shadowStyle2 = {
+    shadowColor: '#FF7D73',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.24,
+    shadowRadius: 7,
+    elevation: 6,
+  };
+
+  // Apply more intense shadow when pressed
+  const shadowStyle = isPressed ? shadowStyle2 : shadowStyle1;
+
+  return (
+    <View style={{ position: 'relative', borderRadius: borderRadius, overflow: 'visible' }}>
+      {/* Top border */}
+      <Animated.View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          height: borderWidth,
+          backgroundColor: colorInterpolation1,
+          borderTopLeftRadius: borderRadius,
+          borderTopRightRadius: borderRadius,
+          opacity: opacity,
+          zIndex: 1,
+          ...shadowStyle,
+        }}
+      />
+
+      {/* Right border */}
+      <Animated.View
+        style={{
+          position: 'absolute',
+          top: 0,
+          right: 0,
+          bottom: 0,
+          width: borderWidth,
+          backgroundColor: colorInterpolation2,
+          borderTopRightRadius: borderRadius,
+          borderBottomRightRadius: borderRadius,
+          opacity: opacity,
+          zIndex: 1,
+          ...shadowStyle,
+        }}
+      />
+
+      {/* Bottom border */}
+      <Animated.View
+        style={{
+          position: 'absolute',
+          bottom: 0,
+          left: 0,
+          right: 0,
+          height: borderWidth,
+          backgroundColor: colorInterpolation1,
+          borderBottomLeftRadius: borderRadius,
+          borderBottomRightRadius: borderRadius,
+          opacity: opacity,
+          zIndex: 1,
+          ...shadowStyle,
+        }}
+      />
+
+      {/* Left border */}
+      <Animated.View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          bottom: 0,
+          width: borderWidth,
+          backgroundColor: colorInterpolation2,
+          borderTopLeftRadius: borderRadius,
+          borderBottomLeftRadius: borderRadius,
+          opacity: opacity,
+          zIndex: 1,
+          ...shadowStyle,
+        }}
+      />
+
+      {children}
+    </View>
+  );
+};
+
 // Main Button component
 const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
@@ -137,72 +301,53 @@ const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
   children,
-  gradientBorder = false,
-  animatedBorder = false,
+  gradientBorder = true, // Default to true for the gradient effect
   ...props
 }) => {
   const buttonStyles = getButtonStyles(variant, disabled);
   const sizeStyles = getSizeStyles(size);
-  const lottieRef = useRef<LottieView>(null);
 
-  // Setup lottie animation to play properly
-  useEffect(() => {
-    if (lottieRef.current && animatedBorder) {
-      // Ensure animation plays after component mounts
-      setTimeout(() => {
-        if (lottieRef.current) {
-          lottieRef.current.play();
-        }
-      }, 100);
-    }
-  }, [animatedBorder]);
+  // Simple state for hover/press effect
+  const [isPressed, setIsPressed] = useState(false);
 
-  // Static gradient colors
-  const borderColors = ['#f5f3ff', '#c4b7ff'];
+  const handlePressIn = () => {
+    setIsPressed(true);
+  };
 
-  // Render button with animated border
-  if (animatedBorder) {
-    return (
-      <View style={[styles.buttonContainer, { width: fullWidth ? '100%' : 'auto' }]}>
-        <View
-          style={[
-            styles.animatedBorderContainer,
-            fullWidth && { width: '100%' },
-            { backgroundColor: buttonStyles.backgroundColor },
-          ]}>
-          {/* Animated border with moving segment */}
-          <LottieView
-            ref={lottieRef}
-            source={borderAnimationJson}
-            style={styles.lottieAnimation}
-            autoPlay
-            loop
-            speed={0.8} // Control the speed of the animation
-            colorFilters={[
+  const handlePressOut = () => {
+    setIsPressed(false);
+  };
+
+  // Get border radius value from theme - ensure it's a number
+  const borderRadiusValue = 16; // Fallback to 16 if not defined
+
+  // Simple button with animated borders or basic style
+  return (
+    <View style={[styles.buttonContainer, { width: fullWidth ? '100%' : 'auto' }]}>
+      {gradientBorder ? (
+        <AnimatedBorder isPressed={isPressed} borderRadius={borderRadiusValue}>
+          <View
+            style={[
+              styles.innerButtonContainer,
               {
-                keypath: 'Moving Line.Line Stroke',
-                color: '#FFFFFF', // Moving line color
+                backgroundColor: buttonStyles.backgroundColor,
+                borderRadius: borderRadiusValue,
+                // margin: 2, // Space for the border
               },
-              {
-                keypath: 'Border Path.Static Stroke',
-                color: '#B2A1FF', // Static border color
-              },
-            ]}
-          />
-
-          {/* Button content */}
-          <View style={styles.buttonContent}>
+            ]}>
             <TouchableOpacity
               style={[
                 styles.button,
                 {
-                  backgroundColor: 'transparent',
                   paddingVertical: sizeStyles.paddingVertical,
+                  borderRadius: borderRadiusValue,
                 },
                 style,
               ]}
               disabled={disabled || loading}
-              activeOpacity={0.7}
+              activeOpacity={0.9}
+              onPressIn={handlePressIn}
+              onPressOut={handlePressOut}
               {...props}>
               <ButtonContent
                 loading={loading}
@@ -215,33 +360,18 @@ const Button: React.FC<ButtonProps> = ({
               />
             </TouchableOpacity>
           </View>
-        </View>
-      </View>
-    );
-  }
-
-  // Standard button with optional gradient border
-  return (
-    <View style={[styles.buttonContainer, { width: fullWidth ? '100%' : 'auto' }]}>
-      {/* <LinearGradient
-        colors={borderColors}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 1, y: 1 }}
-        style={[
-          styles.gradientBorder,
-          {
-            borderRadius: theme.borderRadius.md,
-            shadowColor: gradientBorder ? '#f5f3ff' : '#c07ddf',
-            padding: gradientBorder ? 2 : 1,
-          },
-        ]}> */}
+        </AnimatedBorder>
+      ) : (
+        // Regular button without gradient
         <TouchableOpacity
           style={[
             styles.button,
             {
               backgroundColor: buttonStyles.backgroundColor,
               paddingVertical: sizeStyles.paddingVertical,
-              borderRadius: theme.borderRadius.md - (gradientBorder ? 1 : 0),
+              borderRadius: borderRadiusValue,
+              borderWidth: 1,
+              borderColor: buttonStyles.borderColor,
             },
             style,
           ]}
@@ -258,7 +388,7 @@ const Button: React.FC<ButtonProps> = ({
             children={children}
           />
         </TouchableOpacity>
-      {/* </LinearGradient> */}
+      )}
     </View>
   );
 };
@@ -267,38 +397,20 @@ const Button: React.FC<ButtonProps> = ({
 const styles = StyleSheet.create({
   buttonContainer: {
     marginBottom: theme.spacing.md,
+    overflow: 'hidden',
   },
-  gradientBorder: {
-    padding: 1,
-    borderRadius: 0,
+  innerButtonContainer: {
+    overflow: 'hidden',
   },
   button: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
+    overflow: 'hidden',
   },
   text: {
     fontFamily: theme.typography.fontFamily.medium,
     textAlign: 'center',
-  },
-  animatedBorderContainer: {
-    position: 'relative',
-    borderRadius: 4,
-    overflow: 'hidden',
-    minHeight: 42, // Ensure minimum height for proper rendering
-  },
-  lottieAnimation: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    zIndex: 1,
-  },
-  buttonContent: {
-    flex: 1,
-    margin: 5, // Give some space for the border
-    zIndex: 2,
   },
 });
 
