@@ -13,6 +13,7 @@ import {
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import { Input } from '@components/common';
 import LinearGradient from 'react-native-linear-gradient';
+import GradientBorder from '../../components/common/GradientBorder';
 import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
@@ -101,10 +102,11 @@ const NotesScreen = () => {
         {pinnedNotes.length > 0 && (
           <View style={styles.section}>
             {renderSectionHeader('Pinned Notes')}
-            <LinearGradient
+            <GradientBorder
               colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
               start={{ x: 1, y: 1 }}
               end={{ x: 1, y: 0 }}
+              borderRadius={16}
               style={[styles.gradientBorder, { marginHorizontal: 16 }]}>
               <View style={styles.sectionContent}>
                 {pinnedNotes.map(note => (
@@ -117,7 +119,7 @@ const NotesScreen = () => {
                   </TouchableOpacity>
                 ))}
               </View>
-            </LinearGradient>
+            </GradientBorder>
           </View>
         )}
 
@@ -125,10 +127,11 @@ const NotesScreen = () => {
         {favoriteNotes.length > 0 && (
           <View style={styles.section}>
             {renderSectionHeader('Favourites')}
-            <LinearGradient
+            <GradientBorder
               colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
               start={{ x: 1, y: 1 }}
               end={{ x: 1, y: 0 }}
+              borderRadius={16}
               style={[styles.gradientBorder, { marginHorizontal: 16 }]}>
               <View style={styles.sectionContent}>
                 {favoriteNotes.map(note => (
@@ -141,7 +144,7 @@ const NotesScreen = () => {
                   </TouchableOpacity>
                 ))}
               </View>
-            </LinearGradient>
+            </GradientBorder>
           </View>
         )}
 
@@ -163,7 +166,7 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
     // backgroundColor: '#141524', // Dark background color
-    marginTop:170
+    marginTop: 170,
   },
   container: {
     flex: 1,
@@ -226,8 +229,6 @@ const styles = StyleSheet.create({
     flex: 1,
   },
   gradientBorder: {
-    padding: 1,
-    borderRadius: 16,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.11,
     shadowRadius: 10,

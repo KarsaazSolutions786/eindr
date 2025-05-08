@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useCallback } from 'react';
+import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import {
   View,
   Text,
@@ -15,6 +15,7 @@ import {
 import { BlurView } from '@react-native-community/blur';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import DateTimePicker from '@react-native-community/datetimepicker';
+import BlurViewFix from '../common/BlurViewFix';
 
 const DAYS_OF_WEEK = ['MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT', 'SUN'];
 
@@ -110,12 +111,11 @@ const ReminderModal: React.FC<ReminderModalProps> = ({ visible, onClose, onConfi
           style={[styles.reminderModalContainer, { transform: [{ translateY: slideAnim }] }]}
           onStartShouldSetResponder={() => true}
           onTouchEnd={handleContentPress}>
-          <BlurView
+          <BlurViewFix
             style={StyleSheet.absoluteFillObject}
             blurType="dark"
             blurAmount={25}
-            reducedTransparencyFallbackColor="rgba(35, 36, 58, 0.2)"
-          />
+            reducedTransparencyFallbackColor="rgba(35, 36, 58, 0.8)"></BlurViewFix>
 
           {/* Top Handle Bar */}
           <View style={styles.handleBarContainer}>
@@ -275,7 +275,6 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     // backgroundColor: 'rgba(10, 15, 40, 0.85)',
-    
   },
   reminderModalContainer: {
     position: 'absolute',

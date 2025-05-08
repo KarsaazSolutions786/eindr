@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, TextInput, StyleSheet, SafeAreaView, StatusBar, ScrollView } from 'react-native';
 import { useRoute } from '@react-navigation/native';
-import LinearGradient from 'react-native-linear-gradient';
+import GradientBorder from '../../components/common/GradientBorder';
 import theme from '@theme/theme';
 
 const NoteEdit = () => {
@@ -15,10 +15,11 @@ const NoteEdit = () => {
       <StatusBar barStyle="light-content" backgroundColor="#141524" />
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <View style={styles.formContainer}>
-          <LinearGradient
+          <GradientBorder
             colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
             start={{ x: 1, y: 1 }}
             end={{ x: 1, y: 0 }}
+            borderRadius={16}
             style={styles.gradientBorder}>
             <View style={styles.inputContainer}>
               <TextInput
@@ -31,7 +32,7 @@ const NoteEdit = () => {
                 textAlignVertical="top"
               />
             </View>
-          </LinearGradient>
+          </GradientBorder>
         </View>
       </ScrollView>
     </SafeAreaView>

@@ -1,6 +1,6 @@
 // screens/NewPasswordScreen.tsx
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Alert } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, Alert, Platform } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { RootStackParamList } from '@navigation/RootNavigator';
@@ -117,7 +117,7 @@ const NewPasswordScreen = ({ navigation }: Props) => {
     </SafeAreaView>
   );
 };
-
+const isIOS = Platform.OS === 'ios';
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -131,7 +131,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   inputsContainer: {
-    marginTop: 20,
+    marginTop: isIOS ? 160 : 20,
   },
   inputWrapper: {
     marginBottom: 20,

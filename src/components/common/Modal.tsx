@@ -12,8 +12,8 @@ import {
   TextStyle,
   Dimensions,
 } from 'react-native';
-import { BlurView } from '@react-native-community/blur';
 import theme from '@theme/theme';
+import BlurViewFix from './BlurViewFix';
 
 interface ModalProps {
   visible: boolean;
@@ -77,12 +77,11 @@ const Modal: React.FC<ModalProps> = ({
     <RNModal animationType="fade" transparent={true} visible={visible} onRequestClose={onClose}>
       <TouchableWithoutFeedback onPress={handleBackdropPress}>
         <View style={styles.modalBackdrop}>
-          <BlurView
+          <BlurViewFix
             style={StyleSheet.absoluteFill}
             blurType={blurType}
             blurAmount={blurIntensity}
-            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.6)"
-          />
+            reducedTransparencyFallbackColor="rgba(0, 0, 0, 0.6)"></BlurViewFix>
           <TouchableWithoutFeedback onPress={() => {}}>
             <View style={[styles.modalContainer, containerStyle]}>
               {showCloseButton && (

@@ -5,6 +5,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/RootNavigator';
+import GradientBorder from '../../components/common/GradientBorder';
 
 // Define Friend type
 interface Friend {
@@ -93,18 +94,14 @@ const FriendsScreen = () => {
           </View>
         </TouchableOpacity>
 
-        <LinearGradient
-          colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
-          start={{ x: 1, y: 1 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.gradientBorder}>
+        <GradientBorder colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']} borderRadius={8} style={styles.gradientBorder}>
           <TouchableOpacity
             style={styles.unfriendButton}
             onPress={() => handleUnfriend(item.id)}
             activeOpacity={0.6}>
             <Text style={styles.unfriendText}>Unfriend</Text>
           </TouchableOpacity>
-        </LinearGradient>
+        </GradientBorder>
       </View>
     );
   };
@@ -115,15 +112,11 @@ const FriendsScreen = () => {
       <View style={styles.tabContainer}>
         <TouchableOpacity style={[styles.tab]} onPress={() => setActiveTab('Friends')}>
           {activeTab === 'Friends' ? (
-            <LinearGradient
-              colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
-              start={{ x: 1, y: 1 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.activeTabGradient}>
+            <GradientBorder colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']} borderRadius={8} style={styles.activeTabGradient}>
               <View style={styles.activeTabContent}>
                 <Text style={styles.activeTabText}>Friends</Text>
               </View>
-            </LinearGradient>
+            </GradientBorder>
           ) : (
             <Text style={styles.tabText}>Friends</Text>
           )}
@@ -131,15 +124,11 @@ const FriendsScreen = () => {
 
         <TouchableOpacity style={[styles.tab]} onPress={() => setActiveTab('Trusted')}>
           {activeTab === 'Trusted' ? (
-            <LinearGradient
-              colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
-              start={{ x: 1, y: 1 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.activeTabGradient}>
+            <GradientBorder colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']} borderRadius={8} style={styles.activeTabGradient}>
               <View style={styles.activeTabContent}>
                 <Text style={styles.activeTabText}>Trusted</Text>
               </View>
-            </LinearGradient>
+            </GradientBorder>
           ) : (
             <Text style={styles.tabText}>Trusted</Text>
           )}

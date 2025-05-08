@@ -14,13 +14,14 @@ import {
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import { BlurView } from '@react-native-community/blur';
 import theme from '@theme/theme';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
 import LinearGradient from 'react-native-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
+import GradientBorder from '../../components/common/GradientBorder';
+import BlurViewFix from './BlurViewFix';
 
 interface SidebarProps {
   isVisible: boolean;
@@ -141,7 +142,11 @@ const Sidebar: React.FC<SidebarProps> = ({
           {/* Right edge */}
           <View style={styles.sidebarEdge} />
 
-          <BlurView style={StyleSheet.absoluteFill} blurType="dark" blurAmount={15} />
+          <BlurViewFix
+            style={StyleSheet.absoluteFill}
+            blurType="dark"
+            blurAmount={15}
+            reducedTransparencyFallbackColor="rgba(30, 32, 58, 0.95)"></BlurViewFix>
 
           <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
             <View style={styles.sidebarContent}>
@@ -379,7 +384,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   sidebarBackground: {
-    backgroundColor: 'rgba(30, 32, 58, 0.95)',
+    // backgroundColor: 'rgba(30, 32, 58, 0.95)',
   },
   sidebarEdge: {
     position: 'absolute',
@@ -401,6 +406,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     padding: 8,
     marginBottom: 16,
+    marginTop: 56,
   },
   profileSection: {
     flexDirection: 'row',

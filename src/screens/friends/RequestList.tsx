@@ -1,7 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, Image, TouchableOpacity, FlatList } from 'react-native';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-import LinearGradient from 'react-native-linear-gradient';
+import GradientBorder from '../../components/common/GradientBorder';
 
 const users = [
   {
@@ -84,10 +84,11 @@ const RequestList: React.FC = () => (
             <Text style={styles.name}>{item.name}</Text>
             <Text style={styles.username}>{item.username}</Text>
           </View>
-          <LinearGradient
+          <GradientBorder
             colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
             start={{ x: 1, y: 1 }}
             end={{ x: 1, y: 0 }}
+            borderRadius={8}
             style={styles.gradientBorder}>
             <TouchableOpacity style={styles.confirmBtn}>
               <Ionicons
@@ -98,7 +99,7 @@ const RequestList: React.FC = () => (
               />
               <Text style={styles.confirmText}>Confirm</Text>
             </TouchableOpacity>
-          </LinearGradient>
+          </GradientBorder>
           <TouchableOpacity style={styles.cancelBtn}>
             <Ionicons name="close" size={22} color="#fff" />
           </TouchableOpacity>

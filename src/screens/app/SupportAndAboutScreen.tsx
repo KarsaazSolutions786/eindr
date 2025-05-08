@@ -6,6 +6,7 @@ import { RootStackParamList } from '@navigation/RootNavigator';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import LinearGradient from 'react-native-linear-gradient';
 import theme from '@theme/theme';
+import GradientBorder from '../../components/common/GradientBorder';
 
 type FAQItem = {
   id: string;
@@ -76,11 +77,7 @@ const SupportAndAboutScreen = () => {
 
         {faqItems.map(item => (
           <View key={item.id}>
-            <LinearGradient
-              colors={['#FFFFFF80', '#B2A1FF']}
-              start={{ x: 0, y: 1 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.gradientBorder}>
+            <GradientBorder colors={['#FFFFFF80', '#B2A1FF']} borderRadius={8} style={styles.gradientBorder}>
               <TouchableOpacity
                 style={styles.questionContainer}
                 onPress={() => toggleItem(item.id)}>
@@ -91,18 +88,14 @@ const SupportAndAboutScreen = () => {
                   color="#fff"
                 />
               </TouchableOpacity>
-            </LinearGradient>
+            </GradientBorder>
 
             {item.expanded && (
-              <LinearGradient
-                colors={['#FFFFFF80', '#B2A1FF']}
-                start={{ x: 0, y: 1 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.gradientContentBorder}>
+              <GradientBorder colors={['#FFFFFF80', '#B2A1FF']} borderRadius={8} style={styles.gradientContentBorder}>
                 <View style={styles.answerContainer}>
                   <Text style={styles.answerText}>{item.answer}</Text>
                 </View>
-              </LinearGradient>
+              </GradientBorder>
             )}
           </View>
         ))}

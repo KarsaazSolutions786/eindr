@@ -13,6 +13,7 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import theme from '@theme/theme';
+import GradientBorder from '../../components/common/GradientBorder';
 
 // Types
 type ButtonVariant = 'primary' | 'outline';
