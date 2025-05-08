@@ -4,6 +4,7 @@ import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
 import LinearGradient from 'react-native-linear-gradient';
+import GradientBorder from '../../components/common/GradientBorder';
 
 const PrivacyPolicyScreen = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -25,11 +26,7 @@ const PrivacyPolicyScreen = () => {
       <ScrollView style={styles.content} showsVerticalScrollIndicator={false}>
         <Text style={styles.sectionTitle}>Terms of policy</Text>
 
-        <LinearGradient
-          colors={['#FFFFFF80', '#B2A1FF']}
-          start={{ x: 0, y: 1 }}
-          end={{ x: 1, y: 0 }}
-          style={styles.gradientBorder}>
+        <GradientBorder colors={['#FFFFFF80', '#B2A1FF']} borderRadius={8} style={styles.gradientBorder}>
           <View style={styles.policyContainer}>
             <Text style={styles.policyTitle}>Privacy Policy</Text>
 
@@ -106,7 +103,7 @@ const PrivacyPolicyScreen = () => {
               cannot guarantee absolute security.
             </Text>
           </View>
-        </LinearGradient>
+        </GradientBorder>
 
         <View style={styles.bottomContainer} />
       </ScrollView>

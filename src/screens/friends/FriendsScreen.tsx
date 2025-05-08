@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, FlatList, Image } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
+import GradientBorder from '../../components/common/GradientBorder';
 
 // Mock data for friends list
 const MOCK_FRIENDS = [
@@ -9,7 +9,7 @@ const MOCK_FRIENDS = [
     name: 'Jenny Wilson',
     username: '@Jenny Wilson11',
     profilePic: 'https://randomuser.me/api/portraits/women/1.jpg',
-    isTrusted: true,
+    isTrusted: false,
   },
   {
     id: '2',
@@ -78,15 +78,16 @@ const FriendsScreen: React.FC = () => {
             <Text style={styles.username}>{item.username}</Text>
           </View>
         </View>
-        <LinearGradient
+        <GradientBorder
           colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
           start={{ x: 1, y: 1 }}
           end={{ x: 1, y: 0 }}
+          borderRadius={8}
           style={styles.gradientBorder}>
           <TouchableOpacity style={styles.unfriendButton} onPress={() => handleUnfriend(item.id)}>
             <Text style={styles.unfriendText}>Unfriend</Text>
           </TouchableOpacity>
-        </LinearGradient>
+        </GradientBorder>
       </View>
     );
   };
@@ -162,7 +163,7 @@ const styles = StyleSheet.create({
     right: 1,
     height: 2,
     backgroundColor: '#92B7FF',
-    borderRadius:5
+    borderRadius: 5,
   },
   listContainer: {
     paddingHorizontal: 16,
@@ -175,7 +176,6 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     borderBottomWidth: 1,
     borderBottomColor: 'rgba(255, 255, 255, 0.08)',
-    
   },
   friendInfo: {
     flexDirection: 'row',

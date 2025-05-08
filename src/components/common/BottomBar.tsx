@@ -9,6 +9,8 @@ import { RootStackParamList } from '../../navigation/RootNavigator';
 import LinearGradient from 'react-native-linear-gradient';
 import Menu from '../../assets/Icons/Menu';
 import ReminderIcon from '../../assets/Icons/ReminderIcon';
+import GradientBorder from '../../components/common/GradientBorder';
+import BlurViewFix from './BlurViewFix';
 
 const BottomBar: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -70,12 +72,11 @@ const BottomBar: React.FC = () => {
         onRequestClose={() => setIsMenuOpen(false)}>
         <Pressable style={styles.modalOverlay} onPress={() => setIsMenuOpen(false)}>
           <View style={styles.modalContainer}>
-            <BlurView
+            <BlurViewFix
               style={StyleSheet.absoluteFill}
               blurType="light"
               blurAmount={10}
-              reducedTransparencyFallbackColor="#292A38"
-            />
+              reducedTransparencyFallbackColor="#292A38"></BlurViewFix>
             <View style={styles.menuContent}>
               <TouchableOpacity
                 style={[styles.menuOption, currentScreen === 'Ledger' && styles.activeMenuOption]}
@@ -106,12 +107,11 @@ const BottomBar: React.FC = () => {
       {/* Main tabs container with its own background */}
       <View style={styles.mainBackground}>
         <View style={styles.blurBackground}>
-          <BlurView
+          <BlurViewFix
             style={StyleSheet.absoluteFill}
             blurType="light"
             blurAmount={15}
-            reducedTransparencyFallbackColor="#292A38"
-          />
+            reducedTransparencyFallbackColor="#292A38"></BlurViewFix>
         </View>
 
         <View style={styles.leftSide}>
@@ -126,10 +126,9 @@ const BottomBar: React.FC = () => {
                   console.log('Navigation error:', e);
                 }
               }}>
-              <LinearGradient
+              <GradientBorder
                 colors={['rgba(157, 157, 255, 0.5)', 'rgba(39, 39, 54, 0.62)']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+                borderRadius={8}
                 style={styles.activeTab}>
                 <View style={styles.activeTabContent}>
                   <MaterialIcons
@@ -140,7 +139,7 @@ const BottomBar: React.FC = () => {
                   />
                   <Text style={styles.tabLabel}>Home</Text>
                 </View>
-              </LinearGradient>
+              </GradientBorder>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
@@ -167,16 +166,15 @@ const BottomBar: React.FC = () => {
                   console.log('Navigation error:', e);
                 }
               }}>
-              <LinearGradient
+              <GradientBorder
                 colors={['rgba(157, 157, 255, 0.5)', 'rgba(39, 39, 54, 0.62)']}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 1 }}
+                borderRadius={8}
                 style={styles.activeTab}>
                 <View style={styles.activeTabContent}>
                   <ReminderIcon width={24} height={24} color={theme.colors.white} />
                   <Text style={styles.tabLabel}>Reminder</Text>
                 </View>
-              </LinearGradient>
+              </GradientBorder>
             </TouchableOpacity>
           ) : (
             <TouchableOpacity
@@ -211,12 +209,11 @@ const BottomBar: React.FC = () => {
             console.log('Navigation error:', e);
           }
         }}>
-        <BlurView
+        <BlurViewFix
           style={StyleSheet.absoluteFill}
           blurType="light"
           blurAmount={15}
-          // reducedTransparencyFallbackColor="#ffffff"
-        />
+          reducedTransparencyFallbackColor="#ffffff"></BlurViewFix>
         <MaterialIcons name="keyboard" size={31} color="#ffffff" />
       </TouchableOpacity>
     </View>

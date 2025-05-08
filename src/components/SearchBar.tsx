@@ -1,8 +1,8 @@
 import React from 'react';
 import { View, StyleSheet, TextInput } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
-import LinearGradient from 'react-native-linear-gradient';
 import theme from '@theme/theme';
+import GradientBorder from './common/GradientBorder';
 
 interface SearchBarProps {
   value: string;
@@ -29,11 +29,12 @@ const SearchBar: React.FC<SearchBarProps> = ({
 }) => {
   return (
     <View style={[styles.searchContainer, containerStyle]}>
-      <LinearGradient
+      <GradientBorder
         colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
         start={{ x: 1, y: 1 }}
         end={{ x: 1, y: 0 }}
-        style={[styles.gradientBorder, { borderRadius, shadowColor: '#c07ddf' }]}>
+        borderRadius={borderRadius}
+        style={styles.gradientBorder}>
         <View style={[styles.inputContainer, { backgroundColor, borderRadius }]}>
           <MaterialIcons name="search" size={28} color={iconColor} style={styles.searchIcon} />
           <TextInput
@@ -44,7 +45,7 @@ const SearchBar: React.FC<SearchBarProps> = ({
             style={[styles.input, { fontSize }, inputStyle]}
           />
         </View>
-      </LinearGradient>
+      </GradientBorder>
     </View>
   );
 };
@@ -56,11 +57,10 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   gradientBorder: {
-    padding: 1,
-    borderRadius: theme.borderRadius.md,
     shadowOffset: { width: 0, height: 0 },
     shadowOpacity: 0.11,
     shadowRadius: 10,
+    shadowColor: '#c07ddf',
     elevation: 3,
   },
   inputContainer: {

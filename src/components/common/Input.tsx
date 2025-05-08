@@ -8,10 +8,11 @@ import {
   TextStyle,
   TextInputProps,
   TouchableOpacity,
+  Platform,
 } from 'react-native';
 import theme from '@theme/theme';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import LinearGradient from 'react-native-linear-gradient';
+import GradientBorder from './GradientBorder';
 
 interface InputProps extends TextInputProps {
   label?: string;
@@ -56,11 +57,12 @@ const Input: React.FC<InputProps> = ({
   return (
     <View style={[styles.container, containerStyle]}>
       {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
-      <LinearGradient
+      <GradientBorder
         colors={['#6c6c85', '#2c2d3c']}
         start={{ x: 0, y: 1 }}
         end={{ x: 1, y: 0 }}
-        style={[styles.gradientBorder, error && styles.gradientBorderError, { borderRadius }]}>
+        borderRadius={borderRadius}
+        style={[error && styles.gradientBorderError]}>
         <View
           style={[
             styles.inputContainer,
@@ -87,20 +89,17 @@ const Input: React.FC<InputProps> = ({
             </TouchableOpacity>
           )}
         </View>
-      </LinearGradient>
+      </GradientBorder>
       {error && <Text style={[styles.error, errorStyle]}>{error}</Text>}
     </View>
   );
 };
 
+const isIOS = Platform.OS === 'ios';
+
 const styles = StyleSheet.create({
   container: {
     marginBottom: theme.spacing.md,
-  },
-  gradientBorder: {
-    borderRadius: theme.borderRadius.sm,
-    padding: 1,
-    backgroundColor: 'transparent',
   },
   gradientBorderError: {
     opacity: 0.5,
@@ -115,7 +114,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     borderWidth: 0,
-    borderRadius: theme.borderRadius.sm,
+    borderRadius: theme.borderRadius.lg,
     backgroundColor: theme.colors.background.secondary,
     paddingHorizontal: theme.spacing.md,
   },
@@ -128,6 +127,7 @@ const styles = StyleSheet.create({
     fontSize: theme.typography.fontSize.md,
     color: theme.colors.text.primary,
     fontFamily: theme.typography.fontFamily.regular,
+    margin: isIOS ? 3 : 1,
   },
   inputWithIcon: {
     paddingLeft: theme.spacing.sm,

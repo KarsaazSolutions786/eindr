@@ -8,6 +8,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
+import GradientBorder from '../../components/common/GradientBorder';
 
 // Sample profile image - in a real app, this would come from your assets or a remote URL
 const sampleProfileImage = { uri: 'https://randomuser.me/api/portraits/women/44.jpg' };
@@ -79,10 +80,9 @@ const NotificationsScreen: React.FC = () => {
         </View>
 
         <View style={styles.sortContainer}>
-          <LinearGradient
+          <GradientBorder
             colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
-            start={{ x: 1, y: 1 }}
-            end={{ x: 1, y: 0 }}
+            borderRadius={8}
             style={styles.sortButtonGradient}>
             <View style={styles.sortButtonInner}>
               <TouchableOpacity style={styles.sortButton}>
@@ -90,7 +90,7 @@ const NotificationsScreen: React.FC = () => {
                 <Text style={styles.sortText}>Sort by</Text>
               </TouchableOpacity>
             </View>
-          </LinearGradient>
+          </GradientBorder>
         </View>
 
         <View style={styles.notificationsContainer}>
@@ -108,12 +108,15 @@ const NotificationsScreen: React.FC = () => {
 
         <TouchableOpacity style={styles.viewOldButtonContainer}>
           <View style={styles.viewOldButtonWrapper}>
-            <LinearGradient
+            <GradientBorder
               colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
               start={{ x: 0, y: 0 }}
               end={{ x: 1, y: 1 }}
               style={styles.viewOldBorder}
-            />
+              padding={0}
+              borderRadius={12}>
+              <View></View>
+            </GradientBorder>
             <View style={styles.viewOldButton}>
               <Text style={styles.viewOldText}>View old notifications</Text>
             </View>

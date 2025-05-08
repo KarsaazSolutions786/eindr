@@ -13,6 +13,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
+import GradientBorder from '../../components/common/GradientBorder';
 
 type ReminderOption = {
   id: string;
@@ -93,11 +94,7 @@ const NotificationSettingsScreen = () => {
       <ScrollView style={styles.content}>
         {/* Routine Reminders Section */}
         <View>
-          <LinearGradient
-            colors={['#6c6c85', '#2c2d3c']}
-            start={{ x: 0, y: 1 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.gradientBorder}>
+          <GradientBorder colors={['#6c6c85', '#2c2d3c']} borderRadius={8} style={styles.gradientBorder}>
             <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleSection('routine')}>
               <Text style={styles.sectionTitle}>Routine Reminders</Text>
               <MaterialIcons
@@ -106,14 +103,10 @@ const NotificationSettingsScreen = () => {
                 color="#fff"
               />
             </TouchableOpacity>
-          </LinearGradient>
+          </GradientBorder>
 
           {routineExpanded && (
-            <LinearGradient
-              colors={['#6c6c85', '#2c2d3c']}
-              start={{ x: 0, y: 1 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.gradientContentBorder}>
+            <GradientBorder colors={['#6c6c85', '#2c2d3c']} borderRadius={8} style={styles.gradientContentBorder}>
               <View style={styles.optionsContainer}>
                 {routineOptions.map(option => (
                   <Pressable
@@ -129,17 +122,13 @@ const NotificationSettingsScreen = () => {
                   </Pressable>
                 ))}
               </View>
-            </LinearGradient>
+            </GradientBorder>
           )}
         </View>
 
         {/* Urgent Reminders Section */}
         <View>
-          <LinearGradient
-            colors={['#6c6c85', '#2c2d3c']}
-            start={{ x: 0, y: 1 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.gradientBorder}>
+          <GradientBorder colors={['#6c6c85', '#2c2d3c']} borderRadius={8} style={styles.gradientBorder}>
             <TouchableOpacity style={styles.sectionHeader} onPress={() => toggleSection('urgent')}>
               <Text style={styles.sectionTitle}>Urgent Reminders</Text>
               <MaterialIcons
@@ -148,14 +137,10 @@ const NotificationSettingsScreen = () => {
                 color="#fff"
               />
             </TouchableOpacity>
-          </LinearGradient>
+          </GradientBorder>
 
           {urgentExpanded && (
-            <LinearGradient
-              colors={['#6c6c85', '#2c2d3c']}
-              start={{ x: 0, y: 1 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.gradientContentBorder}>
+            <GradientBorder colors={['#6c6c85', '#2c2d3c']} borderRadius={8} style={styles.gradientContentBorder}>
               <View style={styles.optionsContainer}>
                 {urgentOptions.map(option => (
                   <Pressable
@@ -169,7 +154,7 @@ const NotificationSettingsScreen = () => {
                   </Pressable>
                 ))}
               </View>
-            </LinearGradient>
+            </GradientBorder>
           )}
         </View>
 

@@ -132,7 +132,7 @@ const OtpVerificationScreen = ({ navigation }: Props) => {
     </SafeAreaView>
   );
 };
-
+const isIOS = Platform.OS === 'ios';
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   },
   content: {
     alignItems: 'center',
-    marginTop: theme.spacing.xl,
+    marginTop: isIOS ? 190 : theme.spacing.xl,
   },
   title: {
     fontSize: theme.typography.fontSize.xl,

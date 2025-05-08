@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, Alert, StyleSheet, SafeAreaView } from 'react-native';
+import { View, Text, Alert, StyleSheet, SafeAreaView, Platform } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { RootStackParamList } from '@navigation/RootNavigator';
@@ -90,6 +90,8 @@ const ForgotPasswordScreen = ({ navigation }: Props) => {
   );
 };
 
+const isIOS = Platform.OS === 'ios';
+
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
@@ -103,7 +105,7 @@ const styles = StyleSheet.create({
     justifyContent: 'space-between',
   },
   topSection: {
-    paddingTop: 70,
+    paddingTop: isIOS ? 190 : 70,
   },
   label: {
     fontSize: theme.typography.fontSize.lg,

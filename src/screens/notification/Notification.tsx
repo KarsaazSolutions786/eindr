@@ -4,6 +4,7 @@ import Feather from 'react-native-vector-icons/Feather';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import LinearGradient from 'react-native-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
+import GradientBorder from '../../components/common/GradientBorder';
 
 export interface NotificationProps {
   type: 'friend' | 'reminder' | 'ledger' | 'workout';
@@ -68,10 +69,9 @@ const Notification: React.FC<NotificationProps> = ({
     if (type === 'workout') {
       return (
         <View style={styles.actionContainer}>
-          <LinearGradient
+          <GradientBorder
             colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
-            start={{ x: 1, y: 1 }}
-            end={{ x: 1, y: 0 }}
+            borderRadius={8}
             style={styles.buttonGradient}>
             <View style={styles.buttonInner}>
               <TouchableOpacity
@@ -81,12 +81,11 @@ const Notification: React.FC<NotificationProps> = ({
                 <Text style={styles.buttonText}>Reschedule</Text>
               </TouchableOpacity>
             </View>
-          </LinearGradient>
+          </GradientBorder>
 
-          <LinearGradient
+          <GradientBorder
             colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
-            start={{ x: 1, y: 1 }}
-            end={{ x: 1, y: 0 }}
+            borderRadius={8}
             style={styles.buttonGradient}>
             <View style={styles.buttonInner}>
               <TouchableOpacity style={[styles.button, styles.declineButton]} onPress={onDelete}>
@@ -94,17 +93,16 @@ const Notification: React.FC<NotificationProps> = ({
                 <Text style={styles.buttonText}>Delete</Text>
               </TouchableOpacity>
             </View>
-          </LinearGradient>
+          </GradientBorder>
         </View>
       );
     }
 
     return (
       <View style={styles.actionContainer}>
-        <LinearGradient
+        <GradientBorder
           colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
-          start={{ x: 1, y: 1 }}
-          end={{ x: 1, y: 0 }}
+          borderRadius={8}
           style={styles.buttonGradient}>
           <View style={styles.buttonInner}>
             <TouchableOpacity style={[styles.button, styles.confirmButton]} onPress={onConfirm}>
@@ -112,12 +110,11 @@ const Notification: React.FC<NotificationProps> = ({
               <Text style={styles.buttonText}>Confirm</Text>
             </TouchableOpacity>
           </View>
-        </LinearGradient>
+        </GradientBorder>
 
-        <LinearGradient
+        <GradientBorder
           colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
-          start={{ x: 1, y: 1 }}
-          end={{ x: 1, y: 0 }}
+          borderRadius={8}
           style={styles.buttonGradient}>
           <View style={styles.buttonInner}>
             <TouchableOpacity style={[styles.button, styles.declineButton]} onPress={onDecline}>
@@ -125,16 +122,15 @@ const Notification: React.FC<NotificationProps> = ({
               <Text style={styles.buttonText}>Decline</Text>
             </TouchableOpacity>
           </View>
-        </LinearGradient>
+        </GradientBorder>
       </View>
     );
   };
 
   return (
-    <LinearGradient
+    <GradientBorder
       colors={['rgba(196,183,255,0.5)', 'rgba(245,243,255,0.5)']}
-      start={{ x: 1, y: 1 }}
-      end={{ x: 1, y: 0 }}
+      borderRadius={8}
       style={styles.gradientBorder}>
       <View style={styles.notificationItem}>
         {getIcon()}
@@ -156,7 +152,7 @@ const Notification: React.FC<NotificationProps> = ({
           {renderActions()}
         </View>
       </View>
-    </LinearGradient>
+    </GradientBorder>
   );
 };
 

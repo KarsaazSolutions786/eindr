@@ -13,6 +13,7 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
+import GradientBorder from '../../components/common/GradientBorder';
 
 type LanguageOption = {
   id: string;
@@ -74,11 +75,7 @@ const LanguageSettingsScreen = () => {
       <ScrollView style={styles.content}>
         {/* Languages Section */}
         <View>
-          <LinearGradient
-            colors={['#FFFFFF80', '#B2A1FF']}
-            start={{ x: 0, y: 1 }}
-            end={{ x: 1, y: 0 }}
-            style={styles.gradientBorder}>
+          <GradientBorder colors={['#FFFFFF80', '#B2A1FF']} borderRadius={8} style={styles.gradientBorder}>
             <TouchableOpacity style={styles.sectionHeader} onPress={() => setExpanded(!expanded)}>
               <Text style={styles.sectionTitle}>Languages</Text>
               <MaterialIcons
@@ -87,14 +84,10 @@ const LanguageSettingsScreen = () => {
                 color="#fff"
               />
             </TouchableOpacity>
-          </LinearGradient>
+          </GradientBorder>
 
           {expanded && (
-            <LinearGradient
-              colors={['#FFFFFF80', '#B2A1FF']}
-              start={{ x: 0, y: 1 }}
-              end={{ x: 1, y: 0 }}
-              style={styles.gradientContentBorder}>
+            <GradientBorder colors={['#FFFFFF80', '#B2A1FF']} borderRadius={8} style={styles.gradientContentBorder}>
               <View style={styles.optionsContainer}>
                 {languages.map(language => (
                   <Pressable
@@ -114,7 +107,7 @@ const LanguageSettingsScreen = () => {
                   </Pressable>
                 ))}
               </View>
-            </LinearGradient>
+            </GradientBorder>
           )}
         </View>
       </ScrollView>
