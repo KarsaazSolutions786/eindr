@@ -1,18 +1,19 @@
-Technology Stack & Justification – Eindr
+﻿<a name="_iwvq6mpeuex"></a>Technology Stack & Justification – Eindr
 
 Prepared By: Idrees Khan 
+
 Owner: Karsaaz Solutions
 
 
----
+\---
 
-1. Mobile Application Stack
+# <a name="_15rsl5jhaswc"></a>1. Mobile Application Stack
 
 Framework: React Native
 
 Why: Cross-platform native compilation, fast UI, smooth animations, and wide device support.
 
-Benefits:
+**Benefits:**
 
 One codebase for Android and iOS
 
@@ -27,15 +28,15 @@ Scalability: Easily handles millions of users with minimal device-level issues
 
 
 
----
+\---
 
-2. Backend Stack
+# <a name="_i9p164mikv45"></a>2. Backend Stack
 
 Language & Framework: Python + FastAPI
 
 Why: Modern async framework with great performance, especially for APIs and AI workflows.
 
-Benefits:
+**Benefits:**
 
 Fast performance (async-first)
 
@@ -51,7 +52,7 @@ Database: PostgreSQL + pgvector
 
 Why: Robust relational database with native support for AI-based similarity search
 
-Benefits:
+**Benefits:**
 
 Mature, secure, scalable
 
@@ -84,9 +85,9 @@ Why: Native systems, free at scale, reliable delivery
 
 
 
----
+\---
 
-3. AI/NLP Stack
+# <a name="_pswruhq91igu"></a>3. AI/NLP Stack
 
 Wake Word Detection: Mycroft Precise
 
@@ -125,9 +126,9 @@ Orchestration: LangChain
 Chains AI flows (e.g., voice → intent → habit → action)
 
 
----
+\---
 
-4. Infrastructure & DevOps
+# <a name="_avfhpzw49p0g"></a>4. Infrastructure & DevOps
 
 Containerization: Docker
 
@@ -151,9 +152,9 @@ CI/CD: GitHub Actions or Railway-integrated pipelines
 Security: OAuth 2.0 (Firebase), HTTPS, rate limiting, encrypted storage
 
 
----
+\---
 
-5. Future Scalability Benefits
+# <a name="_3jqvqqdidpvf"></a>5. Future Scalability Benefits
 
 All services are modular and ready for microservice transition
 
@@ -164,10 +165,11 @@ PostgreSQL supports clustering and partitioning for millions of rows
 Firebase and push infrastructure scale globally
 
 
----
+\---
 
 
 
-Conclusion:
+# <a name="_ho9a1quzk6gp"></a>Conclusion:
 
 This stack is designed to support Eindr’s growth from MVP to 10M+ users with minimal re-architecture. It's light, reliable, developer-friendly, and fully prepared for global scale and AI integration.
+
