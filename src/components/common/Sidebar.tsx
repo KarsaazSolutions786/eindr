@@ -11,6 +11,7 @@ import {
   Animated,
   ScrollView,
   TextStyle,
+  Platform,
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -22,6 +23,14 @@ import LinearGradient from 'react-native-linear-gradient';
 import MaskedView from '@react-native-masked-view/masked-view';
 import GradientBorder from '../../components/common/GradientBorder';
 import BlurViewFix from './BlurViewFix';
+import Svg, {
+  Path,
+  LinearGradient as SvgLinearGradient,
+  Stop,
+  Defs,
+  ClipPath,
+  ForeignObject,
+} from 'react-native-svg';
 
 interface SidebarProps {
   isVisible: boolean;
@@ -136,17 +145,70 @@ const Sidebar: React.FC<SidebarProps> = ({
               transform: [{ translateX: slideAnim }],
             },
           ]}>
-          {/* Background with dark color */}
-          <View style={[StyleSheet.absoluteFill, styles.sidebarBackground]} />
+          {/* Background with SVG curved shape */}
+          <View style={[StyleSheet.absoluteFill, styles.sidebarBackground]}>
+            {/* First add BlurViewFix with a mask */}
+            <MaskedView
+              style={{ position: 'absolute', top: 0, left: -20, right: 0, bottom: 0 }}
+              maskElement={
+                <Svg width="100%" height="100%" viewBox="0 0 251 824">
+                  <Path
+                    d="M210.083 -2H-2V824H210.083C282.376 528.839 240.205 150.349 210.083 -2Z"
+                    fill="white"
+                  />
+                </Svg>
+              }>
+              <BlurViewFix
+                style={{ position: 'absolute', top: 0, left: 0, right: 0, bottom: 0 }}
+                blurType="dark"
+                blurAmount={6}
+                reducedTransparencyFallbackColor="rgba(30, 32, 58, 0.6)"
+              />
+            </MaskedView>
 
-          {/* Right edge */}
-          <View style={styles.sidebarEdge} />
+            {/* Then the SVG with the gradients */}
+            <Svg
+              width="100%"
+              height="100%"
+              viewBox="0 0 251 824"
+              fill="none"
+              preserveAspectRatio="xMidYMid slice"
+              style={{ position: 'absolute', left: -20 }}>
+              <Defs>
+                <SvgLinearGradient
+                  id="paint0_linear"
+                  x1="186.241"
+                  y1="-2"
+                  x2="124.875"
+                  y2="824.065"
+                  gradientUnits="userSpaceOnUse">
+                  <Stop stopColor="#3D3D3D" />
+                  <Stop offset="1" stopColor="#3D3D3D" />
+                </SvgLinearGradient>
+                <SvgLinearGradient
+                  id="paint1_linear"
+                  x1="166.5"
+                  y1="15.7236"
+                  x2="260.72"
+                  y2="753.403"
+                  gradientUnits="userSpaceOnUse">
+                  {/* <Stop stopColor="black" stopOpacity="0" /> */}
+                  {/* <Stop offset="1" stopColor="white" stopOpacity="0.3" /> */}
+                </SvgLinearGradient>
+                <ClipPath id="sidebarClipper">
+                  <Path d="M210.083 -2H-2V824H210.083C282.376 528.839 240.205 150.349 210.083 -2Z" />
+                </ClipPath>
+              </Defs>
 
-          <BlurViewFix
-            style={StyleSheet.absoluteFillObject}
-            blurType="dark"
-            blurAmount={15}
-            reducedTransparencyFallbackColor="rgba(30, 32, 58, 0.95)"></BlurViewFix>
+              <Path
+                d="M210.083 -2H-2V824H210.083C282.376 528.839 240.205 150.349 210.083 -2Z"
+                fill="url(#paint0_linear)"
+                fillOpacity="0.10"
+                stroke="url(#paint1_linear)"
+                clipPath="url(#sidebarClipper)"
+              />
+            </Svg>
+          </View>
 
           <ScrollView style={styles.scrollView} showsVerticalScrollIndicator={false}>
             <View style={styles.sidebarContent}>
@@ -189,6 +251,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     name={chatsExpanded ? 'keyboard-arrow-down' : 'keyboard-arrow-right'}
                     size={24}
                     color={theme.colors.white}
+                    style={{ position: 'absolute', left: 200 }}
                   />
                 </TouchableOpacity>
 
@@ -255,6 +318,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                     name={settingsExpanded ? 'keyboard-arrow-down' : 'keyboard-arrow-right'}
                     size={24}
                     color={theme.colors.white}
+                    style={{ position: 'absolute', left: 200 }}
                   />
                 </TouchableOpacity>
 
@@ -356,7 +420,15 @@ const Sidebar: React.FC<SidebarProps> = ({
                   colors={['#B2A1FF', '#C07DDF']}
                   style={styles.logoutText}
                 />
-                <MaterialIcons name="logout" size={20} color="#9E6CFF" style={styles.logoutIcon} />
+                <MaterialIcons
+                  name="logout"
+                  size={20}
+                  color="#9E6CFF"
+                  style={[
+                    styles.logoutIcon,
+                    { position: 'absolute', left: Platform.OS === 'ios' ? 200 : 100 },
+                  ]}
+                />
               </TouchableOpacity>
             </View>
           </ScrollView>
@@ -384,15 +456,7 @@ const styles = StyleSheet.create({
     overflow: 'hidden',
   },
   sidebarBackground: {
-    // backgroundColor: 'rgba(30, 32, 58, 0.95)',
-  },
-  sidebarEdge: {
-    position: 'absolute',
-    right: 0,
-    top: 0,
-    width: 2,
-    height: '100%',
-    zIndex: 2,
+    // No background color needed as SVG and BlurViewFix provide it
   },
   scrollView: {
     flex: 1,
