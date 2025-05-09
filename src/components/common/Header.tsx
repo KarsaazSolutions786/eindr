@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   StatusBar,
   SafeAreaView,
+  Platform,
 } from 'react-native';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import theme from '@theme/theme';
@@ -100,6 +101,8 @@ const Header: React.FC<HeaderProps> = ({
     </SafeAreaView>
   );
 };
+
+const isIos = Platform.OS === 'ios';
 
 const styles = StyleSheet.create({
   safeArea: {

@@ -2,7 +2,6 @@ import React from 'react';
 import { View, StyleSheet, TouchableOpacity, Modal } from 'react-native';
 import { Calendar, DateData } from 'react-native-calendars';
 import BlurViewFix from '@components/common/BlurViewFix';
-import styles from '../styles/DashboardScreenStyles';
 
 type MarkedDates = {
   [date: string]: {
@@ -76,5 +75,29 @@ const CalendarModal: React.FC<CalendarModalProps> = ({
     </Modal>
   );
 };
+
+const styles = StyleSheet.create({
+  modalBackground: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+  },
+  calendarWrapper: {
+    width: '90%',
+    borderRadius: 20,
+    overflow: 'hidden',
+    backgroundColor: 'rgba(35, 36, 58, 0.8)',
+  },
+  calendarContainer: {
+    padding: 15,
+  },
+  calendarHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 10,
+  },
+});
 
 export default CalendarModal;

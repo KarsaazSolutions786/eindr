@@ -26,12 +26,13 @@ import { ProfileScreen } from '@screens/profile';
 import ChangePasswordScreen from '@screens/profile/ChangePasswordScreen';
 import SupportAndAboutScreen from '@screens/app/SupportAndAboutScreen';
 import PrivacyPolicyScreen from '@screens/app/PrivacyPolicyScreen';
-import LedgerScreen from '@screens/app/LedgerScreen';
+import LedgerScreen from '@screens/ledger/LedgerScreen';
 import NotificationsScreen from '@screens/notification/NotificationsScreen';
 import NotificationSettingsScreen from '@screens/notification/NotificationSettingsScreen';
 import LanguageSettingsScreen from '@screens/notification/LanguageSettingsScreen';
 import BackgroundScreen2 from '@components/common/BackgroundScreen2';
 import DashboardScreen from '@screens/dashboard/DashboardScreen';
+import UserTransactionsScreen from '@screens/ledger/UserTransactionsScreen';
 
 // Define Friend type
 interface Friend {
@@ -82,6 +83,7 @@ export type RootStackParamList = {
   NotificationsScreen: undefined;
   NotificationSettingsScreen: undefined;
   LanguageSettingsScreen: undefined;
+  UserTransactions: { userName: string; accountType: string };
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -100,7 +102,7 @@ export const screenConfig: Record<keyof RootStackParamList, NavigationOptions> =
   // App Screens
   Home: { showHeader: true, showBottomBar: true },
   Dashboard: { showHeader: true, showBottomBar: true },
-  Ledger: { showHeader: true, showBottomBar: true },
+  Ledger: { showHeader: false, showBottomBar: true },
   Reminders: { showHeader: true, showBottomBar: true },
   Notes: { showHeader: true, showBottomBar: true },
   Friends: { showHeader: true, showBottomBar: true },
@@ -117,6 +119,7 @@ export const screenConfig: Record<keyof RootStackParamList, NavigationOptions> =
   NotificationsScreen: { showHeader: true, showBottomBar: true },
   NotificationSettingsScreen: { showHeader: false, showBottomBar: true },
   LanguageSettingsScreen: { showHeader: false, showBottomBar: true },
+  UserTransactions: { showHeader: false, showBottomBar: true },
 };
 
 // Wrapper component to add BackgroundScreen to each screen
@@ -185,6 +188,7 @@ const RootNavigator = () => {
         name="LanguageSettingsScreen"
         component={withBackground(LanguageSettingsScreen)}
       />
+      <Stack.Screen name="UserTransactions" component={withBackground(UserTransactionsScreen)} />
     </Stack.Navigator>
   );
 };

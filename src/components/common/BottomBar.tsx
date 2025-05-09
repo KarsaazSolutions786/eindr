@@ -73,7 +73,7 @@ const BottomBar: React.FC = () => {
         <Pressable style={styles.modalOverlay} onPress={() => setIsMenuOpen(false)}>
           <View style={styles.modalContainer}>
             <BlurViewFix
-              style={StyleSheet.absoluteFill}
+              style={StyleSheet.absoluteFillObject}
               blurType="light"
               blurAmount={10}
               reducedTransparencyFallbackColor="#292A38"></BlurViewFix>
@@ -108,7 +108,7 @@ const BottomBar: React.FC = () => {
       <View style={styles.mainBackground}>
         <View style={styles.blurBackground}>
           <BlurViewFix
-            style={StyleSheet.absoluteFill}
+            style={StyleSheet.absoluteFillObject}
             blurType="light"
             blurAmount={15}
             reducedTransparencyFallbackColor="#292A38"></BlurViewFix>
@@ -210,7 +210,7 @@ const BottomBar: React.FC = () => {
           }
         }}>
         <BlurViewFix
-          style={StyleSheet.absoluteFill}
+          style={StyleSheet.absoluteFillObject}
           blurType="light"
           blurAmount={15}
           reducedTransparencyFallbackColor="#ffffff"></BlurViewFix>
@@ -220,14 +220,16 @@ const BottomBar: React.FC = () => {
   );
 };
 
+const isIos = Platform.OS === 'ios';
+
 const styles = StyleSheet.create({
   container: {
     position: 'absolute',
-    bottom: 20,
+    bottom: isIos ? -3 : 20,
     left: 0,
     right: 0,
     height: 90,
-    paddingBottom: 50,
+    paddingBottom: isIos ? -50 : 10,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center',

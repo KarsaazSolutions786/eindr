@@ -143,7 +143,7 @@ const Sidebar: React.FC<SidebarProps> = ({
           <View style={styles.sidebarEdge} />
 
           <BlurViewFix
-            style={StyleSheet.absoluteFill}
+            style={StyleSheet.absoluteFillObject}
             blurType="dark"
             blurAmount={15}
             reducedTransparencyFallbackColor="rgba(30, 32, 58, 0.95)"></BlurViewFix>
