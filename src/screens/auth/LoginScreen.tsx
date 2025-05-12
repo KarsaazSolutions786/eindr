@@ -70,15 +70,40 @@ const LoginScreen = ({ navigation }: Props) => {
     }
 
     if (valid) {
-      // dispatch(authStart());
-      // try {
-      //   const response = await loginUser({ email, password });
-      //   dispatch(authSuccess({ user: response.user, token: response.token }));
-      // } catch (error: any) {
-      //   const errorMessage = error.message || 'Login failed. Please try again.';
-      //   dispatch(authFailure(errorMessage));
-      // }
-      navigation.navigate('Home');
+      setIsLoading(true);
+      try {
+        // In a real implementation, this would make an actual API call
+        // const response = await loginUser({ email, password });
+
+        // For now, simulate a successful login with a dummy user
+        const user = {
+          id: '123',
+          name: 'User',
+          email: email,
+          isNew: true, // This flag determines whether to show onboarding
+        };
+
+        // Dispatch auth success to store the user in Redux state
+        dispatch(
+          authSuccess({
+            user: user,
+            token: 'dummy-token', // This would come from the API in a real implementation
+          }),
+        );
+
+        // Check if user is new to determine where to navigate
+        if (user.isNew) {
+          navigation.navigate('Welcome');
+        } else {
+          navigation.navigate('Home');
+        }
+      } catch (error: any) {
+        const errorMessage = error?.message || 'Login failed. Please try again.';
+        dispatch(authFailure(errorMessage));
+        Alert.alert('Login Failed', errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
     }
   };
 
@@ -296,7 +321,6 @@ const LoginScreen = ({ navigation }: Props) => {
               size="md"
               fullWidth
               onPress={handleLogin}
-              animatedBorder
               loading={isLoading}
               disabled={isLoading}>
               Login
@@ -308,7 +332,6 @@ const LoginScreen = ({ navigation }: Props) => {
               fullWidth
               onPress={navigateToRegister}
               disabled={isLoading}
-              animatedBorder
               style={styles.registerButton}>
               Register
             </Button>
@@ -358,7 +381,7 @@ const styles = StyleSheet.create({
   container: {
     flex: 1,
     // backgroundColor: theme.colors.background.primary,
-    marginTop:200
+    marginTop: 200,
   },
   containerHeader: {
     paddingTop: 50,

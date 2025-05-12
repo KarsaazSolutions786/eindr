@@ -1,19 +1,36 @@
 // screens/CongratulationsScreen.tsx
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, StatusBar } from 'react-native';
+import { View, Text, StyleSheet, SafeAreaView, StatusBar, TouchableOpacity } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { Button } from '@components/common';
 import theme from '@theme/theme';
 import { RootStackParamList } from '@navigation/RootNavigator';
+import { useSelector } from 'react-redux';
+import { RootState } from '@store/rootReducer';
+import GradientBorder from '@components/common/GradientBorder';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Registered'>;
 
 const RegisteredScreen = ({ navigation }: Props) => {
+  // Get user from the Redux store
+  const { user } = useSelector((state: RootState) => state.auth);
 
   const handleConfirm = () => {
-    // No need to dispatch anything here since the auth state is already set
-    // The RootNavigator will automatically switch to AppNavigator
-    navigation.navigate('Home');
+    // Check if user is new to determine where to navigate
+    if (user?.isNew) {
+      navigation.navigate('Welcome');
+    } else {
+      navigation.navigate('Home');
+    }
+  };
+
+  const buttonContainerStyle = {
+    marginVertical: 10,
+    // This ensures shadows aren't clipped on iOS
+    shadowColor: '#FF7D73',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.38,
+    shadowRadius: 4,
   };
 
   return (
@@ -28,9 +45,19 @@ const RegisteredScreen = ({ navigation }: Props) => {
           </Text>
         </View>
 
-        <Button variant="primary" size="md" fullWidth onPress={handleConfirm}>
-          Confirm
-        </Button>
+        <View style={[styles.buttonWrapper, buttonContainerStyle]}>
+          <GradientBorder
+            colors={['rgba(178, 161, 255, 0.8)', 'rgba(255, 255, 255, 0.8)']}
+            borderRadius={8}
+            padding={1}
+            angle={0}
+            start={{ x: 1, y: 0 }}
+            end={{ x: 0, y: 1 }}>
+            <TouchableOpacity style={[styles.button, styles.buttonShadow]} onPress={handleConfirm}>
+              <Text style={styles.buttonText}>Confirm</Text>
+            </TouchableOpacity>
+          </GradientBorder>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -64,6 +91,36 @@ const styles = StyleSheet.create({
     color: theme.colors.white,
     textAlign: 'center',
     lineHeight: theme.typography.lineHeight?.lg || 24,
+  },
+  button: {
+    backgroundColor: '#282958',
+    borderRadius: 8,
+    paddingVertical: 14,
+    paddingHorizontal: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '100%',
+  },
+  buttonText: {
+    color: theme.colors.white,
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  buttonShadow: {
+    // For iOS - first shadow
+    shadowColor: '#FF7D73',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.38,
+    shadowRadius: 4,
+
+    // For Android
+    elevation: 4,
+  },
+  buttonWrapper: {
+    // This prevents the shadows from being clipped
+    marginVertical: 10,
+    alignSelf: 'center',
+    width: '100%',
   },
 });
 

@@ -1,5 +1,7 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import { useSelector } from 'react-redux';
+import { RootState } from '@store/rootReducer';
 import BackgroundScreen from '@components/BackgroundScreen';
 
 // Auth Screens
@@ -10,6 +12,14 @@ import OtpVerificationScreen from '@screens/auth/OtpVerificationScreen';
 import NewPasswordScreen from '@screens/auth/NewPasswordScreen';
 import PasswordResetSuccessScreen from '@screens/auth/PasswordResetSuccessScreen';
 import RegisteredScreen from '@screens/auth/RegisteredScreen';
+
+// Onboarding Screens
+import WelcomeScreen from '@screens/onboarding/WelcomeScreen';
+import OnboardingSecondScreen from '@screens/onboarding/OnboardingSecondScreen';
+import OnboardingThirdScreen from '@screens/onboarding/OnboardingThirdScreen';
+import OnboardingFourthScreen from '@screens/onboarding/OnboardingFourthScreen';
+import OnboardingFifthScreen from '@screens/onboarding/OnboardingFifthScreen';
+import PlansScreen from '@screens/onboarding/PlansScreen';
 
 // App Screens
 import HomeScreen from '@screens/home/HomeScreen';
@@ -54,6 +64,14 @@ export type NavigationOptions = {
 
 // Define combined Param List
 export type RootStackParamList = {
+  // Onboarding Screens
+  Welcome: undefined;
+  OnboardingSecond: undefined;
+  OnboardingThird: undefined;
+  OnboardingFourth: undefined;
+  OnboardingFifth: undefined;
+  Plans: undefined;
+
   // Auth Screens
   Login: undefined;
   Register: undefined;
@@ -90,6 +108,14 @@ const Stack = createNativeStackNavigator<RootStackParamList>();
 
 // Screen configuration with navigation options
 export const screenConfig: Record<keyof RootStackParamList, NavigationOptions> = {
+  // Onboarding Screens
+  Welcome: { showHeader: false, showBottomBar: false },
+  OnboardingSecond: { showHeader: false, showBottomBar: false },
+  OnboardingThird: { showHeader: false, showBottomBar: false },
+  OnboardingFourth: { showHeader: false, showBottomBar: false },
+  OnboardingFifth: { showHeader: false, showBottomBar: false },
+  Plans: { showHeader: false, showBottomBar: false },
+
   // Auth Screens
   Login: {},
   Register: {},
@@ -140,13 +166,37 @@ const withBackground2 = <P extends object>(Component: React.ComponentType<P>) =>
 };
 
 const RootNavigator = () => {
+  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
+  const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList>('Login');
+
+  useEffect(() => {
+    // Determine initial route based on auth state and isNew flag
+    if (isAuthenticated) {
+      if (user?.isNew) {
+        setInitialRoute('Welcome');
+      } else {
+        setInitialRoute('Home');
+      }
+    } else {
+      setInitialRoute('Login');
+    }
+  }, [isAuthenticated, user]);
+
   return (
     <Stack.Navigator
-      initialRouteName="Login"
+      initialRouteName={initialRoute}
       screenOptions={{
         headerShown: false,
-        animation: 'slide_from_right',
+        animation: 'fade',
       }}>
+      {/* Onboarding Screens */}
+      <Stack.Screen name="Welcome" component={withBackground2(WelcomeScreen)} />
+      <Stack.Screen name="OnboardingSecond" component={withBackground2(OnboardingSecondScreen)} />
+      <Stack.Screen name="OnboardingThird" component={withBackground2(OnboardingThirdScreen)} />
+      <Stack.Screen name="OnboardingFourth" component={withBackground2(OnboardingFourthScreen)} />
+      <Stack.Screen name="OnboardingFifth" component={withBackground2(OnboardingFifthScreen)} />
+      <Stack.Screen name="Plans" component={withBackground2(PlansScreen)} />
+
       {/* Auth Screens */}
       <Stack.Screen name="Login" component={withBackground(LoginScreen)} />
       <Stack.Screen name="Register" component={withBackground(RegisterScreen)} />

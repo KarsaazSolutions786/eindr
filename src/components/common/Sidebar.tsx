@@ -182,8 +182,8 @@ const Sidebar: React.FC<SidebarProps> = ({
                   x2="124.875"
                   y2="824.065"
                   gradientUnits="userSpaceOnUse">
-                  <Stop stopColor="#3D3D3D" />
-                  <Stop offset="1" stopColor="#3D3D3D" />
+                  <Stop stopColor="rgba(0, 0, 0, 0.3)" offset="0.0056" />
+                  <Stop offset="0.9889" stopColor="rgba(61, 61, 61, 0.3)" />
                 </SvgLinearGradient>
                 <SvgLinearGradient
                   id="paint1_linear"
@@ -204,7 +204,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                 d="M210.083 -2H-2V824H210.083C282.376 528.839 240.205 150.349 210.083 -2Z"
                 fill="url(#paint0_linear)"
                 fillOpacity="0.10"
-                stroke="url(#paint1_linear)"
+                // stroke="url(#paint1_linear)"
                 clipPath="url(#sidebarClipper)"
               />
             </Svg>
@@ -444,7 +444,7 @@ const styles = StyleSheet.create({
   modalContainer: {
     flex: 1,
     flexDirection: 'row',
-    backgroundColor: 'rgba(0, 0, 0, 0.5)',
+    // backgroundColor: 'rgba(0, 0, 0, 0.5)',
   },
   dismissArea: {
     flex: 1,
@@ -517,8 +517,6 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 8,
     paddingHorizontal: 8,
-    borderTopWidth: 0.5,
-    borderTopColor: 'rgba(255, 255, 255, 0.1)',
   },
   sectionTitle: {
     fontSize: 25,

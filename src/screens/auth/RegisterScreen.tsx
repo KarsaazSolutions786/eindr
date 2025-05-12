@@ -112,23 +112,36 @@ const RegisterScreen = ({ navigation }: Props) => {
     }
 
     if (isValid) {
-      navigation.navigate('Registered');
-    }
+      dispatch(authStart());
+      try {
+        // In a real implementation, this would call the API
+        // const userData = { fullName, email, gender, password };
+        // const response = await registerUser(userData);
 
-    // if (isValid) {
-    //   dispatch(authStart());
-    //   try {
-    //     const userData = { fullName, email, gender, password };
-    //     const response = await registerUser(userData);
-    //     dispatch(authSuccess({ user: response.user, token: response.token }));
-    //     navigation.navigate('Registered');
-    //   } catch (error) {
-    //     const apiError = error as ApiError;
-    //     const errorMessage = apiError.message || 'Registration failed. Please try again.';
-    //     dispatch(authFailure(errorMessage));
-    //     Alert.alert('Registration Failed', errorMessage);
-    //   }
-    // }
+        // For now, simulate a successful registration with a dummy user
+        const user = {
+          id: '123',
+          name: fullName,
+          email: email,
+          isNew: true, // This flag determines whether to show onboarding
+        };
+
+        dispatch(
+          authSuccess({
+            user: user,
+            token: 'dummy-token', // This would come from the API in a real implementation
+          }),
+        );
+
+        navigation.navigate('Registered');
+      } catch (error) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Registration failed. Please try again.';
+
+        dispatch(authFailure(errorMessage));
+        Alert.alert('Registration Failed', errorMessage);
+      }
+    }
   };
 
   // const handleSocialRegister = (provider: 'google' | 'facebook' | 'apple') => {
