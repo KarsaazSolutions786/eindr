@@ -68,7 +68,15 @@ const PlansScreen = () => {
       const rightFeatures = features.slice(3);
 
       content = (
-        <View style={[styles.planCard, { width: '100%', height: 150 }]}>
+        <View
+          style={[
+            styles.planCard,
+            {
+              width: '100%',
+              height: 150,
+              borderRadius: Platform.OS === 'android' ? 25 : 24,
+            },
+          ]}>
           <Text style={styles.planTitle}>{title}</Text>
 
           <View style={styles.eliteFeatures}>
@@ -84,7 +92,14 @@ const PlansScreen = () => {
     } else {
       content = (
         <View
-          style={[styles.planCard, { width: cardWidth, height: planKey === 'elite' ? 100 : 240 }]}>
+          style={[
+            styles.planCard,
+            {
+              width: cardWidth,
+              height: planKey === 'elite' ? 100 : 240,
+              borderRadius: Platform.OS === 'android' ? 25 : 24,
+            },
+          ]}>
           <Text style={styles.planTitle}>{title}</Text>
           <Text style={styles.planPrice}>Price : {price}</Text>
 
@@ -97,21 +112,29 @@ const PlansScreen = () => {
     if (isSelected) {
       return (
         <GradientBorder
-          colors={['rgba(178, 161, 255, 0.7)', 'rgba(255, 255, 255, 0.5)']}
-          borderRadius={Platform.OS === 'android' ? 26 : 25}
-          padding={Platform.OS === 'android' ? 1.2 : 1.5}
+          colors={
+            Platform.OS === 'android'
+              ? ['rgba(178, 161, 255, 0.9)', 'rgba(255, 255, 255, 0.8)']
+              : ['rgba(178, 161, 255, 0.7)', 'rgba(255, 255, 255, 0.5)']
+          }
+          borderRadius={Platform.OS === 'android' ? 27 : 25}
+          padding={Platform.OS === 'android' ? 2 : 1.5}
           angle={Platform.OS === 'android' ? 45 : 0}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={{
             width: planKey === 'elite' ? '100%' : cardWidth,
-            overflow: 'hidden',
+            overflow: Platform.OS === 'android' ? 'visible' : 'hidden',
+            marginBottom: planKey === 'elite' ? 0 : 20,
           }}
           key={planKey}>
           <TouchableOpacity
             activeOpacity={0.9}
             onPress={() => setSelectedPlan(planKey)}
-            style={{ width: '100%' }}>
+            style={{
+              width: '100%',
+              backgroundColor: Platform.OS === 'android' ? 'transparent' : undefined,
+            }}>
             {content}
           </TouchableOpacity>
         </GradientBorder>
@@ -141,7 +164,7 @@ const PlansScreen = () => {
   };
 
   const getButtonText = () => {
-    return selectedPlan ? 'Continue' : 'Start 7-Days free Trial';
+    return selectedPlan ? 'Start 7-Days free Trial' : 'Continue';
   };
 
   return (
@@ -308,6 +331,7 @@ const styles = StyleSheet.create({
     ...Platform.select({
       android: {
         elevation: 4,
+        borderWidth: 0,
       },
       ios: {},
     }),
