@@ -97,8 +97,9 @@ const LoginScreen = ({ navigation }: Props) => {
         } else {
           navigation.navigate('Home');
         }
-      } catch (error: any) {
-        const errorMessage = error?.message || 'Login failed. Please try again.';
+      } catch (error: Error | unknown) {
+        const errorMessage =
+          error instanceof Error ? error.message : 'Login failed. Please try again.';
         dispatch(authFailure(errorMessage));
         Alert.alert('Login Failed', errorMessage);
       } finally {

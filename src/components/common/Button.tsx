@@ -13,7 +13,6 @@ import {
 } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import theme from '@theme/theme';
-import GradientBorder from '../../components/common/GradientBorder';
 
 // Types
 type ButtonVariant = 'primary' | 'outline';
@@ -88,6 +87,115 @@ const getSizeStyles = (size: ButtonSize) => {
   return sizes[size];
 };
 
+// Animated Border Component
+const AnimatedBorder = ({
+  children,
+  isPressed,
+  borderRadius,
+}: {
+  children: React.ReactNode;
+  isPressed: boolean;
+  borderRadius: number;
+}) => {
+  // Create a new Animated.Value specifically for JS-driven animations
+  const gradientPosition = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    // The key to a truly infinite animation is to use Animated.loop with correct configuration
+    const animation = Animated.loop(
+      Animated.timing(gradientPosition, {
+        toValue: 1,
+        duration: 4000, // 2 seconds for one cycle - faster for smoother perceived motion
+        easing: Easing.linear, // Linear easing is essential for seamless looping
+        useNativeDriver: false, // Must be false for translateX percentage animations
+        isInteraction: false, // Prevent interaction tracking which can cause pauses
+      }),
+      { iterations: -1 }, // Infinite iterations
+    );
+
+    // Start the animation immediately
+    animation.start();
+
+    // Cleanup function
+    return () => {
+      animation.stop();
+    };
+  }, []);
+
+  // Interpolate for a perfect continuous loop
+  const translateX = gradientPosition.interpolate({
+    inputRange: [0, 1],
+    outputRange: ['0%', '-100%'],
+    extrapolate: 'clamp',
+  });
+
+  // Define the border width
+  const borderWidth = 1;
+
+  // Shadow styles based on user specifications
+  const shadowStyle1 = {
+    shadowColor: '#FF7D73',
+    shadowOffset: { width: 0, height: 0 },
+    shadowOpacity: 0.38,
+    shadowRadius: 4,
+    elevation: 4,
+  };
+
+  const shadowStyle2 = {
+    shadowColor: '#FF7D73',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.24,
+    shadowRadius: 7,
+    elevation: 6,
+  };
+
+  // Apply more intense shadow when pressed
+  const shadowStyle = isPressed ? shadowStyle2 : shadowStyle1;
+
+  return (
+    <View
+      style={[
+        {
+          position: 'relative',
+          borderRadius: borderRadius,
+          overflow: 'hidden',
+          padding: borderWidth,
+        },
+        shadowStyle,
+      ]}>
+      {/* The animated gradient layer */}
+      <Animated.View
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          transform: [{ translateX }],
+          opacity: 0.5,
+        }}>
+        <LinearGradient
+          colors={['#B2A1FF', '#FFFFFF', '#B2A1FF', '#FFFFFF', '#B2A1FF']}
+          locations={[0, 0.25, 0.5, 0.75, 1]} // Evenly spaced for smooth transition
+          start={{ x: 0, y: 0.5 }}
+          end={{ x: 1, y: 0.5 }}
+          style={{ width: '200%', height: '100%', opacity: 0.95 }}
+        />
+      </Animated.View>
+
+      {/* Button content container */}
+      <View
+        style={{
+          overflow: 'hidden',
+          borderRadius: Math.max(0, borderRadius - borderWidth),
+          backgroundColor: theme.colors.background.primary,
+        }}>
+        {children}
+      </View>
+    </View>
+  );
+};
+
 // Button inner content component - extracted for reuse
 const ButtonContent: React.FC<ButtonContentProps> = ({
   loading,
@@ -123,173 +231,6 @@ const ButtonContent: React.FC<ButtonContentProps> = ({
   </>
 );
 
-// Animated Border Component
-const AnimatedBorder = ({
-  children,
-  isPressed,
-  borderRadius,
-}: {
-  children: React.ReactNode;
-  isPressed: boolean;
-  borderRadius: number;
-}) => {
-  const animation = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    // Create an infinite loop animation with smooth transitions
-    const animationLoop = Animated.loop(
-      Animated.timing(animation, {
-        toValue: 1,
-        duration: 8000,
-        easing: Easing.linear, // Linear easing ensures constant speed
-        useNativeDriver: false,
-      }),
-      { iterations: -1 }, // Explicitly set to infinite iterations
-    );
-
-    // Start the animation
-    animationLoop.start();
-
-    // Proper cleanup
-    return () => {
-      animationLoop.stop();
-      animation.setValue(0); // Reset value on unmount
-    };
-  }, []);
-
-  // Create smoother color transitions with more interpolation points
-  const colorInterpolation1 = animation.interpolate({
-    inputRange: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
-    outputRange: [
-      '#FFFFFF',
-      '#F0EBFF',
-      '#E2D8FF',
-      '#D3C5FF',
-      '#C4B3FF',
-      '#B2A1FF',
-      '#C4B3FF',
-      '#D3C5FF',
-      '#E2D8FF',
-      '#F0EBFF',
-      '#FFFFFF',
-    ],
-  });
-
-  const colorInterpolation2 = animation.interpolate({
-    inputRange: [0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1],
-    outputRange: [
-      '#B2A1FF',
-      '#C4B3FF',
-      '#D3C5FF',
-      '#E2D8FF',
-      '#F0EBFF',
-      '#FFFFFF',
-      '#F0EBFF',
-      '#E2D8FF',
-      '#D3C5FF',
-      '#C4B3FF',
-      '#B2A1FF',
-    ],
-  });
-
-  const borderWidth = isPressed ? 2.5 : 2;
-  const opacity = isPressed ? 1 : 0.9; // Slightly higher default opacity for better visibility
-
-  // Shadow styles based on user specifications
-  const shadowStyle1 = {
-    shadowColor: '#FF7D73',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.38,
-    shadowRadius: 4,
-    elevation: 4,
-  };
-
-  const shadowStyle2 = {
-    shadowColor: '#FF7D73',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.24,
-    shadowRadius: 7,
-    elevation: 6,
-  };
-
-  // Apply more intense shadow when pressed
-  const shadowStyle = isPressed ? shadowStyle2 : shadowStyle1;
-
-  return (
-    <View style={{ position: 'relative', borderRadius: borderRadius, overflow: 'visible' }}>
-      {/* Top border */}
-      <Animated.View
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          right: 0,
-          height: borderWidth,
-          backgroundColor: colorInterpolation1,
-          borderTopLeftRadius: borderRadius,
-          borderTopRightRadius: borderRadius,
-          opacity: opacity,
-          zIndex: 1,
-          ...shadowStyle,
-        }}
-      />
-
-      {/* Right border */}
-      <Animated.View
-        style={{
-          position: 'absolute',
-          top: 0,
-          right: 0,
-          bottom: 0,
-          width: borderWidth,
-          backgroundColor: colorInterpolation2,
-          borderTopRightRadius: borderRadius,
-          borderBottomRightRadius: borderRadius,
-          opacity: opacity,
-          zIndex: 1,
-          ...shadowStyle,
-        }}
-      />
-
-      {/* Bottom border */}
-      <Animated.View
-        style={{
-          position: 'absolute',
-          bottom: 0,
-          left: 0,
-          right: 0,
-          height: borderWidth,
-          backgroundColor: colorInterpolation1,
-          borderBottomLeftRadius: borderRadius,
-          borderBottomRightRadius: borderRadius,
-          opacity: opacity,
-          zIndex: 1,
-          ...shadowStyle,
-        }}
-      />
-
-      {/* Left border */}
-      <Animated.View
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          bottom: 0,
-          width: borderWidth,
-          backgroundColor: colorInterpolation2,
-          borderTopLeftRadius: borderRadius,
-          borderBottomLeftRadius: borderRadius,
-          opacity: opacity,
-          zIndex: 1,
-          ...shadowStyle,
-        }}
-      />
-
-      {children}
-    </View>
-  );
-};
-
 // Main Button component
 const Button: React.FC<ButtonProps> = ({
   variant = 'primary',
@@ -308,7 +249,6 @@ const Button: React.FC<ButtonProps> = ({
   const buttonStyles = getButtonStyles(variant, disabled);
   const sizeStyles = getSizeStyles(size);
 
-  // Simple state for hover/press effect
   const [isPressed, setIsPressed] = useState(false);
 
   const handlePressIn = () => {
@@ -319,10 +259,8 @@ const Button: React.FC<ButtonProps> = ({
     setIsPressed(false);
   };
 
-  // Get border radius value from theme - ensure it's a number
   const borderRadiusValue = 16; // Fallback to 16 if not defined
 
-  // Simple button with animated borders or basic style
   return (
     <View style={[styles.buttonContainer, { width: fullWidth ? '100%' : 'auto' }]}>
       {gradientBorder ? (
@@ -333,7 +271,6 @@ const Button: React.FC<ButtonProps> = ({
               {
                 backgroundColor: buttonStyles.backgroundColor,
                 borderRadius: borderRadiusValue,
-                // margin: 2, // Space for the border
               },
             ]}>
             <TouchableOpacity
@@ -363,7 +300,6 @@ const Button: React.FC<ButtonProps> = ({
           </View>
         </AnimatedBorder>
       ) : (
-        // Regular button without gradient
         <TouchableOpacity
           style={[
             styles.button,
