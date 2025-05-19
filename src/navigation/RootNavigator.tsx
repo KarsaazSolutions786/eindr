@@ -32,8 +32,9 @@ import ScanScreen from '@screens/ScanScreen';
 import KeyboardScreen from '@screens/KeyboardScreen';
 import NoteEdit from '@screens/notes/NoteEdit';
 import FriendRequests from '@screens/friends/FriendRequests';
-import { ProfileScreen } from '@screens/profile';
+import { ProfileScreen, ProfileSettingsScreen } from '@screens/profile';
 import ChangePasswordScreen from '@screens/profile/ChangePasswordScreen';
+import EditProfileScreen from '@screens/profile/EditProfileScreen';
 import SupportAndAboutScreen from '@screens/app/SupportAndAboutScreen';
 import PrivacyPolicyScreen from '@screens/app/PrivacyPolicyScreen';
 import LedgerScreen from '@screens/ledger/LedgerScreen';
@@ -43,6 +44,7 @@ import LanguageSettingsScreen from '@screens/notification/LanguageSettingsScreen
 import BackgroundScreen2 from '@components/common/BackgroundScreen2';
 import DashboardScreen from '@screens/dashboard/DashboardScreen';
 import UserTransactionsScreen from '@screens/ledger/UserTransactionsScreen';
+import { CardDetailsScreen, EditCardScreen, AddCardScreen } from '@screens/payment';
 
 // Define Friend type
 interface Friend {
@@ -95,6 +97,7 @@ export type RootStackParamList = {
   FriendRequests: undefined;
   NoteEdit: { id: string; content: string };
   ProfileScreen: { friend: Friend; isFriend: boolean };
+  ProfileSettingsScreen: undefined;
   ChangePasswordScreen: undefined;
   SupportAndAboutScreen: undefined;
   PrivacyPolicyScreen: undefined;
@@ -102,6 +105,14 @@ export type RootStackParamList = {
   NotificationSettingsScreen: undefined;
   LanguageSettingsScreen: undefined;
   UserTransactions: { userName: string; accountType: string };
+
+  // Payment Screens
+  CardDetailsScreen: undefined;
+  EditCardScreen: undefined;
+  AddCardScreen: undefined;
+
+  // Profile Screens
+  EditProfileScreen: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -139,6 +150,7 @@ export const screenConfig: Record<keyof RootStackParamList, NavigationOptions> =
   FriendRequests: { showHeader: true, showBottomBar: true },
   NoteEdit: { showHeader: true, showBottomBar: true },
   ProfileScreen: { showHeader: true, showBottomBar: true },
+  ProfileSettingsScreen: { showHeader: false, showBottomBar: false },
   ChangePasswordScreen: { showHeader: false, showBottomBar: true },
   SupportAndAboutScreen: { showHeader: false, showBottomBar: true },
   PrivacyPolicyScreen: { showHeader: false, showBottomBar: true },
@@ -146,6 +158,14 @@ export const screenConfig: Record<keyof RootStackParamList, NavigationOptions> =
   NotificationSettingsScreen: { showHeader: false, showBottomBar: true },
   LanguageSettingsScreen: { showHeader: false, showBottomBar: true },
   UserTransactions: { showHeader: false, showBottomBar: true },
+
+  // Payment Screens
+  CardDetailsScreen: { showHeader: false, showBottomBar: false },
+  EditCardScreen: { showHeader: false, showBottomBar: false },
+  AddCardScreen: { showHeader: false, showBottomBar: false },
+
+  // Profile Screens
+  EditProfileScreen: { showHeader: false, showBottomBar: false },
 };
 
 // Wrapper component to add BackgroundScreen to each screen
@@ -223,6 +243,10 @@ const RootNavigator = () => {
       <Stack.Screen name="Keyboard" component={withBackground(KeyboardScreen)} />
       <Stack.Screen name="FriendRequests" component={withBackground(FriendRequests)} />
       <Stack.Screen name="ProfileScreen" component={withBackground(ProfileScreen)} />
+      <Stack.Screen
+        name="ProfileSettingsScreen"
+        component={withBackground(ProfileSettingsScreen)}
+      />
       <Stack.Screen name="ChangePasswordScreen" component={withBackground(ChangePasswordScreen)} />
       <Stack.Screen
         name="SupportAndAboutScreen"
@@ -239,6 +263,14 @@ const RootNavigator = () => {
         component={withBackground(LanguageSettingsScreen)}
       />
       <Stack.Screen name="UserTransactions" component={withBackground(UserTransactionsScreen)} />
+
+      {/* Payment Screens */}
+      <Stack.Screen name="CardDetailsScreen" component={withBackground2(CardDetailsScreen)} />
+      <Stack.Screen name="EditCardScreen" component={withBackground2(EditCardScreen)} />
+      <Stack.Screen name="AddCardScreen" component={withBackground2(AddCardScreen)} />
+
+      {/* Profile Screens */}
+      <Stack.Screen name="EditProfileScreen" component={withBackground2(EditProfileScreen)} />
     </Stack.Navigator>
   );
 };

@@ -30,7 +30,9 @@ const SettingsScreen = () => {
           </TouchableOpacity>
 
           {/* Profile Settings Option */}
-          <TouchableOpacity style={styles.option}>
+          <TouchableOpacity
+            style={styles.option}
+            onPress={() => navigation.navigate('ProfileSettingsScreen')}>
             <View style={styles.optionContent}>
               <MaterialIcons name="person" size={24} color={theme.colors.text.secondary} />
               <Text style={styles.optionText}>Profile Settings</Text>

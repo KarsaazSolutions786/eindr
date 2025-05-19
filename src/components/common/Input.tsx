@@ -59,8 +59,8 @@ const Input: React.FC<InputProps> = ({
       {label && <Text style={[styles.label, labelStyle]}>{label}</Text>}
       <GradientBorder
         colors={['#6c6c85', '#2c2d3c']}
-        start={{ x: 0, y: 1 }}
-        end={{ x: 1, y: 0 }}
+        start={{ x: 1, y: 1 }}
+        end={{ x: 0, y: 0 }}
         borderRadius={borderRadius}
         style={[error && styles.gradientBorderError]}>
         <View
@@ -115,7 +115,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     borderWidth: 0,
     borderRadius: theme.borderRadius.lg,
-    backgroundColor: theme.colors.background.secondary,
+    backgroundColor: 'rgba(20, 20, 38, 1)',
     paddingHorizontal: theme.spacing.md,
   },
   inputContainerError: {

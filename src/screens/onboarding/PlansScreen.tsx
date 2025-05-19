@@ -124,7 +124,7 @@ const PlansScreen = () => {
           end={{ x: 1, y: 1 }}
           style={{
             width: planKey === 'elite' ? '100%' : cardWidth,
-            overflow: Platform.OS === 'android' ? 'visible' : 'hidden',
+            overflow: 'hidden',
             marginBottom: planKey === 'elite' ? 0 : 20,
           }}
           key={planKey}>
@@ -134,6 +134,10 @@ const PlansScreen = () => {
             style={{
               width: '100%',
               backgroundColor: Platform.OS === 'android' ? 'transparent' : undefined,
+              borderRadius: Math.max(
+                0,
+                (Platform.OS === 'android' ? 27 : 25) - (Platform.OS === 'android' ? 2 : 1.5),
+              ),
             }}>
             {content}
           </TouchableOpacity>
@@ -328,9 +332,10 @@ const styles = StyleSheet.create({
     borderRadius: 24,
     padding: 18,
     height: 250,
+    width: '100%',
     ...Platform.select({
       android: {
-        elevation: 4,
+        elevation: 0, // Remove elevation to avoid shadow overlap with gradient
         borderWidth: 0,
       },
       ios: {},

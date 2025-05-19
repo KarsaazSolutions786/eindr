@@ -127,6 +127,8 @@ const Sidebar: React.FC<SidebarProps> = ({
       navigation.navigate('SupportAndAboutScreen');
     } else if (screenName === 'PrivacyPolicyScreen') {
       navigation.navigate('PrivacyPolicyScreen');
+    } else if (screenName === 'ProfileSettingsScreen') {
+      navigation.navigate('ProfileSettingsScreen');
     }
   };
 
@@ -218,7 +220,9 @@ const Sidebar: React.FC<SidebarProps> = ({
               </TouchableOpacity>
 
               {/* User profile section */}
-              <View style={styles.profileSection}>
+              <TouchableOpacity
+                onPress={() => navigation.navigate('ProfileSettingsScreen')}
+                style={styles.profileSection}>
                 {userImage ? (
                   <Image source={{ uri: userImage }} style={styles.profileImage} />
                 ) : (
@@ -235,7 +239,7 @@ const Sidebar: React.FC<SidebarProps> = ({
                   />
                   <Text style={styles.userEmail}>{userEmail}</Text>
                 </View>
-              </View>
+              </TouchableOpacity>
 
               {/* Chats Section */}
               <View style={styles.sectionContainer}>

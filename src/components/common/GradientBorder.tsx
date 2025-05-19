@@ -54,22 +54,34 @@ const GradientBorder: React.FC<GradientBorderProps> = ({
     );
   }
 
-  // Android implementation
+  // Android implementation - use the same approach as iOS for consistency
   return (
-    <LinearGradient
-      colors={colors}
-      start={start}
-      end={end}
-      locations={locations}
-      style={[styles.gradientBorder, { borderRadius, padding }, style]}>
-      {children}
-    </LinearGradient>
+    <View style={[styles.iosBorderContainer, { borderRadius }, style]}>
+      <LinearGradient
+        colors={colors}
+        start={start}
+        end={end}
+        locations={locations}
+        style={StyleSheet.absoluteFill}
+      />
+      <View
+        style={[
+          styles.innerContainer,
+          {
+            borderRadius: borderRadius - padding,
+            margin: padding,
+          },
+        ]}>
+        {children}
+      </View>
+    </View>
   );
 };
 
 const styles = StyleSheet.create({
   gradientBorder: {
     padding: 1,
+    opacity: 0.9,
     backgroundColor: 'transparent',
   },
   iosBorderContainer: {

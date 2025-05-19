@@ -54,7 +54,7 @@ interface ButtonContentProps {
 const getButtonStyles = (variant: ButtonVariant, disabled: boolean) => {
   const baseStyles = {
     primary: {
-      backgroundColor: disabled ? theme.colors.gray[700] : theme.colors.background.secondary,
+      backgroundColor: disabled ? theme.colors.gray[700] : 'rgba(108, 106, 155, 1)',
       borderColor: disabled ? theme.colors.gray[600] : theme.colors.border.primary,
       textColor: disabled ? theme.colors.gray[500] : theme.colors.text.primary,
     },
@@ -131,28 +131,7 @@ const AnimatedBorder = ({
 
   // Define the border width
   const borderWidth = 1;
-
-  // Shadow styles based on user specifications
-  const shadowStyle1 = {
-    shadowColor: '#FF7D73',
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.38,
-    shadowRadius: 4,
-    elevation: 4,
-  };
-
-  const shadowStyle2 = {
-    shadowColor: '#FF7D73',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.24,
-    shadowRadius: 7,
-    elevation: 6,
-  };
-
-  // Apply more intense shadow when pressed
-  const shadowStyle = isPressed ? shadowStyle2 : shadowStyle1;
-
-  return (
+ return (
     <View
       style={[
         {
@@ -160,8 +139,9 @@ const AnimatedBorder = ({
           borderRadius: borderRadius,
           overflow: 'hidden',
           padding: borderWidth,
+          // borderRadius: 16,
         },
-        shadowStyle,
+        // shadowStyle,
       ]}>
       {/* The animated gradient layer */}
       <Animated.View
