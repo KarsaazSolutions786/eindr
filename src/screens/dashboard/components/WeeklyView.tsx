@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Image, TouchableOpacity } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Image, TouchableOpacity, Switch } from 'react-native';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import GradientBorder from '@components/common/GradientBorder';
 import styles from '../styles/WeeklyViewStyles';
@@ -21,9 +21,37 @@ type WeeklyReminders = {
 type WeeklyViewProps = {
   weeklyReminders: WeeklyReminders;
   getAppIcon: (app: string) => React.ReactNode;
+  onToggleReminder?: (id: string, active: boolean) => void;
 };
 
-const WeeklyView: React.FC<WeeklyViewProps> = ({ weeklyReminders, getAppIcon }) => {
+const WeeklyView: React.FC<WeeklyViewProps> = ({
+  weeklyReminders,
+  getAppIcon,
+  onToggleReminder = () => {}, // Default empty function if not provided
+}) => {
+  // Create a flat map of all reminders for state tracking
+  const allReminders = Object.values(weeklyReminders).flat();
+
+  // Track local state for toggle switches
+  const [reminderStates, setReminderStates] = useState(
+    allReminders.reduce((acc, reminder) => {
+      acc[reminder.id] = reminder.active;
+      return acc;
+    }, {} as Record<string, boolean>),
+  );
+
+  // Handle toggle change
+  const handleToggle = (id: string, newValue: boolean) => {
+    // Update local state
+    setReminderStates(prev => ({
+      ...prev,
+      [id]: newValue,
+    }));
+
+    // Call parent callback
+    onToggleReminder(id, newValue);
+  };
+
   return (
     <View style={styles.weeklyContainer}>
       {Object.entries(weeklyReminders).map(([date, dateReminders]) => (
@@ -55,6 +83,9 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ weeklyReminders, getAppIcon }) 
               }
             })();
 
+            // Get current active state from local state
+            const isActive = reminderStates[reminder.id];
+
             return (
               <View key={reminder.id} style={styles.weeklyReminderRow}>
                 <View style={styles.weeklyTimeColumn}>
@@ -72,9 +103,17 @@ const WeeklyView: React.FC<WeeklyViewProps> = ({ weeklyReminders, getAppIcon }) 
                     <View>
                       <View style={styles.weeklyReminderHeader}>
                         <Text style={styles.weeklyReminderTitle}>{reminder.title}</Text>
-                        <TouchableOpacity style={styles.weeklyToggleButton}>
-                          <View style={styles.weeklyToggleCircle} />
-                        </TouchableOpacity>
+                        <Switch
+                          value={isActive}
+                          onValueChange={newValue => handleToggle(reminder.id, newValue)}
+                          trackColor={{
+                            false: 'rgba(255, 255, 255, 0.2)',
+                            true: 'rgba(74, 107, 245, 0.6)',
+                          }}
+                          thumbColor={isActive ? '#4A6BF5' : '#f4f3f4'}
+                          ios_backgroundColor="rgba(255, 255, 255, 0.2)"
+                          style={styles.weeklySwitchStyle}
+                        />
                       </View>
 
                       <Text style={styles.weeklyReminderDescription}>"{reminder.description}"</Text>

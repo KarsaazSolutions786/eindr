@@ -1,5 +1,5 @@
-import React from 'react';
-import { View, Text, Animated } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, Animated, Switch } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import GradientBorder from '@components/common/GradientBorder';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -21,6 +21,7 @@ type TodayViewProps = {
   activeLineTranslateY: Animated.AnimatedInterpolation<string | number>;
   getReminderColor: (id: string) => string[];
   getAppIcon: (app: string) => React.ReactNode;
+  onToggleReminder?: (id: string, active: boolean) => void;
 };
 
 const TodayView: React.FC<TodayViewProps> = ({
@@ -28,7 +29,28 @@ const TodayView: React.FC<TodayViewProps> = ({
   activeLineTranslateY,
   getReminderColor,
   getAppIcon,
+  onToggleReminder = () => {}, // Default empty function if not provided
 }) => {
+  // Track local state for toggle switches
+  const [reminderStates, setReminderStates] = useState(
+    reminders.reduce((acc, reminder) => {
+      acc[reminder.id] = reminder.active;
+      return acc;
+    }, {} as Record<string, boolean>),
+  );
+
+  // Handle toggle change
+  const handleToggle = (id: string, newValue: boolean) => {
+    // Update local state
+    setReminderStates(prev => ({
+      ...prev,
+      [id]: newValue,
+    }));
+
+    // Call parent callback
+    onToggleReminder(id, newValue);
+  };
+
   return (
     <View style={styles.timelineContainer}>
       {/* Background timeline line (grayed) */}
@@ -64,6 +86,9 @@ const TodayView: React.FC<TodayViewProps> = ({
           formattedPeriod = period;
         }
 
+        // Get current active state from local state
+        const isActive = reminderStates[reminder.id];
+
         return (
           <View key={reminder.id} style={styles.reminderItem}>
             <View style={styles.timeContainer}>
@@ -79,18 +104,20 @@ const TodayView: React.FC<TodayViewProps> = ({
                 locations={[0.5, 1.0]}
                 style={styles.reminderCard}>
                 <View>
-                  {/* Card Header with Title and Toggle */}
+                  {/* Card Header with Title and Switch */}
                   <View style={styles.reminderCardHeader}>
                     <Text style={styles.reminderTitle}>{reminder.title}</Text>
-                    <TouchableOpacity
-                      style={[
-                        styles.toggleButton,
-                        reminder.active ? styles.toggleActive : styles.toggleInactive,
-                      ]}>
-                      <View
-                        style={[styles.toggleCircle, reminder.active && styles.toggleCircleActive]}
-                      />
-                    </TouchableOpacity>
+                    <Switch
+                      value={isActive}
+                      onValueChange={newValue => handleToggle(reminder.id, newValue)}
+                      trackColor={{
+                        false: 'rgba(255, 255, 255, 0.2)',
+                        true: 'rgba(74, 107, 245, 0.6)',
+                      }}
+                      thumbColor={isActive ? '#4A6BF5' : '#f4f3f4'}
+                      ios_backgroundColor="rgba(255, 255, 255, 0.2)"
+                      style={styles.switchStyle}
+                    />
                   </View>
 
                   {/* Description and Action Buttons side by side */}

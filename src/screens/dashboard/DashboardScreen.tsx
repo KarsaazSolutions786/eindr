@@ -125,7 +125,7 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
     {
       id: '3',
       title: 'Ledger update',
-      description: 'Take back Rs.1000 which you lend to Sahir',
+      description: 'Take back Rs.1000 which you lend to Sahir' ,
       time: '7:00AM - 9:00AM',
       app: 'Ledger',
       active: true,

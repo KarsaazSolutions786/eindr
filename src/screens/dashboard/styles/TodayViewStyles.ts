@@ -89,36 +89,14 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     color: theme.colors.white,
   },
-  toggleButton: {
-    width: 30,
-    height: 18,
-    borderRadius: 14,
-    justifyContent: 'center',
-    paddingHorizontal: 0,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    borderWidth: 1,
-    borderColor: 'rgba(255, 255, 255, 0.25)',
-  },
-  toggleActive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-  },
-  toggleInactive: {
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-  },
-  toggleCircle: {
-    width: 16,
-    height: 16,
-    borderRadius: 11,
-    backgroundColor: '#fff',
-  },
-  toggleCircleActive: {
-    alignSelf: 'flex-end',
+  switchStyle: {
+    transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }],
   },
   descriptionRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'flex-start',
-    marginBottom: 14,
+    marginBottom: -3,
   },
   reminderDescription: {
     fontSize: 13,
@@ -127,14 +105,15 @@ export const styles = StyleSheet.create({
     flex: 1,
     marginRight: 10,
     lineHeight: 18,
-    marginBottom: -15,
+    // marginBottom: -10,
   },
   reminderTimeText: {
     fontSize: 16,
     color: 'rgba(255, 255, 255, 0.85)',
     marginBottom: -5,
     fontWeight: '500',
-    marginTop: -10,
+    // marginTop: 10,
+    marginTop: 2,
   },
   reminderFooter: {
     flexDirection: 'row',
@@ -153,6 +132,7 @@ export const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     marginRight: 8,
+    borderRadius: 12.5,
   },
   appText: {
     fontSize: 14,

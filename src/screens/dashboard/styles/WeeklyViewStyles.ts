@@ -60,20 +60,8 @@ export const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#fff',
   },
-  weeklyToggleButton: {
-    width: 30,
-    height: 18,
-    borderRadius: 9,
-    backgroundColor: 'rgba(255, 255, 255, 0.3)',
-    justifyContent: 'center',
-    padding: 2,
-  },
-  weeklyToggleCircle: {
-    width: 14,
-    height: 14,
-    borderRadius: 7,
-    backgroundColor: '#fff',
-    alignSelf: 'flex-end',
+  weeklySwitchStyle: {
+    transform: [{ scaleX: 0.8 }, { scaleY: 0.8 }], // Makes the switch a bit smaller
   },
   weeklyReminderDescription: {
     fontSize: 14,
