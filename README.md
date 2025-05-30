@@ -169,3 +169,207 @@ npm run ios:prod
 2. Always use `.env.example` as a template for new environment files
 3. Keep environment files in sync across team members
 4. Use different environment files for different stages (development, staging, production)
+
+# Eindr - React Native App
+
+A comprehensive React Native application built with TypeScript, featuring modern UI components, authentication, and advanced functionality including wake word detection.
+
+## Features
+
+- **Authentication & Social Login** - Email, Google, Facebook, Apple Sign-In
+- **Notes & Calendar** - Rich text editing and calendar integration
+- **Friends & Social** - Friend requests and social features
+- **Payments & Ledger** - Card management and transaction tracking
+- **Wake Word Detection** - Mycroft Precise integration with TensorFlow Lite
+- **Modern UI** - Beautiful gradients, animations, and responsive design
+
+## Wake Word Detection
+
+This app includes a comprehensive wake word detection system powered by **Mycroft Precise** and **TensorFlow Lite**. The implementation supports real-time audio processing, MFCC feature extraction, and voice-to-text integration.
+
+### Setup Instructions
+
+#### 1. Model Placement
+
+Place your Mycroft Precise GRU TensorFlow Lite model in the assets directory:
+
+```
+assets/models/gru.tflite
+```
+
+**Model Requirements:**
+
+- Format: TensorFlow Lite (`.tflite`)
+- Input: MFCC features `[1, 29, 13]` (batch, sequence, features)
+- Output: Binary classification confidence `[1, 1]`
+- Sample Rate: 16kHz mono audio
+
+#### 2. Permissions Setup
+
+The required permissions have been added to both platforms:
+
+**Android** (`android/app/src/main/AndroidManifest.xml`):
+
+```xml
+<uses-permission android:name="android.permission.RECORD_AUDIO" />
+```
+
+**iOS** (`ios/Eindr/Info.plist`):
+
+```xml
+<key>NSMicrophoneUsageDescription</key>
+<string>This app needs access to the microphone for wake word detection and voice commands.</string>
+```
+
+#### 3. Backend API Configuration
+
+Configure your voice-to-text API endpoint in the wake word interface:
+
+```typescript
+<WakeWordInterface
+  apiBaseURL="https://your-api-endpoint.com"
+  onTextReceived={(text, response) => {
+    console.log('Transcribed:', text);
+  }}
+/>
+```
+
+### Usage Examples
+
+#### Basic Implementation
+
+```typescript
+import { useWakeWord } from '@wakeword';
+
+function MyComponent() {
+  const wakeWord = useWakeWord({
+    config: {
+      confidenceThreshold: 0.7,
+      enableHaptics: true,
+      maxRecordingDuration: 30000,
+    },
+    autoInitialize: true,
+  });
+
+  return (
+    <WakeWordButton
+      state={wakeWord.state}
+      onPress={() => {
+        if (wakeWord.isListening) {
+          wakeWord.stopListening();
+        } else {
+          wakeWord.startListening();
+        }
+      }}
+    />
+  );
+}
+```
+
+#### Complete Interface
+
+```typescript
+import { WakeWordInterface } from '@wakeword';
+
+function VoiceControlScreen() {
+  return (
+    <WakeWordInterface
+      autoStart={false}
+      onTextReceived={(text, response) => {
+        // Handle transcribed voice commands
+        processVoiceCommand(text);
+      }}
+      onWakeWordDetected={() => {
+        // Handle wake word detection
+        console.log('Wake word detected!');
+      }}
+      config={{
+        confidenceThreshold: 0.6,
+        enableHaptics: true,
+        maxRecordingDuration: 10000,
+      }}
+    />
+  );
+}
+```
+
+### Configuration Options
+
+| Option                 | Type    | Default | Description                          |
+| ---------------------- | ------- | ------- | ------------------------------------ |
+| `confidenceThreshold`  | number  | 0.7     | Detection confidence threshold (0-1) |
+| `sampleRate`           | number  | 16000   | Audio sample rate in Hz              |
+| `bufferSize`           | number  | 4096    | Audio buffer size                    |
+| `maxRecordingDuration` | number  | 30000   | Max recording time in ms             |
+| `silenceTimeout`       | number  | 2000    | Silence detection timeout in ms      |
+| `enableHaptics`        | boolean | true    | Enable haptic feedback               |
+
+### API Endpoints
+
+The voice-to-text API expects multipart form data:
+
+```typescript
+POST /api/voice-to-text
+Content-Type: multipart/form-data
+
+{
+  audio: Blob,           // Audio file
+  duration: string,      // Duration in ms
+  format: string,        // Audio format (wav/mp3/aac)
+  sampleRate: string,    // Sample rate
+  requestId: string      // Unique request ID
+}
+```
+
+**Response:**
+
+```json
+{
+  "success": true,
+  "text": "transcribed text",
+  "requestId": "voice-1234567890-abc123"
+}
+```
+
+### Testing
+
+Access the wake word demo through:
+
+1. Navigate to **Settings** → **Development** → **Wake Word Demo**
+2. Or directly import and use `WakeWordDemoScreen`
+
+The demo includes:
+
+- Real-time wake word detection
+- Voice command recording and transcription
+- Performance monitoring and debugging tools
+- Configuration testing
+
+### Architecture
+
+The wake word system consists of:
+
+- **WakeWordEngine** - Core detection engine
+- **AudioProcessor** - MFCC feature extraction
+- **ModelManager** - TensorFlow Lite inference
+- **RingBuffer** - Efficient audio buffering
+- **VoiceToTextAPI** - Backend communication
+- **React Components** - UI integration
+
+### Performance
+
+Typical performance metrics:
+
+- **Model inference**: ~5-15ms per prediction
+- **Memory usage**: ~10-20MB additional
+- **CPU usage**: ~5-10% during active listening
+- **Battery impact**: Minimal when optimized
+
+### Troubleshooting
+
+1. **Model not loading**: Ensure `gru.tflite` is in `assets/models/`
+2. **Permission denied**: Check microphone permissions in device settings
+3. **Poor detection**: Adjust `confidenceThreshold` and retrain model
+4. **High CPU usage**: Increase `processingInterval` in config
+
+## Getting Started

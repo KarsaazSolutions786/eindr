@@ -22,7 +22,6 @@ import OnboardingFifthScreen from '@screens/onboarding/OnboardingFifthScreen';
 import PlansScreen from '@screens/onboarding/PlansScreen';
 
 // App Screens
-import HomeScreen from '@screens/home/HomeScreen';
 import RemindersScreen from '@screens/app/RemindersScreen';
 import NotesScreen from '@screens/notes/NotesScreen';
 import FriendsScreen from '@screens/app/FriendsScreen';
@@ -45,6 +44,10 @@ import BackgroundScreen2 from '@components/common/BackgroundScreen2';
 import DashboardScreen from '@screens/dashboard/DashboardScreen';
 import UserTransactionsScreen from '@screens/ledger/UserTransactionsScreen';
 import { CardDetailsScreen, EditCardScreen, AddCardScreen } from '@screens/payment';
+import HomeScreen from '@screens/Home/HomeScreen';
+
+// Demo Screens
+// import { WakeWordDemoScreen } from '@screens/demo/WakeWordDemoScreen';
 
 // Define Friend type
 interface Friend {
@@ -113,6 +116,9 @@ export type RootStackParamList = {
 
   // Profile Screens
   EditProfileScreen: undefined;
+
+  // Demo Screens
+  // WakeWordDemoScreen: undefined;
 };
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
@@ -166,6 +172,9 @@ export const screenConfig: Record<keyof RootStackParamList, NavigationOptions> =
 
   // Profile Screens
   EditProfileScreen: { showHeader: false, showBottomBar: false },
+
+  // Demo Screens
+  // WakeWordDemoScreen: { showHeader: false, showBottomBar: false },
 };
 
 // Wrapper component to add BackgroundScreen to each screen
@@ -271,6 +280,9 @@ const RootNavigator = () => {
 
       {/* Profile Screens */}
       <Stack.Screen name="EditProfileScreen" component={withBackground2(EditProfileScreen)} />
+
+      {/* Demo Screens */}
+      {/* <Stack.Screen name="WakeWordDemoScreen" component={withBackground2(WakeWordDemoScreen)} /> */}
     </Stack.Navigator>
   );
 };

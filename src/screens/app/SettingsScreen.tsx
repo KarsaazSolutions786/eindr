@@ -1,6 +1,6 @@
 import theme from '@theme/theme';
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
@@ -94,6 +94,33 @@ const SettingsScreen = () => {
             <View style={styles.optionContent}>
               <MaterialIcons name="policy" size={24} color={theme.colors.text.secondary} />
               <Text style={styles.optionText}>Privacy Policy</Text>
+            </View>
+            <MaterialIcons name="chevron-right" size={24} color={theme.colors.text.secondary} />
+          </TouchableOpacity>
+        </View>
+
+        {/* Development Section */}
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>Development</Text>
+
+          <TouchableOpacity
+            style={styles.option}
+            onPress={() => {
+              Alert.alert(
+                'Wake Word Demo',
+                'Native Module Setup Required:\n\n' +
+                  '1. Link react-native-audio-record\n' +
+                  '2. Link react-native-fast-tflite\n' +
+                  '3. Link react-native-permissions\n' +
+                  '4. Rebuild the app\n\n' +
+                  'For now, check the Home screen for a mock demo that simulates the wake word detection flow.\n\n' +
+                  'All wake word code is implemented - just needs native module linking!',
+                [{ text: 'OK' }],
+              );
+            }}>
+            <View style={styles.optionContent}>
+              <MaterialIcons name="mic" size={24} color={theme.colors.text.secondary} />
+              <Text style={styles.optionText}>Wake Word Demo (Setup Required)</Text>
             </View>
             <MaterialIcons name="chevron-right" size={24} color={theme.colors.text.secondary} />
           </TouchableOpacity>

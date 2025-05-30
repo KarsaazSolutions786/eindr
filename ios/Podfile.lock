@@ -1416,6 +1416,31 @@ PODS:
     - react-native-config/App (= 1.5.5)
   - react-native-config/App (1.5.5):
     - React-Core
+  - react-native-fast-tflite (1.6.1):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - TensorFlowLiteC (= 2.17.0)
+    - Yoga
   - react-native-fbsdk-next (13.4.1):
     - React-Core
     - react-native-fbsdk-next/Core (= 13.4.1)
@@ -1882,6 +1907,8 @@ PODS:
     - React-utils (= 0.79.1)
   - RNAppleAuthentication (2.4.1):
     - React-Core
+  - RNAudioRecord (0.2.2):
+    - React
   - RNCAsyncStorage (2.1.2):
     - DoubleConversion
     - glog
@@ -1984,6 +2011,54 @@ PODS:
     - DoubleConversion
     - glog
     - GoogleSignIn (~> 7.1)
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - RNPermissions (5.4.0):
+    - DoubleConversion
+    - glog
+    - hermes-engine
+    - RCT-Folly (= 2024.11.18.00)
+    - RCTRequired
+    - RCTTypeSafety
+    - React-Core
+    - React-debug
+    - React-Fabric
+    - React-featureflags
+    - React-graphics
+    - React-hermes
+    - React-ImageManager
+    - React-jsi
+    - React-NativeModulesApple
+    - React-RCTFabric
+    - React-renderercss
+    - React-rendererdebug
+    - React-utils
+    - ReactCodegen
+    - ReactCommon/turbomodule/bridging
+    - ReactCommon/turbomodule/core
+    - Yoga
+  - RNReactNativeHapticFeedback (2.3.3):
+    - DoubleConversion
+    - glog
     - hermes-engine
     - RCT-Folly (= 2024.11.18.00)
     - RCTRequired
@@ -2154,6 +2229,9 @@ PODS:
     - ReactCommon/turbomodule/core
     - Yoga
   - SocketRocket (0.7.1)
+  - TensorFlowLiteC (2.17.0):
+    - TensorFlowLiteC/Core (= 2.17.0)
+  - TensorFlowLiteC/Core (2.17.0)
   - Yoga (0.0.0)
 
 DEPENDENCIES:
@@ -2201,6 +2279,7 @@ DEPENDENCIES:
   - React-microtasksnativemodule (from `../node_modules/react-native/ReactCommon/react/nativemodule/microtasks`)
   - "react-native-blur (from `../node_modules/@react-native-community/blur`)"
   - react-native-config (from `../node_modules/react-native-config`)
+  - react-native-fast-tflite (from `../node_modules/react-native-fast-tflite`)
   - react-native-fbsdk-next (from `../node_modules/react-native-fbsdk-next`)
   - react-native-html-to-pdf (from `../node_modules/react-native-html-to-pdf`)
   - react-native-print (from `../node_modules/react-native-print`)
@@ -2239,12 +2318,15 @@ DEPENDENCIES:
   - ReactCodegen (from `build/generated/ios`)
   - ReactCommon/turbomodule/core (from `../node_modules/react-native/ReactCommon`)
   - "RNAppleAuthentication (from `../node_modules/@invertase/react-native-apple-authentication`)"
+  - RNAudioRecord (from `../node_modules/react-native-audio-record`)
   - "RNCAsyncStorage (from `../node_modules/@react-native-async-storage/async-storage`)"
   - "RNCMaskedView (from `../node_modules/@react-native-masked-view/masked-view`)"
   - "RNDateTimePicker (from `../node_modules/@react-native-community/datetimepicker`)"
   - RNFS (from `../node_modules/react-native-fs`)
   - RNGestureHandler (from `../node_modules/react-native-gesture-handler`)
   - "RNGoogleSignin (from `../node_modules/@react-native-google-signin/google-signin`)"
+  - RNPermissions (from `../node_modules/react-native-permissions`)
+  - RNReactNativeHapticFeedback (from `../node_modules/react-native-haptic-feedback`)
   - RNScreens (from `../node_modules/react-native-screens`)
   - RNShare (from `../node_modules/react-native-share`)
   - RNSVG (from `../node_modules/react-native-svg`)
@@ -2265,6 +2347,7 @@ SPEC REPOS:
     - GTMSessionFetcher
     - lottie-ios
     - SocketRocket
+    - TensorFlowLiteC
 
 EXTERNAL SOURCES:
   boost:
@@ -2352,6 +2435,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/@react-native-community/blur"
   react-native-config:
     :path: "../node_modules/react-native-config"
+  react-native-fast-tflite:
+    :path: "../node_modules/react-native-fast-tflite"
   react-native-fbsdk-next:
     :path: "../node_modules/react-native-fbsdk-next"
   react-native-html-to-pdf:
@@ -2428,6 +2513,8 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native/ReactCommon"
   RNAppleAuthentication:
     :path: "../node_modules/@invertase/react-native-apple-authentication"
+  RNAudioRecord:
+    :path: "../node_modules/react-native-audio-record"
   RNCAsyncStorage:
     :path: "../node_modules/@react-native-async-storage/async-storage"
   RNCMaskedView:
@@ -2440,6 +2527,10 @@ EXTERNAL SOURCES:
     :path: "../node_modules/react-native-gesture-handler"
   RNGoogleSignin:
     :path: "../node_modules/@react-native-google-signin/google-signin"
+  RNPermissions:
+    :path: "../node_modules/react-native-permissions"
+  RNReactNativeHapticFeedback:
+    :path: "../node_modules/react-native-haptic-feedback"
   RNScreens:
     :path: "../node_modules/react-native-screens"
   RNShare:
@@ -2505,6 +2596,7 @@ SPEC CHECKSUMS:
   React-microtasksnativemodule: c8ed30f8ec30affbc73411c54207bd67b1125bbb
   react-native-blur: 06d0f9906ecd6cde3a42de16c6cd829a2bf0710c
   react-native-config: 644074ab88db883fcfaa584f03520ec29589d7df
+  react-native-fast-tflite: 98dadc806e07b767f32ab7c6915df221c58b0ebd
   react-native-fbsdk-next: 52f81e60eb3e8e0e06cf9728b4572d3509ca9d01
   react-native-html-to-pdf: 7a49e6c58ac5221bcc093027b195f4b214f27a9d
   react-native-print: 692e8782bc89872ea01738c6759631388e77358c
@@ -2543,19 +2635,23 @@ SPEC CHECKSUMS:
   ReactCodegen: 86758c0e13c6b245ff0cd7123cc5e8910d67546a
   ReactCommon: aa48e4fddbc6a0afa19dca39a1b6016c150b5db4
   RNAppleAuthentication: c3dddf5918126c9aae85dc2e2ce9fb87835e9e04
+  RNAudioRecord: b253d15d8141c5ef6bc614fc9d9f06577870bfc3
   RNCAsyncStorage: 39c42c1e478e1f5166d1db52b5055e090e85ad66
   RNCMaskedView: ae521efb1c6c2b183ae0f8479487db03c826184c
   RNDateTimePicker: 43ee3de2bc639bc0d9b77564961060a54dfc7111
   RNFS: 89de7d7f4c0f6bafa05343c578f61118c8282ed8
   RNGestureHandler: ebef699ea17e7c0006c1074e1e423ead60ce0121
   RNGoogleSignin: f3168a11bf7c59eaa34a1b466e2b372f1e5ca95a
+  RNPermissions: 26b05e98dcc62251839cc966c9a96db97b0a3295
+  RNReactNativeHapticFeedback: 851adf794e1fcdc0664d80820fa3272ee8a6a538
   RNScreens: 5621e3ad5a329fbd16de683344ac5af4192b40d3
   RNShare: 5b06f403277d55c1e7a56b8edd3076236bc84745
   RNSVG: 794f269526df9ddc1f79b3d1a202b619df0368e3
   RNVectorIcons: 941a39b5d3b9d8cf8ac2e2fc09b07bfafbcf9796
   SocketRocket: d4aabe649be1e368d1318fdf28a022d714d65748
+  TensorFlowLiteC: eac6d689a8d391d1b202dc59e3d9165ba64aaf73
   Yoga: d15f5aa644c466e917569ac43b19cbf17975239a
 
 PODFILE CHECKSUM: b95828355187cb71a646e40dc4019a6c34902443
 
-COCOAPODS: 1.16.2
+COCOAPODS: 1.15.2
