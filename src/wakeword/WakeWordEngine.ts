@@ -12,12 +12,7 @@ import {
   AudioBuffer,
   PermissionStatus,
 } from '../types/wakeword';
-import {
-  DEFAULT_WAKEWORD_CONFIG,
-  ERROR_CODES,
-  PERFORMANCE_CONFIG,
-  WAKE_WORDS,
-} from '../config/wakeword';
+import { DEFAULT_WAKEWORD_CONFIG, ERROR_CODES, PERFORMANCE_CONFIG } from '../config/wakeword';
 import { RingBuffer } from './audio/RingBuffer';
 import { AudioProcessor } from './audio/AudioProcessor';
 import { ModelManager } from './native/ModelManager';
@@ -25,8 +20,8 @@ import { VoiceActivityDetector } from './audio/VoiceActivityDetector';
 import { VoiceToTextAPI } from './api/VoiceToTextAPI';
 
 /**
- * Production-grade wake word detection engine with always-listening capability
- * Implements continuous low-power wake word detection with complete voice interaction flow
+ * Dynamic wake word detection engine with always-listening capability
+ * Implements continuous low-power wake word detection with configurable wake words
  */
 export class WakeWordEngine {
   private config: WakeWordConfig;
@@ -57,7 +52,8 @@ export class WakeWordEngine {
   private lastDetectionTime: number = 0;
 
   // Audio event listener reference for cleanup
-  private audioDataListener: ((data: any) => void) | null = null;
+  private audioDataListener: ((data: string | Uint8Array | ArrayLike<number>) => void) | null =
+    null;
 
   constructor(config: Partial<WakeWordConfig> = {}) {
     this.config = { ...DEFAULT_WAKEWORD_CONFIG, ...config };
@@ -76,14 +72,16 @@ export class WakeWordEngine {
 
     this.setupAudioRecording();
 
-    console.log('🎤 WakeWordEngine: Production engine initialized');
-    console.log(`🎤 WakeWordEngine: Wake words: ${WAKE_WORDS.join(', ')}`);
+    console.log('🎤 WakeWordEngine: Dynamic engine initialized');
+    console.log(
+      `🎤 WakeWordEngine: Wake words: ${this.config.wakeWords.join(', ') || 'None configured'}`,
+    );
   }
 
   /**
    * Initialize the wake word engine with always-listening capability
    */
-  async initialize(modelPath?: any): Promise<void> {
+  async initialize(modelPath?: string | undefined): Promise<void> {
     try {
       console.log('🔄 WakeWordEngine: Initializing production engine...');
       this.setState(WakeWordState.INITIALIZING);
@@ -144,7 +142,9 @@ export class WakeWordEngine {
       this.startWakeWordDetectionLoop();
 
       console.log('✅ WakeWordEngine: Always-listening mode active');
-      console.log(`🔄 WakeWordEngine: Monitoring for wake words: ${WAKE_WORDS.join(', ')}`);
+      console.log(
+        `🔄 WakeWordEngine: Monitoring for wake words: ${this.config.wakeWords.join(', ')}`,
+      );
       console.log('🎤 WakeWordEngine: Real microphone audio capture active');
     } catch (error) {
       this.isAlwaysListening = false;
@@ -347,7 +347,7 @@ export class WakeWordEngine {
 
       // Check for valid detections
       for (const detection of detections) {
-        if (detection.confidence >= this.config.confidenceThreshold) {
+        if (detection.confidence >= this.getWakeWordThreshold(detection.wakeWord)) {
           await this.onWakeWordDetected(detection, audioBuffer);
           break; // Process only the first valid detection
         }
@@ -374,6 +374,11 @@ export class WakeWordEngine {
    * Now uses REAL audio data from microphone
    */
   private async processEnhancedMockDetection(audioLevel: number, isSpeech: boolean): Promise<void> {
+    // Skip if no wake words are configured
+    if (!this.config.wakeWords || this.config.wakeWords.length === 0) {
+      return;
+    }
+
     const currentTime = Date.now();
     const timeSinceLastDetection = currentTime - this.lastDetectionTime;
 
@@ -382,7 +387,7 @@ export class WakeWordEngine {
     const speechBoost = isSpeech ? 0.3 : 0; // Boost confidence when real speech detected
 
     // Simulate continuous inference for all wake words using REAL audio data
-    WAKE_WORDS.forEach(wakeWord => {
+    this.config.wakeWords.forEach(wakeWord => {
       const randomVariation = (Math.random() - 0.5) * 0.2; // ±0.1 variation
       const confidence = Math.max(0, Math.min(1, baseConfidence + speechBoost + randomVariation));
 
@@ -403,7 +408,8 @@ export class WakeWordEngine {
 
     if (randomTrigger && timeBasedTrigger) {
       // Choose a random wake word
-      const randomWakeWord = WAKE_WORDS[Math.floor(Math.random() * WAKE_WORDS.length)];
+      const randomWakeWord =
+        this.config.wakeWords[Math.floor(Math.random() * this.config.wakeWords.length)];
       const mockConfidence = 0.75 + Math.random() * 0.25; // 0.75-1.0 confidence for mock detections
 
       const mockDetection: WakeWordDetection = {
@@ -449,8 +455,13 @@ export class WakeWordEngine {
   private async processPredictions(prediction: number): Promise<WakeWordDetection[]> {
     const detections: WakeWordDetection[] = [];
 
+    // Skip if no wake words are configured
+    if (!this.config.wakeWords || this.config.wakeWords.length === 0) {
+      return detections;
+    }
+
     // For multi-class models, process each wake word prediction
-    WAKE_WORDS.forEach((wakeWord, index) => {
+    this.config.wakeWords.forEach((wakeWord, index) => {
       // Use the single prediction for all wake words (binary classification)
       const confidence = prediction;
 
@@ -522,7 +533,16 @@ export class WakeWordEngine {
       this.setState(WakeWordState.RECORDING);
       this.isRecording = true;
       this.recordingStartTime = Date.now();
+
+      // 🚨 CRITICAL FIX: Clear any previous recording data to prevent mixing
       this.recordingData = [];
+      console.log('🧹 WakeWordEngine: Cleared previous recording data');
+
+      console.log('🔍 WakeWordEngine: Recording state check:');
+      console.log(`   - State: ${this.state}`);
+      console.log(`   - isRecording: ${this.isRecording}`);
+      console.log(`   - recordingData length: ${this.recordingData.length}`);
+      console.log(`   - AudioRecord should be capturing data now...`);
 
       // Reconfigure audio for high-quality command recording
       await this.configureCommandRecording();
@@ -542,7 +562,25 @@ export class WakeWordEngine {
         this.callbacks.onRecordingStart();
       }
 
+      // Add debug timer to check if recording is actually happening
+      const debugTimer = setInterval(() => {
+        if (this.isRecording) {
+          console.log(
+            `🔍 WakeWordEngine: Recording debug - Chunks: ${this.recordingData.length}, State: ${this.state}`,
+          );
+          if (this.recordingData.length > 0) {
+            const totalBytes = this.recordingData.reduce((sum, chunk) => sum + chunk.length, 0);
+            console.log(`📊 WakeWordEngine: Recording progress - ${totalBytes} bytes collected`);
+          } else {
+            console.warn('⚠️ WakeWordEngine: No audio chunks being captured during recording!');
+          }
+        } else {
+          clearInterval(debugTimer);
+        }
+      }, 1000);
+
       console.log('✅ WakeWordEngine: Voice command recording started');
+      console.log('🎤 WakeWordEngine: Speak now - your command is being recorded!');
     } catch (error) {
       console.error('❌ WakeWordEngine: Failed to start command recording:', error);
       await this.restartWakeWordDetection();
@@ -610,6 +648,32 @@ export class WakeWordEngine {
       // Combine recorded audio data
       const audioData = this.combineAudioData(this.recordingData);
       console.log(`📊 Audio data size: ${audioData.length} bytes, duration: ${duration}ms`);
+
+      // Enhanced debugging for audio data
+      if (audioData.length === 0) {
+        console.error('❌ WakeWordEngine: No audio data recorded!');
+        console.error('📊 Recording chunks:', this.recordingData.length);
+        console.error('📊 Recording started at:', this.recordingStartTime);
+        console.error('📊 Current state:', this.state);
+        throw new Error('No audio data was recorded');
+      }
+
+      // Check if audio data contains actual audio or is just zeros/silence
+      const nonZeroBytes = Array.from(audioData.slice(0, 1000)).filter(byte => byte !== 0).length;
+      const silenceRatio = 1 - nonZeroBytes / Math.min(1000, audioData.length);
+
+      console.log(`🔍 WakeWordEngine: Audio analysis:`);
+      console.log(`   - Total bytes: ${audioData.length}`);
+      console.log(`   - Non-zero bytes in first 1000: ${nonZeroBytes}`);
+      console.log(`   - Silence ratio: ${(silenceRatio * 100).toFixed(1)}%`);
+      console.log(`   - Recording chunks: ${this.recordingData.length}`);
+      console.log(`   - First 20 bytes: [${Array.from(audioData.slice(0, 20)).join(', ')}]`);
+
+      if (silenceRatio > 0.95) {
+        console.warn(
+          '⚠️ WakeWordEngine: Audio appears to be mostly silence - recording may have failed',
+        );
+      }
 
       // Send to voice-to-text API
       const response = await this.voiceToTextAPI.transcribe(audioData, {
@@ -696,13 +760,27 @@ export class WakeWordEngine {
       // Setup audio data listener - ONLY 'data' event is supported by react-native-audio-record
       let audioDataCount = 0;
       let totalBytesReceived = 0;
+      let recordingDataCount = 0; // Track data received during recording
       const startTime = Date.now();
 
       // Create and store the listener for cleanup
-      this.audioDataListener = (data: any) => {
+      this.audioDataListener = (data: string | Uint8Array | ArrayLike<number>) => {
         try {
           audioDataCount++;
           totalBytesReceived += data?.length || 0;
+
+          // Track if we're receiving data during recording
+          if (this.state === WakeWordState.RECORDING) {
+            recordingDataCount++;
+            if (recordingDataCount <= 10) {
+              console.log(`🎤 WakeWordEngine: Recording data #${recordingDataCount} received:`, {
+                type: typeof data,
+                length: data?.length || 0,
+                state: this.state,
+                isRecording: this.isRecording,
+              });
+            }
+          }
 
           // Log first few audio packets for debugging
           if (audioDataCount <= 5) {
@@ -728,6 +806,10 @@ export class WakeWordEngine {
                 0,
               )}, Expected: ${this.config.sampleRate * 2}`,
             );
+
+            if (this.state === WakeWordState.RECORDING) {
+              console.log(`📊 WakeWordEngine: Recording packets so far: ${recordingDataCount}`);
+            }
           }
 
           this.processAudioData(data);
@@ -753,7 +835,7 @@ export class WakeWordEngine {
   /**
    * Process incoming audio data
    */
-  private processAudioData(audioData: any): void {
+  private processAudioData(audioData: string | Uint8Array | ArrayLike<number>): void {
     try {
       // Enhanced debugging for audio data
       if (Math.random() < 0.01) {
@@ -824,7 +906,99 @@ export class WakeWordEngine {
 
       // Store for command recording when in recording state
       if (this.state === WakeWordState.RECORDING && this.recordingData) {
-        this.recordingData.push(new Uint8Array(audioData));
+        // Convert audio data to Uint8Array properly before storing
+        let audioBytes: Uint8Array;
+
+        if (typeof audioData === 'string') {
+          // Handle base64 string from react-native-audio-record
+          try {
+            const binaryString = atob(audioData);
+            audioBytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+              audioBytes[i] = binaryString.charCodeAt(i);
+            }
+            console.log(
+              `🔍 WakeWordEngine: Decoded base64 audio chunk: ${audioBytes.length} bytes`,
+            );
+          } catch (error) {
+            console.error('❌ WakeWordEngine: Failed to decode base64 audio for recording:', error);
+            audioBytes = new Uint8Array(0);
+          }
+        } else if (audioData instanceof Uint8Array) {
+          audioBytes = audioData;
+          console.log(`🔍 WakeWordEngine: Raw Uint8Array audio chunk: ${audioBytes.length} bytes`);
+        } else if (audioData && audioData.length !== undefined) {
+          // Handle array-like objects
+          audioBytes = new Uint8Array(audioData);
+          console.log(`🔍 WakeWordEngine: Array-like audio chunk: ${audioBytes.length} bytes`);
+        } else {
+          console.warn(
+            '⚠️ WakeWordEngine: Unknown audio data format for recording:',
+            typeof audioData,
+          );
+          audioBytes = new Uint8Array(0);
+        }
+
+        if (audioBytes.length > 0) {
+          // 🚨 CRITICAL FIX: Create a COPY of the audio data to prevent reference issues
+          // The same Uint8Array reference might be reused by react-native-audio-record
+          const audioBytesCopy = new Uint8Array(audioBytes.length);
+          audioBytesCopy.set(audioBytes);
+
+          // Calculate fingerprint of this chunk to detect if same audio is repeating
+          const chunkHash = Array.from(audioBytesCopy.slice(0, 50)).reduce((hash, byte) => {
+            return ((hash << 5) - hash + byte) & 0xffffffff;
+          }, 0);
+
+          console.log(`📊 WakeWordEngine: Audio chunk ${this.recordingData.length + 1}:`);
+          console.log(`   - Size: ${audioBytesCopy.length} bytes`);
+          console.log(`   - Fingerprint: ${chunkHash}`);
+          console.log(
+            `   - First 10 bytes: [${Array.from(audioBytesCopy.slice(0, 10)).join(', ')}]`,
+          );
+          console.log(
+            `   - Non-zero bytes: ${
+              Array.from(audioBytesCopy.slice(0, 100)).filter(b => b !== 0).length
+            }/100`,
+          );
+
+          // Store the COPY, not the original reference
+          this.recordingData.push(audioBytesCopy);
+
+          // Log recording progress
+          if (this.recordingData.length % 5 === 0) {
+            const totalBytes = this.recordingData.reduce((sum, chunk) => sum + chunk.length, 0);
+            console.log(
+              `🎤 WakeWordEngine: Recording progress - ${this.recordingData.length} chunks, ${totalBytes} bytes total`,
+            );
+
+            // Check if we're getting the same audio chunks repeatedly
+            if (this.recordingData.length >= 2) {
+              const lastChunk = this.recordingData[this.recordingData.length - 1];
+              const secondLastChunk = this.recordingData[this.recordingData.length - 2];
+
+              const lastHash = Array.from(lastChunk.slice(0, 50)).reduce((hash, byte) => {
+                return ((hash << 5) - hash + byte) & 0xffffffff;
+              }, 0);
+
+              const secondLastHash = Array.from(secondLastChunk.slice(0, 50)).reduce(
+                (hash, byte) => {
+                  return ((hash << 5) - hash + byte) & 0xffffffff;
+                },
+                0,
+              );
+
+              if (lastHash === secondLastHash) {
+                console.warn(
+                  '🚨 WakeWordEngine: DUPLICATE AUDIO DETECTED! Same audio chunk repeated!',
+                );
+                console.warn('   This suggests the microphone is not capturing new audio!');
+              }
+            }
+          }
+        } else {
+          console.warn('⚠️ WakeWordEngine: Empty audio chunk received during recording!');
+        }
       }
     } catch (error) {
       console.error('❌ WakeWordEngine: Error processing real audio data:', error);
@@ -835,7 +1009,9 @@ export class WakeWordEngine {
    * Convert audio data to Float32Array
    * Handles various audio formats from react-native-audio-record
    */
-  private convertToFloat32Array(audioData: any): Float32Array {
+  private convertToFloat32Array(
+    audioData: string | Uint8Array | ArrayLike<number> | Float32Array | Int16Array,
+  ): Float32Array {
     if (audioData instanceof Float32Array) {
       return audioData;
     }
@@ -925,11 +1101,10 @@ export class WakeWordEngine {
     }
 
     // Handle Array or other iterable
-    if (
-      Array.isArray(audioData) ||
-      (audioData && typeof audioData[Symbol.iterator] === 'function')
-    ) {
+    if (Array.isArray(audioData)) {
       return new Float32Array(audioData);
+    } else if (audioData && typeof (audioData as any)[Symbol.iterator] === 'function') {
+      return new Float32Array(Array.from(audioData as Iterable<number>));
     }
 
     console.warn(
@@ -941,19 +1116,96 @@ export class WakeWordEngine {
   }
 
   /**
-   * Combine audio data chunks
+   * Combine audio data chunks into a proper WAV file
    */
   private combineAudioData(chunks: Uint8Array[]): Uint8Array {
-    const totalLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
-    const result = new Uint8Array(totalLength);
+    // Calculate total PCM data length
+    const pcmDataLength = chunks.reduce((sum, chunk) => sum + chunk.length, 0);
 
-    let offset = 0;
+    if (pcmDataLength === 0) {
+      console.warn('⚠️ WakeWordEngine: No audio data to combine');
+      return new Uint8Array(0);
+    }
+
+    // Create WAV header (44 bytes)
+    const wavHeader = this.createWavHeader(pcmDataLength, this.config.sampleRate);
+
+    // Combine header + PCM data
+    const result = new Uint8Array(wavHeader.length + pcmDataLength);
+    result.set(wavHeader, 0);
+
+    let offset = wavHeader.length;
     for (const chunk of chunks) {
       result.set(chunk, offset);
       offset += chunk.length;
     }
 
+    console.log(
+      `🎵 WakeWordEngine: Created WAV file: ${result.length} bytes total (${pcmDataLength} PCM + ${wavHeader.length} header)`,
+    );
+
     return result;
+  }
+
+  /**
+   * Create a proper WAV file header
+   */
+  private createWavHeader(pcmDataLength: number, sampleRate: number): Uint8Array {
+    const header = new ArrayBuffer(44);
+    const view = new DataView(header);
+
+    // RIFF header
+    view.setUint8(0, 0x52); // 'R'
+    view.setUint8(1, 0x49); // 'I'
+    view.setUint8(2, 0x46); // 'F'
+    view.setUint8(3, 0x46); // 'F'
+
+    // File size (minus 8 bytes for RIFF header)
+    view.setUint32(4, 36 + pcmDataLength, true);
+
+    // WAVE header
+    view.setUint8(8, 0x57); // 'W'
+    view.setUint8(9, 0x41); // 'A'
+    view.setUint8(10, 0x56); // 'V'
+    view.setUint8(11, 0x45); // 'E'
+
+    // fmt chunk
+    view.setUint8(12, 0x66); // 'f'
+    view.setUint8(13, 0x6d); // 'm'
+    view.setUint8(14, 0x74); // 't'
+    view.setUint8(15, 0x20); // ' '
+
+    // fmt chunk size (16 for PCM)
+    view.setUint32(16, 16, true);
+
+    // Audio format (1 = PCM)
+    view.setUint16(20, 1, true);
+
+    // Number of channels (1 = mono)
+    view.setUint16(22, 1, true);
+
+    // Sample rate
+    view.setUint32(24, sampleRate, true);
+
+    // Byte rate (sampleRate * numChannels * bitsPerSample / 8)
+    view.setUint32(28, (sampleRate * 1 * 16) / 8, true);
+
+    // Block align (numChannels * bitsPerSample / 8)
+    view.setUint16(32, (1 * 16) / 8, true);
+
+    // Bits per sample
+    view.setUint16(34, 16, true);
+
+    // data chunk
+    view.setUint8(36, 0x64); // 'd'
+    view.setUint8(37, 0x61); // 'a'
+    view.setUint8(38, 0x74); // 't'
+    view.setUint8(39, 0x61); // 'a'
+
+    // data chunk size
+    view.setUint32(40, pcmDataLength, true);
+
+    return new Uint8Array(header);
   }
 
   /**
@@ -1160,5 +1412,114 @@ export class WakeWordEngine {
     } catch (error) {
       console.error('❌ WakeWordEngine: Error during cleanup:', error);
     }
+  }
+
+  /**
+   * Add a wake word dynamically
+   */
+  addWakeWord(wakeWord: string, threshold: number = 0.7): void {
+    if (!this.config.wakeWords.includes(wakeWord)) {
+      this.config.wakeWords = [...this.config.wakeWords, wakeWord];
+      this.config.wakeWordThresholds = {
+        ...this.config.wakeWordThresholds,
+        [wakeWord]: threshold,
+      };
+
+      console.log(`✅ WakeWordEngine: Added wake word "${wakeWord}" with threshold ${threshold}`);
+      console.log(`🎤 WakeWordEngine: Active wake words: ${this.config.wakeWords.join(', ')}`);
+    }
+  }
+
+  /**
+   * Remove a wake word dynamically
+   */
+  removeWakeWord(wakeWord: string): void {
+    this.config.wakeWords = this.config.wakeWords.filter(w => w !== wakeWord);
+    const { [wakeWord]: removed, ...remainingThresholds } = this.config.wakeWordThresholds || {};
+    this.config.wakeWordThresholds = remainingThresholds;
+
+    console.log(`✅ WakeWordEngine: Removed wake word "${wakeWord}"`);
+    console.log(`🎤 WakeWordEngine: Active wake words: ${this.config.wakeWords.join(', ')}`);
+  }
+
+  /**
+   * Get threshold for a specific wake word
+   */
+  private getWakeWordThreshold(wakeWord: string): number {
+    return this.config.wakeWordThresholds?.[wakeWord] || this.config.confidenceThreshold;
+  }
+
+  /**
+   * Test CORS configuration with the backend
+   */
+  async testCORS(): Promise<boolean> {
+    return await this.voiceToTextAPI.testCORS();
+  }
+
+  /**
+   * Test microphone connectivity and audio capture
+   */
+  async testMicrophone(): Promise<boolean> {
+    console.log('🎤 WakeWordEngine: Testing microphone...');
+
+    return new Promise(resolve => {
+      let audioDataReceived = 0;
+      let testStartTime = Date.now();
+
+      const testListener = (data: string | Uint8Array | ArrayLike<number>) => {
+        audioDataReceived++;
+        console.log(`🎤 Microphone Test: Audio packet #${audioDataReceived} received`);
+        console.log(`   - Type: ${typeof data}`);
+        console.log(`   - Length: ${data?.length || 0}`);
+
+        if (data instanceof Uint8Array && data.length > 0) {
+          const nonZeroBytes = Array.from(data.slice(0, 100)).filter(b => b !== 0).length;
+          console.log(`   - Non-zero bytes: ${nonZeroBytes}/100`);
+          console.log(`   - First 10 bytes: [${Array.from(data.slice(0, 10)).join(', ')}]`);
+        }
+
+        // Stop test after 3 seconds or 5 packets
+        if (Date.now() - testStartTime > 3000 || audioDataReceived >= 5) {
+          try {
+            AudioRecord.off('data', testListener);
+          } catch (error) {
+            console.warn('Could not remove test listener:', error);
+          }
+
+          console.log(`🎤 Microphone Test Complete:`);
+          console.log(`   - Packets received: ${audioDataReceived}`);
+          console.log(`   - Test duration: ${Date.now() - testStartTime}ms`);
+
+          if (audioDataReceived > 0) {
+            console.log('✅ Microphone is working - audio data is being captured');
+            resolve(true);
+          } else {
+            console.error('❌ Microphone test failed - no audio data received');
+            resolve(false);
+          }
+        }
+      };
+
+      try {
+        AudioRecord.on('data', testListener);
+        console.log('🎤 Microphone test started - speak loudly for 3 seconds...');
+
+        // Fallback timeout
+        setTimeout(() => {
+          if (audioDataReceived === 0) {
+            console.error('❌ Microphone test timeout - no audio received');
+            try {
+              AudioRecord.off('data', testListener);
+            } catch (error) {
+              console.warn('Could not remove test listener:', error);
+            }
+            resolve(false);
+          }
+        }, 5000);
+      } catch (error) {
+        console.error('❌ Failed to start microphone test:', error);
+        resolve(false);
+      }
+    });
   }
 }

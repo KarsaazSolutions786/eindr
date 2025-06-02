@@ -1,12 +1,9 @@
 import { WakeWordConfig } from '../types/wakeword';
 
 /**
- * Production Wake Word Detection Configuration
- * Comprehensive settings for always-listening wake word detection with TensorFlow Lite
+ * Dynamic Wake Word Detection Configuration
+ * Flexible settings for runtime-configurable wake word detection with TensorFlow Lite
  */
-
-// Available wake words for detection
-export const WAKE_WORDS = ['hey', 'hello', 'assistant'] as const;
 
 // Performance configuration for production use
 export const PERFORMANCE_CONFIG = {
@@ -36,23 +33,19 @@ export const PERFORMANCE_CONFIG = {
 
 // Default configuration for production wake word detection
 export const DEFAULT_WAKEWORD_CONFIG: WakeWordConfig = {
-  // Audio settings optimized for Mycroft Precise model
-  sampleRate: 16000, // Required by gru.tflite model
+  // Audio settings optimized for TensorFlow Lite model
+  sampleRate: 16000, // Required by most TFLite models
   channels: 1, // Mono audio
   bitsPerSample: 16,
   bufferSize: 4096, // Audio buffer size for capture
 
-  // Wake word detection
-  confidenceThreshold: 0.7, // Threshold for wake word detection
+  // Wake word detection - configurable at runtime
+  confidenceThreshold: 0.7, // Default threshold for wake word detection
   enableMultipleWakeWords: true, // Support multiple wake words
-  wakeWords: [...WAKE_WORDS],
+  wakeWords: [], // Empty by default - set dynamically
 
-  // Individual wake word thresholds (can be tuned per wake word)
-  wakeWordThresholds: {
-    hey: 0.7,
-    hello: 0.75, // Slightly higher threshold for less common word
-    assistant: 0.65, // Lower threshold for longer word
-  },
+  // Individual wake word thresholds - configurable per wake word
+  wakeWordThresholds: {}, // Empty by default - set dynamically
 
   // Voice command recording
   maxRecordingDuration: 10000, // 10 seconds maximum
@@ -65,14 +58,14 @@ export const DEFAULT_WAKEWORD_CONFIG: WakeWordConfig = {
   enableNoiseReduction: true,
   noiseGateThreshold: 0.01,
 
-  // MFCC feature extraction (optimized for Mycroft Precise)
+  // MFCC feature extraction (optimized for TensorFlow Lite)
   numMFCC: 13, // Number of MFCC coefficients
   numMelFilters: 26, // Number of mel filters
   fftSize: 512, // FFT size for spectral analysis
   windowType: 'hann', // Window function
 
   // TensorFlow Lite model settings
-  modelInputShape: [1, 29, 13], // Batch, time, features (for gru.tflite)
+  modelInputShape: [1, 29, 13], // Batch, time, features (configurable)
   modelOutputShape: [1, 1], // Single output for binary classification
   normalizeInput: true, // Normalize MFCC features
 
@@ -111,6 +104,99 @@ export const DEFAULT_WAKEWORD_CONFIG: WakeWordConfig = {
   enableOfflineMode: false, // Future feature for offline processing
 };
 
+// Utility functions for dynamic wake word management
+export const WakeWordUtils = {
+  /**
+   * Add a wake word with configuration
+   */
+  addWakeWord: (
+    config: WakeWordConfig,
+    wakeWord: string,
+    threshold: number = 0.7,
+    expectedAccuracy: number = 0.85,
+    commonFalsePositives: string[] = [],
+  ): WakeWordConfig => {
+    const newConfig = { ...config };
+
+    // Add to wake words array if not already present
+    if (!newConfig.wakeWords.includes(wakeWord)) {
+      newConfig.wakeWords = [...newConfig.wakeWords, wakeWord];
+    }
+
+    // Set threshold
+    newConfig.wakeWordThresholds = {
+      ...newConfig.wakeWordThresholds,
+      [wakeWord]: threshold,
+    };
+
+    return newConfig;
+  },
+
+  /**
+   * Remove a wake word
+   */
+  removeWakeWord: (config: WakeWordConfig, wakeWord: string): WakeWordConfig => {
+    const newConfig = { ...config };
+
+    // Remove from wake words array
+    newConfig.wakeWords = newConfig.wakeWords.filter(w => w !== wakeWord);
+
+    // Remove threshold configuration
+    const { [wakeWord]: removed, ...remainingThresholds } = newConfig.wakeWordThresholds || {};
+    newConfig.wakeWordThresholds = remainingThresholds;
+
+    return newConfig;
+  },
+
+  /**
+   * Update wake word threshold
+   */
+  updateThreshold: (
+    config: WakeWordConfig,
+    wakeWord: string,
+    threshold: number,
+  ): WakeWordConfig => {
+    const newConfig = { ...config };
+
+    if (newConfig.wakeWords.includes(wakeWord)) {
+      newConfig.wakeWordThresholds = {
+        ...newConfig.wakeWordThresholds,
+        [wakeWord]: threshold,
+      };
+    }
+
+    return newConfig;
+  },
+
+  /**
+   * Set multiple wake words at once
+   */
+  setWakeWords: (
+    config: WakeWordConfig,
+    wakeWords: Array<{ word: string; threshold?: number }>,
+  ): WakeWordConfig => {
+    const newConfig = { ...config };
+
+    newConfig.wakeWords = wakeWords.map(w => w.word);
+    newConfig.wakeWordThresholds = wakeWords.reduce(
+      (thresholds, w) => ({
+        ...thresholds,
+        [w.word]: w.threshold || 0.7,
+      }),
+      {},
+    );
+
+    return newConfig;
+  },
+
+  /**
+   * Get threshold for a specific wake word
+   */
+  getThreshold: (config: WakeWordConfig, wakeWord: string): number => {
+    return config.wakeWordThresholds?.[wakeWord] || config.confidenceThreshold;
+  },
+};
+
 // Error codes for comprehensive error handling
 export const ERROR_CODES = {
   // Initialization errors
@@ -147,7 +233,7 @@ export const ERROR_CODES = {
 // API configuration for backend integration
 export const API_CONFIG = {
   // Voice-to-text endpoints
-  voiceToText: '/api/voice-to-text',
+  voiceToText: '/api/v1/stt/transcribe-and-respond',
   health: '/api/health',
 
   // Default settings
@@ -168,7 +254,7 @@ export const API_CONFIG = {
   enableCompression: true,
 } as const;
 
-// Model configuration for Mycroft Precise gru.tflite
+// Model configuration for TensorFlow Lite
 export const MODEL_CONFIG = {
   // Model file information
   fileName: 'gru.tflite',
@@ -215,11 +301,6 @@ export const MODEL_CONFIG = {
 
 // Development and testing configurations
 export const DEV_CONFIG = {
-  // Mock mode settings
-  enableMockMode: true, // Default to mock mode for development
-  mockLatency: 500, // Simulated processing latency
-  mockAccuracy: 0.9, // Simulated accuracy for testing
-
   // Debug features
   enableVerboseLogging: true,
   logAudioData: false, // Only enable for specific debugging
@@ -234,51 +315,6 @@ export const DEV_CONFIG = {
   trackCPUUsage: true,
   trackBatteryUsage: true,
 } as const;
-
-// Export wake word specific configurations
-export const WAKE_WORD_CONFIGS = {
-  hey: {
-    threshold: 0.7,
-    contextualCommands: [
-      'Set reminder for dinner at 7 PM',
-      'Turn on the living room lights',
-      'Play my favorite playlist',
-      'Set volume to 50 percent',
-      'Turn off the TV',
-    ],
-    expectedAccuracy: 0.85,
-    commonFalsePositives: ['okay', 'way', 'day'],
-  },
-
-  hello: {
-    threshold: 0.75,
-    contextualCommands: [
-      "What's the weather like today?",
-      'Tell me the latest news',
-      "What's on my calendar?",
-      'Good morning briefing',
-      'How are you doing?',
-    ],
-    expectedAccuracy: 0.88,
-    commonFalsePositives: ['yellow', 'fellow', 'bellow'],
-  },
-
-  assistant: {
-    threshold: 0.65,
-    contextualCommands: [
-      'Add milk to my shopping list',
-      'Help me with my schedule',
-      'Set a timer for 10 minutes',
-      'Call my mom',
-      'Send a message to John',
-    ],
-    expectedAccuracy: 0.82,
-    commonFalsePositives: ['distance', 'resistance', 'instance'],
-  },
-} as const;
-
-// Export type for wake word names
-export type WakeWordName = (typeof WAKE_WORDS)[number];
 
 // Production optimization presets
 export const OPTIMIZATION_PRESETS = {

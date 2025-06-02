@@ -12,7 +12,6 @@ import {
 } from 'react-native';
 import theme from '@theme/theme';
 import MessageContainer from '@components/chat/MessageContainer';
-import { WAKE_WORDS, WAKE_WORD_CONFIGS } from '../../config/wakeword';
 import { WakeWordEngine } from '../../wakeword/WakeWordEngine';
 import {
   WakeWordState,
@@ -69,6 +68,12 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
   const [lastWakeWord, setLastWakeWord] = useState<string>('');
   const [isEngineActive, setIsEngineActive] = useState(false);
   const [performanceStats, setPerformanceStats] = useState<PerformanceMetrics | null>(null);
+  const [currentWakeWords, setCurrentWakeWords] = useState<string[]>([
+    'hey',
+    'hello',
+    'assistant',
+    'hey eindr',
+  ]);
 
   // Real-time listening feedback
   const [audioLevel, setAudioLevel] = useState(0);
@@ -205,6 +210,16 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       // Initialize directly in enhanced mock mode (bypass TensorFlow Lite for now)
       console.log('🔄 HomeScreen: Starting enhanced mock mode directly...');
 
+      // Configure wake words in the engine
+      const wakeWords = ['hey', 'hello', 'assistant', 'hey eindr'];
+      wakeWords.forEach(wakeWord => {
+        engineInstance.addWakeWord(wakeWord, 0.7);
+      });
+
+      // Update the current wake words state
+      setCurrentWakeWords(wakeWords);
+      console.log(`🎤 HomeScreen: Configured wake words: ${wakeWords.join(', ')}`);
+
       try {
         await engineInstance.initialize(); // No model = enhanced mock mode
         console.log('✅ HomeScreen: Enhanced mock mode initialized successfully');
@@ -225,6 +240,15 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
 
       // Start always-listening mode with the verified instance
       try {
+        // Test CORS configuration before starting
+        console.log('🔍 HomeScreen: Testing CORS configuration...');
+        const corsTest = await engineInstance.testCORS();
+        if (corsTest) {
+          console.log('✅ HomeScreen: CORS configuration verified');
+        } else {
+          console.warn('⚠️ HomeScreen: CORS may not be properly configured');
+        }
+
         await engineInstance.startAlwaysListening();
         console.log('🎤 HomeScreen: Always-listening mode activated');
       } catch (listeningError) {
@@ -392,7 +416,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
   // Handle model inference results (partial detections)
   const handleModelInference = (inferenceTime: number, confidence: number) => {
     // Show partial detection results for all wake words
-    WAKE_WORDS.forEach(wakeWord => {
+    currentWakeWords.forEach(wakeWord => {
       const partialDetection = {
         wakeWord,
         confidence: confidence * (0.8 + Math.random() * 0.4), // Simulate per-word confidence
@@ -527,7 +551,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
 
         const startMessage = {
           id: `start-${Date.now()}`,
-          text: `Started always-listening for wake words: "${WAKE_WORDS.join('", "')}"...`,
+          text: `Started always-listening for wake words: "${currentWakeWords.join('", "')}"...`,
           isUser: false,
           timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
         };
@@ -547,6 +571,254 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
 
     // Call original onOrbPress if provided
     onOrbPress?.();
+  };
+
+  // Test microphone functionality
+  const handleTestMicrophone = async () => {
+    if (!wakeWordEngine.current || !isInitialized) {
+      console.warn('⚠️ HomeScreen: Wake word engine not initialized');
+      return;
+    }
+
+    const testMessage = {
+      id: `test-${Date.now()}`,
+      text: '🎤 Testing microphone - speak loudly for 3 seconds...',
+      isUser: false,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    setMessages(prev => [...prev, testMessage]);
+
+    try {
+      const micWorking = await wakeWordEngine.current.testMicrophone();
+
+      const resultMessage = {
+        id: `test-result-${Date.now()}`,
+        text: micWorking
+          ? '✅ Microphone test passed! Audio is being captured.'
+          : '❌ Microphone test failed! No audio detected.',
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages(prev => [...prev, resultMessage]);
+    } catch (error) {
+      const errorMessage = {
+        id: `test-error-${Date.now()}`,
+        text: `❌ Microphone test error: ${(error as Error).message}`,
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
+  };
+
+  // Test network connectivity
+  const handleTestConnectivity = async () => {
+    const testMessage = {
+      id: `connectivity-test-${Date.now()}`,
+      text: '🌐 Testing network connectivity to backend...',
+      isUser: false,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    setMessages(prev => [...prev, testMessage]);
+
+    try {
+      // Import VoiceToTextAPI class
+      const { VoiceToTextAPI } = await import('../../wakeword/api/VoiceToTextAPI');
+      const api = new VoiceToTextAPI();
+
+      // Test 1: Bypass connectivity test
+      const bypassTest = await api.testConnectivityBypass();
+
+      const bypassResultMessage = {
+        id: `bypass-test-result-${Date.now()}`,
+        text: bypassTest
+          ? '✅ Bypass connectivity test passed! Network is working.'
+          : '❌ Bypass connectivity test failed! Network issue detected.',
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages(prev => [...prev, bypassResultMessage]);
+
+      // Test 2: Simple connectivity
+      const simpleTest = await api.testSimpleConnectivity();
+
+      const simpleResultMessage = {
+        id: `simple-test-result-${Date.now()}`,
+        text: simpleTest
+          ? '✅ Simple connectivity test passed! Backend is reachable.'
+          : '❌ Simple connectivity test failed! Backend not reachable.',
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages(prev => [...prev, simpleResultMessage]);
+
+      // Test 3: CORS
+      const corsTest = await api.testCORS();
+
+      const corsResultMessage = {
+        id: `cors-test-result-${Date.now()}`,
+        text: corsTest
+          ? '✅ CORS test passed! Backend CORS is properly configured.'
+          : '❌ CORS test failed! Backend CORS needs configuration.',
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages(prev => [...prev, corsResultMessage]);
+
+      // Summary message
+      const summaryMessage = {
+        id: `summary-${Date.now()}`,
+        text: `📊 Test Summary: Bypass: ${bypassTest ? '✅' : '❌'}, Simple: ${
+          simpleTest ? '✅' : '❌'
+        }, CORS: ${corsTest ? '✅' : '❌'}`,
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages(prev => [...prev, summaryMessage]);
+    } catch (error) {
+      const errorMessage = {
+        id: `connectivity-error-${Date.now()}`,
+        text: `❌ Connectivity test error: ${(error as Error).message}`,
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
+  };
+
+  // Test backend responses with different audio data
+  const handleTestBackend = async () => {
+    const testMessage = {
+      id: `backend-test-${Date.now()}`,
+      text: '🧪 Testing backend with different audio patterns...',
+      isUser: false,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    setMessages(prev => [...prev, testMessage]);
+
+    try {
+      // Import VoiceToTextAPI class
+      const { VoiceToTextAPI } = await import('../../wakeword/api/VoiceToTextAPI');
+      const api = new VoiceToTextAPI();
+
+      // Create test audio files with different content
+      const createTestAudio = (pattern: number): Uint8Array => {
+        const headerSize = 44;
+        const audioSize = 1000;
+        const testAudio = new Uint8Array(headerSize + audioSize);
+
+        // Create WAV header
+        const header = new DataView(testAudio.buffer, 0, headerSize);
+
+        // RIFF header
+        header.setUint8(0, 0x52); // 'R'
+        header.setUint8(1, 0x49); // 'I'
+        header.setUint8(2, 0x46); // 'F'
+        header.setUint8(3, 0x46); // 'F'
+        header.setUint32(4, 36 + audioSize, true);
+
+        // WAVE header
+        header.setUint8(8, 0x57); // 'W'
+        header.setUint8(9, 0x41); // 'A'
+        header.setUint8(10, 0x56); // 'V'
+        header.setUint8(11, 0x45); // 'E'
+
+        // fmt chunk
+        header.setUint8(12, 0x66); // 'f'
+        header.setUint8(13, 0x6d); // 'm'
+        header.setUint8(14, 0x74); // 't'
+        header.setUint8(15, 0x20); // ' '
+        header.setUint32(16, 16, true);
+        header.setUint16(20, 1, true);
+        header.setUint16(22, 1, true);
+        header.setUint32(24, 16000, true);
+        header.setUint32(28, 32000, true);
+        header.setUint16(32, 2, true);
+        header.setUint16(34, 16, true);
+
+        // data chunk
+        header.setUint8(36, 0x64); // 'd'
+        header.setUint8(37, 0x61); // 'a'
+        header.setUint8(38, 0x74); // 't'
+        header.setUint8(39, 0x61); // 'a'
+        header.setUint32(40, audioSize, true);
+
+        // Fill with pattern
+        for (let i = headerSize; i < testAudio.length; i++) {
+          testAudio[i] = pattern + (i % 10);
+        }
+
+        return testAudio;
+      };
+
+      // Test with 3 different audio patterns
+      const testPatterns = [100, 150, 200];
+      const responses: string[] = [];
+
+      for (let i = 0; i < testPatterns.length; i++) {
+        const testAudio = createTestAudio(testPatterns[i]);
+
+        const progressMessage = {
+          id: `test-progress-${Date.now()}-${i}`,
+          text: `🧪 Test ${i + 1}/3: Pattern ${testPatterns[i]} (${testAudio.length} bytes)`,
+          isUser: false,
+          timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+        };
+        setMessages(prev => [...prev, progressMessage]);
+
+        try {
+          const response = await api.transcribe(testAudio, {
+            format: 'wav',
+            sampleRate: 16000,
+            duration: 1000,
+          });
+
+          responses.push(response.text);
+
+          const resultMessage = {
+            id: `test-result-${Date.now()}-${i}`,
+            text: `📝 Test ${i + 1} Response: "${response.text}"`,
+            isUser: false,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          };
+          setMessages(prev => [...prev, resultMessage]);
+        } catch (error) {
+          const errorMessage = {
+            id: `test-error-${Date.now()}-${i}`,
+            text: `❌ Test ${i + 1} Failed: ${(error as Error).message}`,
+            isUser: false,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          };
+          setMessages(prev => [...prev, errorMessage]);
+          responses.push('ERROR');
+        }
+
+        // Wait 1 second between tests
+        await new Promise(resolve => setTimeout(resolve, 1000));
+      }
+
+      // Analyze results
+      const uniqueResponses = [...new Set(responses)];
+      const allSame = uniqueResponses.length === 1;
+
+      const analysisMessage = {
+        id: `analysis-${Date.now()}`,
+        text: allSame
+          ? `🚨 PROBLEM: All 3 tests returned the same response: "${responses[0]}" - Backend is likely caching or returning default responses!`
+          : `✅ GOOD: Tests returned ${uniqueResponses.length} different responses - Backend is processing audio correctly!`,
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages(prev => [...prev, analysisMessage]);
+    } catch (error) {
+      const errorMessage = {
+        id: `backend-test-error-${Date.now()}`,
+        text: `❌ Backend test error: ${(error as Error).message}`,
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
   };
 
   // Cleanup function
@@ -710,7 +982,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
             : engineState === WakeWordState.PROCESSING
             ? 'Processing command with AI...'
             : engineState === WakeWordState.LISTENING
-            ? `🔴 Always listening for: "${WAKE_WORDS.join('", "')}"...`
+            ? `🔴 Always listening for: "${currentWakeWords.join('", "')}"...`
             : engineState === WakeWordState.ERROR
             ? 'Error occurred - tap orb to restart'
             : isInitialized
@@ -718,7 +990,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
             : 'Initializing TensorFlow Lite model...'}
         </Text>
         <Text style={styles.wakeWords}>
-          Wake Words: {WAKE_WORDS.map((word: string) => `"${word}"`).join(', ')}
+          Wake Words: {currentWakeWords.map((word: string) => `"${word}"`).join(', ')}
         </Text>
         <Text style={styles.infoNote}>
           {isInitialized
@@ -727,13 +999,39 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
               } - Audio Processing: ${isProcessingAudio ? '🟢 Active' : '⭕ Idle'}`
             : 'Loading gru.tflite model...'}
         </Text>
+
+        {/* Microphone Test Button */}
+        {isInitialized && (
+          <TouchableOpacity
+            style={styles.testButton}
+            onPress={handleTestMicrophone}
+            activeOpacity={0.7}>
+            <Text style={styles.testButtonText}>🎤 Test Microphone</Text>
+          </TouchableOpacity>
+        )}
+
+        {/* Network Connectivity Test Button */}
+        <TouchableOpacity
+          style={[styles.testButton, { backgroundColor: '#34C759' }]}
+          onPress={handleTestConnectivity}
+          activeOpacity={0.7}>
+          <Text style={styles.testButtonText}>🌐 Test Connectivity</Text>
+        </TouchableOpacity>
+
+        {/* Backend Response Test Button */}
+        <TouchableOpacity
+          style={[styles.testButton, { backgroundColor: '#FF9500' }]}
+          onPress={handleTestBackend}
+          activeOpacity={0.7}>
+          <Text style={styles.testButtonText}>🧪 Test Backend Responses</Text>
+        </TouchableOpacity>
       </View>
 
       {/* Partial Detection Results Panel (for debugging) */}
       {isInitialized && partialDetections.length > 0 && (
         <View style={styles.partialDetectionsPanel}>
           <Text style={styles.partialTitle}>🧠 Real-time Detection Confidence</Text>
-          {WAKE_WORDS.map(wakeWord => {
+          {currentWakeWords.map(wakeWord => {
             const latestDetection = partialDetections
               .filter(d => d.wakeWord === wakeWord)
               .slice(-1)[0];
@@ -1067,6 +1365,17 @@ const styles = StyleSheet.create({
     shadowOpacity: 1,
     shadowRadius: 25,
     elevation: 15,
+  },
+  testButton: {
+    backgroundColor: '#4C7BF7',
+    borderRadius: 8,
+    padding: 12,
+    marginTop: 16,
+  },
+  testButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontFamily: theme.typography.fontFamily.medium,
   },
 });
 
