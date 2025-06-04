@@ -387,6 +387,7 @@ describe('WakeWordEngine', () => {
       const newConfig = {
         confidenceThreshold: 0.9,
         silenceTimeout: 1500,
+        vadSensitivity: 1.2,
       };
 
       engine.updateConfig(newConfig);
@@ -394,6 +395,7 @@ describe('WakeWordEngine', () => {
 
       expect(config.confidenceThreshold).toBe(0.9);
       expect(config.silenceTimeout).toBe(1500);
+      expect(config.vadSensitivity).toBe(1.2);
     });
 
     test('should validate configuration parameters', () => {

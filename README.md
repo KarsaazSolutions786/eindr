@@ -302,6 +302,7 @@ function VoiceControlScreen() {
 | `bufferSize`           | number  | 4096    | Audio buffer size                    |
 | `maxRecordingDuration` | number  | 30000   | Max recording time in ms             |
 | `silenceTimeout`       | number  | 2000    | Silence detection timeout in ms      |
+| `vadSensitivity`       | number  | 1.0     | VAD sensitivity (higher = more sensitive) |
 | `enableHaptics`        | boolean | true    | Enable haptic feedback               |
 
 ### API Endpoints
