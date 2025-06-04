@@ -66,8 +66,9 @@ export class WakeWordEngine {
       sampleRate: this.config.sampleRate,
       frameSize: PERFORMANCE_CONFIG.frameLength,
       energyThreshold: 0.001, // Very low energy threshold for maximum sensitivity
-      silenceTimeout: 5000, // Much longer default silence timeout (5 seconds)
-      hangoverTime: 2000, // Much longer hangover time for natural speech patterns
+      silenceTimeout: this.config.silenceTimeout * 3,
+      hangoverTime: this.config.silenceTimeout,
+      sensitivity: this.config.vadSensitivity,
     });
     this.voiceToTextAPI = new VoiceToTextAPI();
 
@@ -567,8 +568,9 @@ export class WakeWordEngine {
       // The issue is that it takes too long to stop recording after user stops talking
       this.voiceActivityDetector.updateConfig({
         energyThreshold: 0.003, // Keep threshold for user speech
-        silenceTimeout: 3000, // REDUCED from 6000 to 3000 (3 seconds)
-        hangoverTime: 1500, // REDUCED from 3000 to 1500 (1.5 seconds)
+        silenceTimeout: this.config.silenceTimeout,
+        hangoverTime: Math.min(500, this.config.silenceTimeout / 2),
+        sensitivity: this.config.vadSensitivity,
       });
 
       // Configure VAD callbacks for recording mode with faster silence detection
@@ -687,9 +689,9 @@ export class WakeWordEngine {
     }
 
     // 🚨 FIX: REDUCED silence detection times for faster response
-    // The issue is that it takes too long to stop recording after user stops talking
-    const initialSilenceWarning = 1500; // REDUCED from 3000 to 1500 (1.5 seconds)
-    const finalCountdown = 3000; // REDUCED from 7000 to 3000 (3 seconds)
+    // Use configured silenceTimeout for flexible behavior
+    const initialSilenceWarning = this.config.silenceTimeout / 2;
+    const finalCountdown = this.config.silenceTimeout;
 
     // Start progressive silence detection
     this.silenceTimer = setTimeout(() => {

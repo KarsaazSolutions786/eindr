@@ -51,6 +51,7 @@ export const DEFAULT_WAKEWORD_CONFIG: WakeWordConfig = {
   maxRecordingDuration: 10000, // 10 seconds maximum
   silenceTimeout: 800, // Stop recording after 800ms of silence
   enableVAD: true, // Voice Activity Detection for auto-stop
+  vadSensitivity: 1.0, // VAD sensitivity (1 = default)
 
   // Audio processing
   enablePreEmphasis: true,

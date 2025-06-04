@@ -11,6 +11,8 @@ export interface VADConfig {
   silenceTimeout: number;
   hangoverTime?: number; // Time to continue recording after speech ends
   preEmphasis?: number; // Pre-emphasis filter coefficient
+  /** Sensitivity factor (1 = default) */
+  sensitivity?: number;
 }
 
 export interface VADResult {
@@ -43,12 +45,14 @@ export class VoiceActivityDetector {
     this.config = {
       hangoverTime: 300, // 300ms hangover by default
       preEmphasis: 0.97,
+      sensitivity: 1,
       ...config,
     };
 
     console.log('🎙️ VAD: Voice Activity Detector initialized');
     console.log(`🎙️ VAD: Energy threshold: ${this.config.energyThreshold}`);
     console.log(`🎙️ VAD: Silence timeout: ${this.config.silenceTimeout}ms`);
+    console.log(`🎙️ VAD: Sensitivity: ${this.config.sensitivity}`);
   }
 
   /**
@@ -109,9 +113,11 @@ export class VoiceActivityDetector {
     this.updateBackgroundNoise(energy);
 
     // Determine speech activity
+    const sensitivity = this.config.sensitivity || 1;
+    const baselineThreshold = this.config.energyThreshold / sensitivity;
     const adaptiveThreshold = Math.max(
-      this.config.energyThreshold,
-      this.backgroundNoise * 2, // Dynamic threshold based on background noise
+      baselineThreshold,
+      this.backgroundNoise * 2,
     );
 
     const isSpeech = energy > adaptiveThreshold;

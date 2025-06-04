@@ -301,7 +301,8 @@ function VoiceControlScreen() {
 | `sampleRate`           | number  | 16000   | Audio sample rate in Hz              |
 | `bufferSize`           | number  | 4096    | Audio buffer size                    |
 | `maxRecordingDuration` | number  | 30000   | Max recording time in ms             |
-| `silenceTimeout`       | number  | 2000    | Silence detection timeout in ms      |
+| `silenceTimeout`       | number  | 800     | Silence detection timeout in ms      |
+| `vadSensitivity`       | number  | 1.0     | VAD sensitivity (higher = more sensitive) |
 | `enableHaptics`        | boolean | true    | Enable haptic feedback               |
 
 ### API Endpoints
@@ -354,6 +355,9 @@ The wake word system consists of:
 - **ModelManager** - TensorFlow Lite inference
 - **RingBuffer** - Efficient audio buffering
 - **VoiceToTextAPI** - Backend communication
+- **VoiceToTextAPI** caches transcriptions by audio fingerprint to avoid
+  repeated API calls when the same audio is processed.
+- **TTSService** - Speaks AI responses using `react-native-tts`
 - **React Components** - UI integration
 
 ### Performance
@@ -364,6 +368,8 @@ Typical performance metrics:
 - **Memory usage**: ~10-20MB additional
 - **CPU usage**: ~5-10% during active listening
 - **Battery impact**: Minimal when optimized
+
+For customizing the conversational model, see **docs/BLOOM_TRAINING_GUIDE.md**.
 
 ### Troubleshooting
 
