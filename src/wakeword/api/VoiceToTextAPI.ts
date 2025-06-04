@@ -81,6 +81,8 @@ export class VoiceToTextAPI {
   private lastAudioData: Uint8Array | null = null;
   private lastAudioHash: number = 0;
   private requestCount: number = 0;
+  // Cache transcriptions by audio hash to avoid repeated API calls
+  private responseCache: Map<number, VoiceToTextResponse> = new Map();
 
   constructor(
     baseUrl: string = getDefaultBaseUrl(),
@@ -132,6 +134,13 @@ export class VoiceToTextAPI {
     const currentAudioHash = Array.from(audioData).reduce((hash, byte) => {
       return ((hash << 5) - hash + byte) & 0xffffffff;
     }, 0);
+
+    // Return cached transcription if available
+    if (this.responseCache.has(currentAudioHash)) {
+      console.log('⚡ VoiceToTextAPI: Returning cached transcription');
+      const cached = this.responseCache.get(currentAudioHash)!;
+      return { ...cached, processingTime: Date.now() - startTime };
+    }
 
     console.log('🔍 VoiceToTextAPI: WAV File Analysis:');
     console.log(`   - Current audio hash: ${currentAudioHash}`);
@@ -262,6 +271,9 @@ export class VoiceToTextAPI {
       console.log('✅ VoiceToTextAPI: Transcription completed');
       console.log(`📝 VoiceToTextAPI: Result: "${response.text}"`);
       console.log(`⏱️ VoiceToTextAPI: Processing time: ${processingTime}ms`);
+
+      // Cache the successful response
+      this.responseCache.set(currentAudioHash, response);
 
       return {
         ...response,
