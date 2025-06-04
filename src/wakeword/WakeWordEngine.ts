@@ -68,6 +68,7 @@ export class WakeWordEngine {
       energyThreshold: 0.001, // Very low energy threshold for maximum sensitivity
       silenceTimeout: 5000, // Much longer default silence timeout (5 seconds)
       hangoverTime: 2000, // Much longer hangover time for natural speech patterns
+      sensitivity: this.config.vadSensitivity,
     });
     this.voiceToTextAPI = new VoiceToTextAPI();
 
@@ -569,6 +570,7 @@ export class WakeWordEngine {
         energyThreshold: 0.003, // Keep threshold for user speech
         silenceTimeout: 3000, // REDUCED from 6000 to 3000 (3 seconds)
         hangoverTime: 1500, // REDUCED from 3000 to 1500 (1.5 seconds)
+        sensitivity: this.config.vadSensitivity,
       });
 
       // Configure VAD callbacks for recording mode with faster silence detection
