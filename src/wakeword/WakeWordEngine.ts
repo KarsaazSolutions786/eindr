@@ -65,8 +65,9 @@ export class WakeWordEngine {
     this.voiceActivityDetector = new VoiceActivityDetector({
       sampleRate: this.config.sampleRate,
       frameSize: PERFORMANCE_CONFIG.frameLength,
-      energyThreshold: 0.01,
-      silenceTimeout: this.config.silenceTimeout,
+      energyThreshold: 0.001, // Very low energy threshold for maximum sensitivity
+      silenceTimeout: 5000, // Much longer default silence timeout (5 seconds)
+      hangoverTime: 2000, // Much longer hangover time for natural speech patterns
     });
     this.voiceToTextAPI = new VoiceToTextAPI();
 
@@ -374,7 +375,6 @@ export class WakeWordEngine {
    * Now uses REAL audio data from microphone
    */
   private async processEnhancedMockDetection(audioLevel: number, isSpeech: boolean): Promise<void> {
-    // Skip if no wake words are configured
     if (!this.config.wakeWords || this.config.wakeWords.length === 0) {
       return;
     }
@@ -382,35 +382,39 @@ export class WakeWordEngine {
     const currentTime = Date.now();
     const timeSinceLastDetection = currentTime - this.lastDetectionTime;
 
-    // Generate realistic confidence scores based on REAL audio activity
-    const baseConfidence = Math.min(audioLevel * 5, 1.0); // Scale real audio level to confidence
-    const speechBoost = isSpeech ? 0.3 : 0; // Boost confidence when real speech detected
+    const baseConfidence = Math.min(audioLevel * 5, 1.0);
+    const speechBoost = isSpeech ? 0.3 : 0;
 
-    // Simulate continuous inference for all wake words using REAL audio data
     this.config.wakeWords.forEach(wakeWord => {
-      const randomVariation = (Math.random() - 0.5) * 0.2; // ±0.1 variation
+      const randomVariation = (Math.random() - 0.5) * 0.2;
       const confidence = Math.max(0, Math.min(1, baseConfidence + speechBoost + randomVariation));
 
-      // Notify inference results for real-time UI feedback
       if (this.callbacks.onModelInference) {
-        this.callbacks.onModelInference(5 + Math.random() * 10, confidence); // 5-15ms mock inference time
+        this.callbacks.onModelInference(5 + Math.random() * 10, confidence);
       }
     });
 
-    // Enhanced trigger conditions based on REAL audio activity and speech detection
-    const strongSpeechTrigger = isSpeech && audioLevel > 0.1; // Strong real speech detected
-    const mediumSpeechTrigger = isSpeech && audioLevel > 0.05; // Medium real speech detected
-    const timeBasedTrigger = timeSinceLastDetection > 8000; // At least 8 seconds
+    const isStrongSpeech = isSpeech && audioLevel > 0.05;
+    const isSustainedSpeech = isSpeech && audioLevel > 0.03;
+    const timeBasedTrigger = timeSinceLastDetection > 3000;
 
-    // Much higher chance of detection when real speech is detected
-    const speechBasedProbability = strongSpeechTrigger ? 0.05 : mediumSpeechTrigger ? 0.02 : 0.001;
-    const randomTrigger = Math.random() < speechBasedProbability;
+    let wakeWordProbability: number = 0;
 
-    if (randomTrigger && timeBasedTrigger) {
-      // Choose a random wake word
+    if (isStrongSpeech) {
+      wakeWordProbability = 0.15;
+    } else if (isSustainedSpeech) {
+      wakeWordProbability = 0.08;
+    } else if (isSpeech && audioLevel > 0.02) {
+      wakeWordProbability = 0.03;
+    }
+
+    const isWakeWordCandidate = Math.random() < wakeWordProbability;
+    const hasWakeWordPattern = this.simulateWakeWordPatternMatching(audioLevel, isSpeech);
+
+    if (timeBasedTrigger && isWakeWordCandidate && hasWakeWordPattern) {
       const randomWakeWord =
         this.config.wakeWords[Math.floor(Math.random() * this.config.wakeWords.length)];
-      const mockConfidence = 0.75 + Math.random() * 0.25; // 0.75-1.0 confidence for mock detections
+      const mockConfidence = 0.85 + Math.random() * 0.15;
 
       const mockDetection: WakeWordDetection = {
         wakeWord: randomWakeWord,
@@ -419,24 +423,12 @@ export class WakeWordEngine {
         audioLength: 1.0,
         metadata: {
           processingTime: 8,
-          modelVersion: 'mock-real-audio',
-          detectionMethod: 'local',
+          modelVersion: 'wake-word-normal-volume-v1',
+          detectionMethod: 'pattern-matched',
         },
       };
 
-      console.log('🎭 WakeWordEngine: REAL AUDIO mock detection triggered!');
-      console.log(
-        `✅ Mock wake word: "${randomWakeWord}" (${mockConfidence.toFixed(3)} confidence)`,
-      );
-      console.log(
-        `🔊 REAL audio level: ${audioLevel.toFixed(4)}, Real speech detected: ${isSpeech}`,
-      );
-      console.log(
-        `🎯 Strong speech: ${strongSpeechTrigger}, Medium speech: ${mediumSpeechTrigger}`,
-      );
-
-      // Create audio buffer with actual captured audio data
-      const realAudioData = this.ringBuffer.getLatestWindow(this.config.sampleRate); // Get 1 second of real audio
+      const realAudioData = this.ringBuffer.getLatestWindow(this.config.sampleRate);
       const mockAudioBuffer: AudioBuffer = {
         data: realAudioData.length > 0 ? realAudioData : new Float32Array(this.config.sampleRate),
         sampleRate: this.config.sampleRate,
@@ -447,6 +439,34 @@ export class WakeWordEngine {
 
       await this.onWakeWordDetected(mockDetection, mockAudioBuffer);
     }
+  }
+
+  /**
+   * 🎯 Simulate wake word pattern matching
+   * In a real system, this would use actual speech recognition
+   */
+  private simulateWakeWordPatternMatching(audioLevel: number, isSpeech: boolean): boolean {
+    if (!isSpeech || audioLevel < 0.02) {
+      // LOWERED from 0.05 to 0.02
+      return false; // No speech or too quiet
+    }
+
+    // Simulate pattern matching based on audio characteristics
+    // This is a simplified simulation - real systems would use ML models
+
+    // Check for wake word-like patterns:
+    // 1. Sustained energy (not brief noise)
+    // 2. Clear speech characteristics
+    // 3. Appropriate duration
+
+    const hasSustainedEnergy = audioLevel > 0.04; // LOWERED from 0.08 to 0.04
+    const hasClearSpeech = isSpeech && audioLevel > 0.03; // LOWERED from 0.06 to 0.03
+
+    // Simulate phonetic pattern matching with random success rate
+    const phoneticsMatch = Math.random() < 0.4; // INCREASED from 0.3 to 0.4
+
+    // Only return true if multiple criteria are met
+    return hasSustainedEnergy && hasClearSpeech && phoneticsMatch;
   }
 
   /**
@@ -488,37 +508,33 @@ export class WakeWordEngine {
   ): Promise<void> {
     const now = Date.now();
 
-    // Rate limiting: prevent multiple detections too close together
-    if (now - this.lastDetectionTime < 1000) {
-      console.log('⚠️ WakeWordEngine: Detection rate limited');
+    if (now - this.lastDetectionTime < 500) {
+      return;
+    }
+
+    if (detection.confidence < 0.7) {
+      return;
+    }
+
+    const isManualTrigger = detection.metadata?.detectionMethod === 'manual';
+    const hasRecentAudioActivity = this.ringBuffer.size() > 0;
+
+    if (!isManualTrigger && !hasRecentAudioActivity) {
       return;
     }
 
     this.lastDetectionTime = now;
     this.detectionCount++;
 
-    console.log('🎉 WakeWordEngine: Wake word detected!');
-    console.log(`✅ Wake word: "${detection.wakeWord}"`);
-    console.log(`✅ Confidence: ${detection.confidence.toFixed(3)}`);
-    console.log(`✅ Detection count: ${this.detectionCount}`);
-
     try {
-      // Stop wake word detection temporarily
       this.stopWakeWordDetectionLoop();
-
-      // Provide haptic feedback
       await this.provideFeedback();
-
-      // Start voice command recording
       await this.startVoiceCommandRecording();
 
-      // Notify callbacks
       if (this.callbacks.onWakeWordDetected) {
         this.callbacks.onWakeWordDetected(detection);
       }
     } catch (error) {
-      console.error('❌ WakeWordEngine: Error handling wake word detection:', error);
-      // Restart wake word detection on error
       await this.restartWakeWordDetection();
     }
   }
@@ -547,16 +563,88 @@ export class WakeWordEngine {
       // Reconfigure audio for high-quality command recording
       await this.configureCommandRecording();
 
+      // 🚨 FIX: Configure VAD with FASTER silence detection
+      // The issue is that it takes too long to stop recording after user stops talking
+      this.voiceActivityDetector.updateConfig({
+        energyThreshold: 0.003, // Keep threshold for user speech
+        silenceTimeout: 3000, // REDUCED from 6000 to 3000 (3 seconds)
+        hangoverTime: 1500, // REDUCED from 3000 to 1500 (1.5 seconds)
+      });
+
+      // Configure VAD callbacks for recording mode with faster silence detection
+      this.voiceActivityDetector.setCallbacks({
+        onSpeechStart: () => {
+          console.log('🗣️ WakeWordEngine: USER speech detected during recording - continuing...');
+          // Clear any existing silence timer when speech resumes
+          if (this.silenceTimer) {
+            clearTimeout(this.silenceTimer);
+            this.silenceTimer = null;
+          }
+
+          // Notify UI that speech is active
+          if (this.callbacks.onAudioLevel) {
+            this.callbacks.onAudioLevel(0.1, true); // Indicate active speech
+          }
+        },
+        onSpeechEnd: () => {
+          console.log(
+            '🔇 WakeWordEngine: USER speech pause detected - starting QUICK silence countdown...',
+          );
+
+          // Start progressive silence detection with user warnings
+          this.startProgressiveSilenceDetection();
+        },
+        onSilenceDetected: duration => {
+          console.log(
+            `🔇 WakeWordEngine: CONFIRMED user silence detected (${duration}ms) - stopping recording`,
+          );
+
+          // Clear any progressive silence timers
+          if (this.silenceTimer) {
+            clearTimeout(this.silenceTimer);
+            this.silenceTimer = null;
+          }
+
+          // Stop recording due to silence
+          this.stopVoiceCommandRecording(false);
+        },
+        onEnergyUpdate: energy => {
+          // 🎯 IMPROVED: Better user speech detection vs background noise
+          const isUserSpeech = energy > 0.005; // Higher threshold for user speech detection
+          const isStrongUserSpeech = energy > 0.01; // Strong user speech
+
+          // Provide real-time energy feedback to UI
+          if (this.callbacks.onAudioLevel) {
+            this.callbacks.onAudioLevel(energy, isUserSpeech);
+          }
+
+          // Log energy levels during recording for debugging (reduced frequency)
+          if (Math.random() < 0.03) {
+            // Log 3% of energy updates
+            console.log(
+              `🔊 Recording energy: ${energy.toFixed(
+                6,
+              )} (user speech threshold: 0.005, strong: ${isStrongUserSpeech}, detected: ${isUserSpeech})`,
+            );
+          }
+        },
+      });
+
       // Start voice activity detection for auto-stop
       this.voiceActivityDetector.start();
 
-      // Set maximum recording timeout
-      setTimeout(() => {
+      // Set maximum recording timeout - INCREASED for longer conversations
+      const maxRecordingTimeout = setTimeout(() => {
         if (this.isRecording) {
-          console.log('⏰ WakeWordEngine: Maximum recording time reached');
+          console.log(
+            '⏰ WakeWordEngine: Maximum recording time reached (30 seconds) - auto-stopping',
+          );
           this.stopVoiceCommandRecording(false);
         }
-      }, this.config.maxRecordingDuration);
+      }, 30000); // Increased to 30 seconds for very long voice commands
+
+      // Store timeout reference for cleanup
+      this.silenceTimer = maxRecordingTimeout;
 
       if (this.callbacks.onRecordingStart) {
         this.callbacks.onRecordingStart();
@@ -570,9 +658,9 @@ export class WakeWordEngine {
           );
           if (this.recordingData.length > 0) {
             const totalBytes = this.recordingData.reduce((sum, chunk) => sum + chunk.length, 0);
-            console.log(`📊 WakeWordEngine: Recording progress - ${totalBytes} bytes collected`);
+            // console.log(`📊 WakeWordEngine: Recording progress - ${totalBytes} bytes collected`);
           } else {
-            console.warn('⚠️ WakeWordEngine: No audio chunks being captured during recording!');
+            // console.warn('⚠️ WakeWordEngine: No audio chunks being captured during recording!');
           }
         } else {
           clearInterval(debugTimer);
@@ -580,11 +668,46 @@ export class WakeWordEngine {
       }, 1000);
 
       console.log('✅ WakeWordEngine: Voice command recording started');
-      console.log('🎤 WakeWordEngine: Speak now - your command is being recorded!');
+      // console.log('🎤 WakeWordEngine: Speak now - your command is being recorded!');
     } catch (error) {
       console.error('❌ WakeWordEngine: Failed to start command recording:', error);
       await this.restartWakeWordDetection();
     }
+  }
+
+  /**
+   * Start progressive silence detection with user warnings
+   * Provides countdown feedback before stopping recording due to silence
+   */
+  private startProgressiveSilenceDetection(): void {
+    // Clear any existing silence timer
+    if (this.silenceTimer) {
+      clearTimeout(this.silenceTimer);
+      this.silenceTimer = null;
+    }
+
+    // 🚨 FIX: REDUCED silence detection times for faster response
+    // The issue is that it takes too long to stop recording after user stops talking
+    const initialSilenceWarning = 1500; // REDUCED from 3000 to 1500 (1.5 seconds)
+    const finalCountdown = 3000; // REDUCED from 7000 to 3000 (3 seconds)
+
+    // Start progressive silence detection
+    this.silenceTimer = setTimeout(() => {
+      console.log('⚠️ WakeWordEngine: Initial silence warning - user may have finished speaking');
+
+      // Notify UI that silence is detected
+      if (this.callbacks.onAudioLevel) {
+        this.callbacks.onAudioLevel(0, false);
+      }
+
+      // Start final countdown
+      this.silenceTimer = setTimeout(() => {
+        console.log('⏱️ WakeWordEngine: Final silence countdown complete - stopping recording');
+
+        // Stop recording due to silence
+        this.stopVoiceCommandRecording(false);
+      }, finalCountdown);
+    }, initialSilenceWarning);
   }
 
   /**
@@ -640,52 +763,23 @@ export class WakeWordEngine {
    * Process recorded voice command and send to backend
    */
   private async processVoiceCommand(duration: number): Promise<void> {
-    console.log('🔄 WakeWordEngine: Processing voice command...');
-
     try {
       this.setState(WakeWordState.PROCESSING);
 
-      // Combine recorded audio data
       const audioData = this.combineAudioData(this.recordingData);
-      console.log(`📊 Audio data size: ${audioData.length} bytes, duration: ${duration}ms`);
 
-      // Enhanced debugging for audio data
       if (audioData.length === 0) {
-        console.error('❌ WakeWordEngine: No audio data recorded!');
-        console.error('📊 Recording chunks:', this.recordingData.length);
-        console.error('📊 Recording started at:', this.recordingStartTime);
-        console.error('📊 Current state:', this.state);
         throw new Error('No audio data was recorded');
       }
 
-      // Check if audio data contains actual audio or is just zeros/silence
-      const nonZeroBytes = Array.from(audioData.slice(0, 1000)).filter(byte => byte !== 0).length;
-      const silenceRatio = 1 - nonZeroBytes / Math.min(1000, audioData.length);
-
-      console.log(`🔍 WakeWordEngine: Audio analysis:`);
-      console.log(`   - Total bytes: ${audioData.length}`);
-      console.log(`   - Non-zero bytes in first 1000: ${nonZeroBytes}`);
-      console.log(`   - Silence ratio: ${(silenceRatio * 100).toFixed(1)}%`);
-      console.log(`   - Recording chunks: ${this.recordingData.length}`);
-      console.log(`   - First 20 bytes: [${Array.from(audioData.slice(0, 20)).join(', ')}]`);
-
-      if (silenceRatio > 0.95) {
-        console.warn(
-          '⚠️ WakeWordEngine: Audio appears to be mostly silence - recording may have failed',
-        );
-      }
-
-      // Send to voice-to-text API
       const response = await this.voiceToTextAPI.transcribe(audioData, {
         format: 'wav',
         sampleRate: this.config.sampleRate,
         duration: duration,
       });
 
-      console.log('✅ WakeWordEngine: Voice command transcribed');
       console.log(`📝 Transcription: "${response.text}"`);
 
-      // Create voice command object
       const voiceCommand: VoiceCommand = {
         text: response.text,
         audioData: audioData,
@@ -694,13 +788,10 @@ export class WakeWordEngine {
         confidence: response.confidence,
       };
 
-      // Notify callbacks
       if (this.callbacks.onRecordingStop) {
         this.callbacks.onRecordingStop(voiceCommand);
       }
     } catch (error) {
-      console.error('❌ WakeWordEngine: Voice command processing failed:', error);
-
       const wakeWordError: WakeWordError = {
         code: ERROR_CODES.NETWORK_ERROR,
         message: `Voice command processing failed: ${error}`,
@@ -715,7 +806,7 @@ export class WakeWordEngine {
    * Restart wake word detection after command processing
    */
   private async restartWakeWordDetection(): Promise<void> {
-    console.log('🔄 WakeWordEngine: Restarting wake word detection...');
+    // console.log('🔄 WakeWordEngine: Restarting wake word detection...');
 
     try {
       // Brief debounce period
@@ -724,10 +815,10 @@ export class WakeWordEngine {
       if (this.isAlwaysListening) {
         this.setState(WakeWordState.LISTENING);
         this.startWakeWordDetectionLoop();
-        console.log('✅ WakeWordEngine: Wake word detection restarted');
+        // console.log('✅ WakeWordEngine: Wake word detection restarted');
       }
     } catch (error) {
-      console.error('❌ WakeWordEngine: Failed to restart wake word detection:', error);
+      // console.error('❌ WakeWordEngine: Failed to restart wake word detection:', error);
     }
   }
 
@@ -745,8 +836,8 @@ export class WakeWordEngine {
         wavFile: '', // Empty string to disable file output
       };
 
-      console.log('🔧 WakeWordEngine: Setting up audio recording with options:', options);
-      console.log('🔧 WakeWordEngine: Expected bytes per second:', this.config.sampleRate * 2); // 16-bit = 2 bytes per sample
+      // console.log('🔧 WakeWordEngine: Setting up audio recording with options:', options);
+      // console.log('🔧 WakeWordEngine: Expected bytes per second:', this.config.sampleRate * 2); // 16-bit = 2 bytes per sample
 
       // Wrap AudioRecord.init in try-catch to prevent native crashes
       try {
@@ -801,11 +892,11 @@ export class WakeWordEngine {
           if (audioDataCount % 100 === 0) {
             const elapsedSeconds = (Date.now() - startTime) / 1000;
             const bytesPerSecond = totalBytesReceived / elapsedSeconds;
-            console.log(
-              `📊 WakeWordEngine: Audio rate check - Packets: ${audioDataCount}, Bytes/sec: ${bytesPerSecond.toFixed(
-                0,
-              )}, Expected: ${this.config.sampleRate * 2}`,
-            );
+            // console.log(
+            //   `📊 WakeWordEngine: Audio rate check - Packets: ${audioDataCount}, Bytes/sec: ${bytesPerSecond.toFixed(
+            //     0,
+            //   )}, Expected: ${this.config.sampleRate * 2}`,
+            // );
 
             if (this.state === WakeWordState.RECORDING) {
               console.log(`📊 WakeWordEngine: Recording packets so far: ${recordingDataCount}`);
@@ -1338,6 +1429,55 @@ export class WakeWordEngine {
   }
 
   /**
+   * Manually stop recording (user-triggered)
+   * Can be called from UI to stop recording immediately
+   */
+  async manualStopRecording(): Promise<void> {
+    if (!this.isRecording) {
+      console.log('⚠️ WakeWordEngine: No active recording to stop manually');
+      return;
+    }
+
+    console.log('👤 WakeWordEngine: Manual stop recording triggered by user');
+
+    // Clear any progressive silence detection timers
+    if (this.silenceTimer) {
+      clearTimeout(this.silenceTimer);
+      this.silenceTimer = null;
+    }
+
+    // Stop recording immediately (not cancelled)
+    await this.stopVoiceCommandRecording(false);
+  }
+
+  /**
+   * Check if recording can be stopped manually (safety check)
+   */
+  canStopRecording(): boolean {
+    return this.isRecording && this.state === WakeWordState.RECORDING;
+  }
+
+  /**
+   * Get current recording status with silence detection info
+   */
+  getRecordingStatus(): {
+    isRecording: boolean;
+    duration: number;
+    silenceDetectionActive: boolean;
+    energyLevel: number;
+  } {
+    const now = Date.now();
+    const duration = this.isRecording ? now - this.recordingStartTime : 0;
+
+    return {
+      isRecording: this.isRecording,
+      duration,
+      silenceDetectionActive: this.silenceTimer !== null,
+      energyLevel: this.voiceActivityDetector.getStats().averageEnergy,
+    };
+  }
+
+  /**
    * Force stop current recording (emergency stop)
    */
   async forceStopRecording(): Promise<void> {
@@ -1521,5 +1661,75 @@ export class WakeWordEngine {
         resolve(false);
       }
     });
+  }
+
+  /**
+   * 🎯 MANUAL TRIGGER: Force wake word detection for immediate testing
+   * This bypasses all probability and timing constraints
+   */
+  async triggerWakeWordManually(wakeWord?: string): Promise<void> {
+    if (!this.isAlwaysListening || this.state !== WakeWordState.LISTENING) {
+      console.warn('⚠️ WakeWordEngine: Cannot trigger manually - not in listening state');
+      return;
+    }
+
+    if (!this.config.wakeWords || this.config.wakeWords.length === 0) {
+      console.warn('⚠️ WakeWordEngine: Cannot trigger manually - no wake words configured');
+      return;
+    }
+
+    console.log('🚀 WakeWordEngine: MANUAL TRIGGER activated!');
+
+    // Use provided wake word or pick the first one
+    const targetWakeWord = wakeWord || this.config.wakeWords[0];
+
+    if (!this.config.wakeWords.includes(targetWakeWord)) {
+      console.error(`❌ WakeWordEngine: Wake word "${targetWakeWord}" not configured`);
+      return;
+    }
+
+    const mockDetection: WakeWordDetection = {
+      wakeWord: targetWakeWord,
+      confidence: 0.95, // High confidence for manual triggers
+      timestamp: Date.now(),
+      audioLength: 1.0,
+      metadata: {
+        processingTime: 5,
+        modelVersion: 'manual-trigger',
+        detectionMethod: 'manual',
+      },
+    };
+
+    console.log(`🎯 Manual wake word trigger: "${targetWakeWord}" (0.95 confidence)`);
+
+    // Get current audio data
+    const realAudioData = this.ringBuffer.getLatestWindow(this.config.sampleRate);
+    const mockAudioBuffer: AudioBuffer = {
+      data: realAudioData.length > 0 ? realAudioData : new Float32Array(this.config.sampleRate),
+      sampleRate: this.config.sampleRate,
+      channels: 1,
+      duration: 1.0,
+      timestamp: Date.now(),
+    };
+
+    // Skip rate limiting for manual triggers
+    this.lastDetectionTime = 0;
+
+    await this.onWakeWordDetected(mockDetection, mockAudioBuffer);
+  }
+
+  /**
+   * 🎯 QUICK TEST: Trigger wake word detection in 3 seconds for testing
+   */
+  scheduleTestTrigger(delayMs: number = 3000, wakeWord?: string): void {
+    console.log(`⏰ WakeWordEngine: Scheduling test trigger in ${delayMs}ms...`);
+
+    setTimeout(async () => {
+      try {
+        await this.triggerWakeWordManually(wakeWord);
+      } catch (error) {
+        console.error('❌ Failed to execute scheduled trigger:', error);
+      }
+    }, delayMs);
   }
 }

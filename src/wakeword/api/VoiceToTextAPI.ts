@@ -16,17 +16,7 @@ const isPhysicalDevice = (): boolean => {
 
 // Helper function to get network configuration instructions
 const getNetworkInstructions = (): string => {
-  if (Platform.OS === 'ios') {
-    return isPhysicalDevice()
-      ? "📱 Physical iOS Device: Use your computer's IP (e.g., http://192.168.1.100:8000)"
-      : '📱 iOS Simulator: Using 192.168.100.137:8000 (backend must run on 0.0.0.0:8000)';
-  } else if (Platform.OS === 'android') {
-    return isPhysicalDevice()
-      ? "📱 Physical Android Device: Use your computer's IP (e.g., http://192.168.1.100:8000)"
-      : '📱 Android Emulator: Using 10.0.2.2:8000 (backend must run on 0.0.0.0:8000)';
-  } else {
-    return '📱 Unknown Platform: Configure baseUrl manually';
-  }
+  return '📱 All Platforms: Using production Railway endpoint (https://backend-production-1f87.up.railway.app)';
 };
 
 // Platform-aware backend URL configuration
@@ -35,22 +25,22 @@ const getDefaultBaseUrl = (): string => {
     // Development mode - handle different platforms
     // Backend confirmed working URLs:
     if (Platform.OS === 'ios') {
-      // iOS Simulator: Backend recommends localhost:8000
+      // iOS: Using production Railway endpoint
       // For physical iOS device: Use your computer's IP address
-      return 'http://192.168.100.137:8000';
+      return 'https://backend-production-1f87.up.railway.app';
     } else if (Platform.OS === 'android') {
       // Android Physical Device: Use host machine's IP address
       // Android Emulator: Use 10.0.2.2:8000 (but this is a physical device)
-      return 'http://192.168.100.137:8000';
+      return 'https://backend-production-1f87.up.railway.app';
     } else {
       // Physical devices: Use your computer's IP address
       // Backend confirmed: http://192.168.100.137:8000
-      console.log('🔧 Physical Device: Using verified IP address');
-      return 'http://192.168.100.137:8000';
+      console.log('🔧 Physical Device: Using production Railway endpoint');
+      return 'https://backend-production-1f87.up.railway.app';
     }
   } else {
-    // Production mode - use your production API URL
-    return 'https://your-production-api.com';
+    // Production mode - use Railway production API URL
+    return 'https://backend-production-1f87.up.railway.app';
   }
 };
 
@@ -118,31 +108,7 @@ export class VoiceToTextAPI {
     console.log(`   Is Physical Device: ${isPhysicalDevice()}`);
     console.log(`   Development Mode: ${__DEV__}`);
 
-    if (Platform.OS === 'android') {
-      console.log('🤖 Android Configuration:');
-      console.log('   Network Security: Cleartext traffic enabled for 192.168.100.137');
-      console.log(
-        '   URL Priority: 192.168.100.137:8000 (physical device) → 10.0.2.2:8000 (emulator)',
-      );
-      console.log(
-        '   Expected to work: Physical Android device should connect to 192.168.100.137:8000',
-      );
-
-      // Auto-test Android connectivity and update baseUrl if needed
-      this.testAndroidEmulatorConnectivity()
-        .then(success => {
-          if (success) {
-            console.log('✅ Android connectivity test passed');
-          } else {
-            console.error(
-              '❌ Android connectivity test failed - manual intervention may be required',
-            );
-          }
-        })
-        .catch(error => {
-          console.error('❌ Android connectivity test error:', error);
-        });
-    }
+    console.log('✅ Using production Railway endpoint for all requests');
   }
 
   /**
@@ -316,278 +282,261 @@ export class VoiceToTextAPI {
   ): Promise<VoiceToTextResponse> {
     let lastError: Error | null = null;
 
-    // For Android, try physical device URL first, then emulator URL as fallback
-    const urlsToTry =
-      Platform.OS === 'android'
-        ? [
-            'http://192.168.100.137:8000', // Direct IP for physical devices (try first)
-            'http://10.0.2.2:8000', // Android emulator host mapping (fallback)
-          ]
-        : [this.baseUrl]; // Other platforms use configured baseUrl
+    // Use the configured baseUrl (production endpoint)
+    const baseUrl = this.baseUrl;
 
-    for (const baseUrl of urlsToTry) {
-      console.log(`🔄 VoiceToTextAPI: Trying base URL: ${baseUrl}`);
+    console.log(`🔄 VoiceToTextAPI: Using production endpoint: ${baseUrl}`);
 
-      for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+    for (let attempt = 1; attempt <= this.maxRetries; attempt++) {
+      try {
+        console.log(
+          `🔄 VoiceToTextAPI: API request attempt ${attempt}/${this.maxRetries} to ${baseUrl}`,
+        );
+
+        // Generate unique request ID for cache-busting
+        const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+
+        // Analyze audio data before sending
+        console.log('🔍 VoiceToTextAPI: Audio data analysis:');
+        console.log(`   - Size: ${audioData.length} bytes`);
+        console.log(`   - First 20 bytes: [${Array.from(audioData.slice(0, 20)).join(', ')}]`);
+        console.log(`   - Last 20 bytes: [${Array.from(audioData.slice(-20)).join(', ')}]`);
+
+        // Check if audio is all zeros (silence/empty)
+        const nonZeroBytes = Array.from(audioData.slice(0, 1000)).filter(byte => byte !== 0).length;
+        const silenceRatio = 1 - nonZeroBytes / Math.min(1000, audioData.length);
+        console.log(`   - Non-zero bytes in first 1000: ${nonZeroBytes}`);
+        console.log(`   - Silence ratio: ${(silenceRatio * 100).toFixed(1)}%`);
+
+        // Generate audio fingerprint to detect duplicate audio
+        const audioHash = Array.from(audioData.slice(0, 100)).reduce((hash, byte) => {
+          return ((hash << 5) - hash + byte) & 0xffffffff;
+        }, 0);
+        console.log(`   - Audio fingerprint: ${audioHash}`);
+
+        if (silenceRatio > 0.95) {
+          console.warn(
+            '⚠️ VoiceToTextAPI: Audio appears to be mostly silence - backend may return mock data',
+          );
+        }
+
+        // Create FormData for file upload
+        const formData = new FormData();
+
+        // 🚨 CRITICAL FIX: Proper audio file creation for React Native
         try {
-          console.log(
-            `🔄 VoiceToTextAPI: API request attempt ${attempt}/${this.maxRetries} to ${baseUrl}`,
-          );
+          console.log('🔧 VoiceToTextAPI: Creating audio file for upload...');
 
-          // Generate unique request ID for cache-busting
-          const requestId = `req_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
-
-          // Analyze audio data before sending
-          console.log('🔍 VoiceToTextAPI: Audio data analysis:');
-          console.log(`   - Size: ${audioData.length} bytes`);
-          console.log(`   - First 20 bytes: [${Array.from(audioData.slice(0, 20)).join(', ')}]`);
-          console.log(`   - Last 20 bytes: [${Array.from(audioData.slice(-20)).join(', ')}]`);
-
-          // Check if audio is all zeros (silence/empty)
-          const nonZeroBytes = Array.from(audioData.slice(0, 1000)).filter(
-            byte => byte !== 0,
-          ).length;
-          const silenceRatio = 1 - nonZeroBytes / Math.min(1000, audioData.length);
-          console.log(`   - Non-zero bytes in first 1000: ${nonZeroBytes}`);
-          console.log(`   - Silence ratio: ${(silenceRatio * 100).toFixed(1)}%`);
-
-          // Generate audio fingerprint to detect duplicate audio
-          const audioHash = Array.from(audioData.slice(0, 100)).reduce((hash, byte) => {
-            return ((hash << 5) - hash + byte) & 0xffffffff;
-          }, 0);
-          console.log(`   - Audio fingerprint: ${audioHash}`);
-
-          if (silenceRatio > 0.95) {
-            console.warn(
-              '⚠️ VoiceToTextAPI: Audio appears to be mostly silence - backend may return mock data',
-            );
-          }
-
-          // Create FormData for file upload
-          const formData = new FormData();
-
-          // 🚨 CRITICAL FIX: Proper audio file creation for React Native
-          try {
-            console.log('🔧 VoiceToTextAPI: Creating audio file for upload...');
-
-            // For React Native, we need to create a proper file object
-            const audioFile = {
-              uri: `data:audio/wav;base64,${this.uint8ArrayToBase64(audioData)}`,
-              type: 'audio/wav',
-              name: `audio_${Date.now()}_${Math.random().toString(36).substr(2, 8)}.wav`,
-            };
-
-            // Add the file to FormData - React Native specific format
-            formData.append('audio_file', audioFile as unknown as Blob);
-
-            // Add cache-busting metadata to prevent server-side caching
-            formData.append('timestamp', Date.now().toString());
-            formData.append('request_id', requestId);
-            formData.append('client_id', 'react_native_app');
-            formData.append('audio_hash', audioHash.toString());
-
-            console.log('✅ VoiceToTextAPI: Audio file added to FormData');
-            console.log(
-              `📊 File details: ${audioFile.name}, ${audioFile.type}, ${audioData.length} bytes`,
-            );
-            console.log(
-              `🔒 Cache-busting: timestamp=${Date.now()}, requestId=${requestId}, hash=${audioHash}`,
-            );
-          } catch (error) {
-            console.error('❌ VoiceToTextAPI: Failed to create audio file:', error);
-            throw new Error(`Failed to create audio file for upload: ${error}`);
-          }
-
-          console.log('📤 VoiceToTextAPI: Prepared FormData with audio_file field');
-
-          // Create AbortController with longer timeout for Android
-          const controller = new AbortController();
-          const timeoutDuration = Platform.OS === 'android' ? 25000 : this.timeout; // 25s for Android, normal for others
-          const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
-
-          // Make API request to the endpoint - with cache-busting
-          console.log(
-            `📤 VoiceToTextAPI: Making request with ID: ${requestId} to ${baseUrl} (timeout: ${timeoutDuration}ms)`,
-          );
-
-          // Prepare headers for the request
-          const headers: Record<string, string> = {
-            Accept: 'application/json',
-            'X-Request-ID': requestId,
+          // For React Native, we need to create a proper file object
+          const audioFile = {
+            uri: `data:audio/wav;base64,${this.uint8ArrayToBase64(audioData)}`,
+            type: 'audio/wav',
+            name: `audio_${Date.now()}_${Math.random().toString(36).substr(2, 8)}.wav`,
           };
 
-          // Add Firebase auth token if available
-          if (this.apiKey && this.apiKey !== 'default') {
-            headers['Authorization'] = `Bearer ${this.apiKey}`;
-          }
+          // Add the file to FormData - React Native specific format
+          formData.append('audio_file', audioFile as unknown as Blob);
 
-          // Make the request with proper CORS handling
-          let response;
-          try {
-            response = await fetch(`${baseUrl}/api/v1/stt/transcribe-and-respond`, {
-              method: 'POST',
-              headers,
-              body: formData,
-              signal: controller.signal,
-              mode: 'cors',
-            });
-          } catch (corsError) {
-            console.warn(
-              `⚠️ VoiceToTextAPI: Request failed for ${baseUrl}, trying test endpoint:`,
-              corsError,
-            );
+          // Add cache-busting metadata to prevent server-side caching
+          formData.append('timestamp', Date.now().toString());
+          formData.append('request_id', requestId);
+          formData.append('client_id', 'react_native_app');
+          formData.append('audio_hash', audioHash.toString());
 
-            // Clear the original timeout
-            clearTimeout(timeoutId);
+          console.log('✅ VoiceToTextAPI: Audio file added to FormData');
+          console.log(
+            `📊 File details: ${audioFile.name}, ${audioFile.type}, ${audioData.length} bytes`,
+          );
+          console.log(
+            `🔒 Cache-busting: timestamp=${Date.now()}, requestId=${requestId}, hash=${audioHash}`,
+          );
+        } catch (error) {
+          console.error('❌ VoiceToTextAPI: Failed to create audio file:', error);
+          throw new Error(`Failed to create audio file for upload: ${error}`);
+        }
 
-            // Try the test endpoint first to verify CORS is working
-            try {
-              const testController = new AbortController();
-              const testTimeoutId = setTimeout(() => testController.abort(), 10000); // 10s for test
+        console.log('📤 VoiceToTextAPI: Prepared FormData with audio_file field');
 
-              const testResponse = await fetch(`${baseUrl}/api/v1/stt/test-upload`, {
-                method: 'POST',
-                body: formData,
-                signal: testController.signal,
-                mode: 'cors',
-              });
+        // Create AbortController with timeout
+        const controller = new AbortController();
+        const timeoutDuration = this.timeout;
+        const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
 
-              clearTimeout(testTimeoutId);
+        // Make API request to the endpoint - with cache-busting
+        console.log(
+          `📤 VoiceToTextAPI: Making request with ID: ${requestId} to ${baseUrl} (timeout: ${timeoutDuration}ms)`,
+        );
 
-              if (testResponse.ok) {
-                const testData = await testResponse.json();
-                console.log('✅ VoiceToTextAPI: Test upload successful:', testData);
+        // Prepare headers for the request
+        const headers: Record<string, string> = {
+          Accept: 'application/json',
+          'X-Request-ID': requestId,
+        };
 
-                // If test works, the issue is likely authentication
-                throw new Error(
-                  'CORS is working but authentication may be required. Check Firebase token.',
-                );
-              }
-            } catch (testError) {
-              console.error('❌ VoiceToTextAPI: Test endpoint also failed:', testError);
-            }
+        // Add Firebase auth token if available
+        if (this.apiKey && this.apiKey !== 'default') {
+          headers['Authorization'] = `Bearer ${this.apiKey}`;
+        }
 
-            throw corsError;
-          }
+        // Make the request with proper CORS handling
+        let response;
+        try {
+          response = await fetch(`${baseUrl}/api/v1/stt/transcribe-and-respond`, {
+            method: 'POST',
+            headers,
+            body: formData,
+            signal: controller.signal,
+            mode: 'cors',
+          });
+        } catch (corsError) {
+          console.warn(
+            `⚠️ VoiceToTextAPI: Request failed for ${baseUrl}, trying test endpoint:`,
+            corsError,
+          );
 
+          // Clear the original timeout
           clearTimeout(timeoutId);
 
-          console.log(`📡 VoiceToTextAPI: API response received from ${baseUrl}`);
-          console.log(`📊 Response status: ${response.status} ${response.statusText}`);
-          console.log(`📊 Response headers:`, {
-            'content-type': response.headers.get('content-type'),
-            'content-length': response.headers.get('content-length'),
-            server: response.headers.get('server'),
-            date: response.headers.get('date'),
-          });
+          // Try the test endpoint first to verify CORS is working
+          try {
+            const testController = new AbortController();
+            const testTimeoutId = setTimeout(() => testController.abort(), 10000); // 10s for test
 
-          if (!response.ok) {
-            console.error(
-              `❌ VoiceToTextAPI: HTTP error ${response.status}: ${response.statusText}`,
-            );
+            const testResponse = await fetch(`${baseUrl}/api/v1/stt/test-upload`, {
+              method: 'POST',
+              body: formData,
+              signal: testController.signal,
+              mode: 'cors',
+            });
 
-            // Try to get error details from response
-            try {
-              const errorText = await response.text();
-              console.error(`❌ VoiceToTextAPI: Error response body:`, errorText);
-              throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
-            } catch (textError) {
-              throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+            clearTimeout(testTimeoutId);
+
+            if (testResponse.ok) {
+              const testData = await testResponse.json();
+              console.log('✅ VoiceToTextAPI: Test upload successful:', testData);
+
+              // If test works, the issue is likely authentication
+              throw new Error(
+                'CORS is working but authentication may be required. Check Firebase token.',
+              );
             }
+          } catch (testError) {
+            console.error('❌ VoiceToTextAPI: Test endpoint also failed:', testError);
           }
 
-          const result = await response.json();
+          throw corsError;
+        }
 
-          // Log the complete API response
-          console.log('📋 VoiceToTextAPI: Complete API Response:');
-          console.log('📋 ===================================');
-          console.log(JSON.stringify(result, null, 2));
-          console.log('📋 ===================================');
+        clearTimeout(timeoutId);
 
-          // Validate response format - handle actual backend response
-          if (!result.success || !result.transcription) {
-            console.error('❌ VoiceToTextAPI: Invalid response format:', result);
-            throw new Error('Invalid response format from API');
-          }
+        console.log(`📡 VoiceToTextAPI: API response received from ${baseUrl}`);
+        console.log(`📊 Response status: ${response.status} ${response.statusText}`);
+        console.log(`📊 Response headers:`, {
+          'content-type': response.headers.get('content-type'),
+          'content-length': response.headers.get('content-length'),
+          server: response.headers.get('server'),
+          date: response.headers.get('date'),
+        });
 
-          console.log(`✅ VoiceToTextAPI: API request successful to ${baseUrl}`);
-          console.log(`📝 Transcription: "${result.transcription}"`);
-          console.log(`📊 Confidence: ${result.intent_result?.confidence || 'N/A'}`);
-          console.log(`🌐 Language: ${result.language || 'N/A'}`);
-          console.log(`⏱️ Duration: ${result.duration || 'N/A'}ms`);
-          console.log(`💬 Response: "${result.response_text}"`);
+        if (!response.ok) {
+          console.error(`❌ VoiceToTextAPI: HTTP error ${response.status}: ${response.statusText}`);
 
-          if (result.alternatives && result.alternatives.length > 0) {
-            console.log('🔄 Alternatives:');
-            result.alternatives.forEach(
-              (alt: { text: string; confidence: number }, index: number) => {
-                console.log(`   ${index + 1}. "${alt.text}" (${alt.confidence.toFixed(3)})`);
-              },
-            );
-          }
-
-          // Convert backend response to expected format
-          return {
-            text: result.transcription,
-            confidence: result.intent_result?.confidence || 0.95,
-            language: result.language || 'en-US',
-            duration: result.duration || 0,
-            processingTime: 0, // Will be set by caller
-            alternatives: result.alternatives || [],
-          };
-        } catch (error) {
-          lastError = error as Error;
-          console.warn(`⚠️ VoiceToTextAPI: Attempt ${attempt} failed for ${baseUrl}:`, error);
-
-          // Enhanced error logging for network issues
-          if (error instanceof TypeError && error.message.includes('Network request failed')) {
-            console.error('🌐 VoiceToTextAPI: Network connectivity issue detected');
-            console.error(`🌐 Target URL: ${baseUrl}/api/v1/stt/transcribe-and-respond`);
-            console.error('🌐 Possible causes:');
-            console.error('   - Backend server is not running');
-            console.error('   - Wrong URL or port');
-            console.error('   - CORS issues (backend not configured for cross-origin requests)');
-            console.error('   - Network connectivity problems');
-            console.error('   - Mobile device cannot reach localhost');
-            console.error('🔧 CORS Fix: Ensure backend has proper CORS headers:');
-            console.error('   - Access-Control-Allow-Origin: *');
-            console.error('   - Access-Control-Allow-Methods: POST, OPTIONS');
-            console.error('   - Access-Control-Allow-Headers: Authorization, Content-Type');
-          }
-
-          // Handle CORS preflight and other CORS-related errors
-          if (
-            error instanceof TypeError &&
-            (error.message.includes('CORS') ||
-              error.message.includes('preflight') ||
-              error.message.includes('Access-Control'))
-          ) {
-            console.error('🚫 VoiceToTextAPI: CORS error detected');
-            console.error('🔧 Backend CORS configuration required');
-          }
-
-          // Don't retry on certain errors
-          if (this.isNonRetryableError(error)) {
-            break;
-          }
-
-          // Wait before retry (exponential backoff)
-          if (attempt < this.maxRetries) {
-            const backoffDelay = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
-            console.log(`⏳ VoiceToTextAPI: Waiting ${backoffDelay}ms before retry...`);
-            await new Promise(resolve => setTimeout(resolve, backoffDelay));
+          // Try to get error details from response
+          try {
+            const errorText = await response.text();
+            console.error(`❌ VoiceToTextAPI: Error response body:`, errorText);
+            throw new Error(`HTTP ${response.status}: ${response.statusText} - ${errorText}`);
+          } catch (textError) {
+            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
           }
         }
-      }
 
-      // If we got here, all retries for this URL failed, try next URL
-      if (urlsToTry.length > 1) {
-        console.log(`❌ VoiceToTextAPI: All retries failed for ${baseUrl}, trying next URL...`);
+        const result = await response.json();
+
+        // Log the complete API response
+        console.log('📋 VoiceToTextAPI: Complete API Response:');
+        console.log('📋 ===================================');
+        console.log(JSON.stringify(result, null, 2));
+        console.log('📋 ===================================');
+
+        // Validate response format - handle actual backend response
+        if (!result.success || !result.transcription) {
+          console.error('❌ VoiceToTextAPI: Invalid response format:', result);
+          throw new Error('Invalid response format from API');
+        }
+
+        console.log(`✅ VoiceToTextAPI: API request successful to ${baseUrl}`);
+        console.log(`📝 Transcription: "${result.transcription}"`);
+        console.log(`📊 Confidence: ${result.intent_result?.confidence || 'N/A'}`);
+        console.log(`🌐 Language: ${result.language || 'N/A'}`);
+        console.log(`⏱️ Duration: ${result.duration || 'N/A'}ms`);
+        console.log(`💬 Response: "${result.response_text}"`);
+
+        if (result.alternatives && result.alternatives.length > 0) {
+          console.log('🔄 Alternatives:');
+          result.alternatives.forEach(
+            (alt: { text: string; confidence: number }, index: number) => {
+              console.log(`   ${index + 1}. "${alt.text}" (${alt.confidence.toFixed(3)})`);
+            },
+          );
+        }
+
+        // Convert backend response to expected format
+        return {
+          text: result.transcription,
+          confidence: result.intent_result?.confidence || 0.95,
+          language: result.language || 'en-US',
+          duration: result.duration || 0,
+          processingTime: 0, // Will be set by caller
+          alternatives: result.alternatives || [],
+        };
+      } catch (error) {
+        lastError = error as Error;
+        console.warn(`⚠️ VoiceToTextAPI: Attempt ${attempt} failed for ${baseUrl}:`, error);
+
+        // Enhanced error logging for network issues
+        if (error instanceof TypeError && error.message.includes('Network request failed')) {
+          console.error('🌐 VoiceToTextAPI: Network connectivity issue detected');
+          console.error(`🌐 Target URL: ${baseUrl}/api/v1/stt/transcribe-and-respond`);
+          console.error('🌐 Possible causes:');
+          console.error('   - Backend server is not running');
+          console.error('   - Wrong URL or port');
+          console.error('   - CORS issues (backend not configured for cross-origin requests)');
+          console.error('   - Network connectivity problems');
+          console.error('   - Mobile device cannot reach localhost');
+          console.error('🔧 CORS Fix: Ensure backend has proper CORS headers:');
+          console.error('   - Access-Control-Allow-Origin: *');
+          console.error('   - Access-Control-Allow-Methods: POST, OPTIONS');
+          console.error('   - Access-Control-Allow-Headers: Authorization, Content-Type');
+        }
+
+        // Handle CORS preflight and other CORS-related errors
+        if (
+          error instanceof TypeError &&
+          (error.message.includes('CORS') ||
+            error.message.includes('preflight') ||
+            error.message.includes('Access-Control'))
+        ) {
+          console.error('🚫 VoiceToTextAPI: CORS error detected');
+          console.error('🔧 Backend CORS configuration required');
+        }
+
+        // Don't retry on certain errors
+        if (this.isNonRetryableError(error)) {
+          break;
+        }
+
+        // Wait before retry (exponential backoff)
+        if (attempt < this.maxRetries) {
+          const backoffDelay = Math.min(1000 * Math.pow(2, attempt - 1), 10000);
+          console.log(`⏳ VoiceToTextAPI: Waiting ${backoffDelay}ms before retry...`);
+          await new Promise(resolve => setTimeout(resolve, backoffDelay));
+        }
       }
     }
 
-    // If we got here, all URLs failed
-    console.error('❌ VoiceToTextAPI: All URLs failed:', urlsToTry);
+    // If we got here, all attempts failed
+    console.error('❌ VoiceToTextAPI: All attempts failed:', lastError);
     throw lastError;
   }
 
@@ -704,148 +653,48 @@ export class VoiceToTextAPI {
     try {
       console.log('🔍 VoiceToTextAPI: Testing CORS configuration...');
 
-      // For Android, try physical device URL first, then emulator URL as fallback
-      const urlsToTry =
-        Platform.OS === 'android'
-          ? [
-              'http://192.168.100.137:8000', // Direct IP for physical devices (try first)
-              'http://10.0.2.2:8000', // Android emulator host mapping (fallback)
-            ]
-          : [this.baseUrl]; // Other platforms use configured baseUrl
+      // Use the configured baseUrl (production endpoint)
+      const baseUrl = this.baseUrl;
 
-      // Define timeout duration outside the loop to fix scope issue
-      const timeoutDuration = Platform.OS === 'android' ? 25000 : 10000; // 25s for Android, 10s for others
+      try {
+        console.log(`🔍 Testing CORS with POST to: ${baseUrl}`);
 
-      for (const baseUrl of urlsToTry) {
-        try {
-          console.log(`🔍 Testing CORS with POST to: ${baseUrl}`);
+        // Create AbortController with timeout
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 10000);
 
-          // Create AbortController with longer timeout for Android
-          const controller = new AbortController();
-          const timeoutId = setTimeout(() => controller.abort(), timeoutDuration);
+        const testFormData = new FormData();
+        testFormData.append('test', 'cors-connectivity-test');
 
-          const testFormData = new FormData();
-          testFormData.append('test', 'cors-connectivity-test');
+        const postResponse = await fetch(`${baseUrl}/api/v1/stt/transcribe-and-respond`, {
+          method: 'POST',
+          body: testFormData,
+          signal: controller.signal,
+          mode: 'cors',
+        });
 
-          const postResponse = await fetch(`${baseUrl}/api/v1/stt/transcribe-and-respond`, {
-            method: 'POST',
-            body: testFormData,
-            signal: controller.signal,
-            mode: 'cors',
-          });
+        clearTimeout(timeoutId);
 
-          clearTimeout(timeoutId);
+        console.log(
+          `📋 POST Test Response from ${baseUrl}: ${postResponse.status} ${postResponse.statusText}`,
+        );
 
-          console.log(
-            `📋 POST Test Response from ${baseUrl}: ${postResponse.status} ${postResponse.statusText}`,
-          );
-          console.log(`📋 POST Response Type: ${postResponse.type}`);
-          console.log(`📋 POST Response OK: ${postResponse.ok}`);
+        // Consider it successful if we get any response (even 400 is fine, means CORS is working)
+        const isCorsWorking = postResponse.status !== 0 && postResponse.type !== 'opaque';
 
-          // Log response headers from the POST request
-          console.log(`📋 POST Response Headers from ${baseUrl}:`);
-          postResponse.headers.forEach((value, key) => {
-            console.log(`   ${key}: ${value}`);
-          });
-
-          // Consider it successful if we get any response (even 400 is fine, means CORS is working)
-          const isCorsWorking = postResponse.status !== 0 && postResponse.type !== 'opaque';
-
-          if (isCorsWorking) {
-            console.log(
-              `✅ VoiceToTextAPI: CORS is working correctly with ${baseUrl} (POST request successful)`,
-            );
-            console.log('✅ Backend CORS configuration is properly handling React Native requests');
-
-            // Try to read response body if possible
-            try {
-              if (postResponse.ok) {
-                const responseData = await postResponse.json();
-                console.log('📋 POST Response Data:', responseData);
-              } else {
-                const errorText = await postResponse.text();
-                console.log('📋 POST Error Response:', errorText);
-              }
-            } catch (bodyError) {
-              console.log('📋 Could not read POST response body:', bodyError);
-            }
-
-            return true;
-          } else {
-            console.log(
-              `❌ VoiceToTextAPI: POST request failed for ${baseUrl} - Response status: ${postResponse.status}, type: ${postResponse.type}`,
-            );
-            // Continue to next URL
-          }
-        } catch (postError) {
-          console.error(`❌ VoiceToTextAPI: POST request failed for ${baseUrl}:`, postError);
-
-          // Detailed error analysis
-          if (postError instanceof Error) {
-            console.error(`   Error name: ${postError.name}`);
-            console.error(`   Error message: ${postError.message}`);
-
-            if (postError.name === 'AbortError') {
-              console.error(
-                `   🕐 Timeout: ${baseUrl} took longer than ${
-                  timeoutDuration / 1000
-                } seconds to respond`,
-              );
-              if (baseUrl.includes('10.0.2.2')) {
-                console.error(
-                  `   🔧 Android Emulator: Make sure backend is running on 0.0.0.0:8000`,
-                );
-                console.error(`   🔧 Check: uvicorn main:app --host 0.0.0.0 --port 8000`);
-                console.error(`   🔧 Emulator is slow - tried ${timeoutDuration / 1000}s timeout`);
-              } else {
-                console.error(`   🔧 Network: ${baseUrl} not reachable from this device`);
-              }
-            } else if (postError.message.includes('Network request failed')) {
-              console.error(`   🌐 Network failure: Device cannot reach ${baseUrl}`);
-              if (baseUrl.includes('192.168.100.137')) {
-                console.error(`   🔧 Try using your computer's actual IP address instead`);
-              }
-            } else if (postError.message.includes('CORS')) {
-              console.error(`   🚫 CORS error: Backend CORS config issue with ${baseUrl}`);
-            } else {
-              console.error(`   ❓ Unknown error type for ${baseUrl}`);
-            }
-          } else {
-            console.error(`   ❓ Non-Error exception:`, typeof postError, postError);
-          }
-
-          // Continue to next URL
+        if (isCorsWorking) {
+          console.log(`✅ VoiceToTextAPI: CORS is working correctly with ${baseUrl}`);
+          return true;
+        } else {
+          console.log(`❌ VoiceToTextAPI: POST request failed for ${baseUrl}`);
+          return false;
         }
+      } catch (postError) {
+        console.error(`❌ VoiceToTextAPI: POST request failed for ${baseUrl}:`, postError);
+        return false;
       }
-
-      // If we get here, all URLs failed
-      console.error('❌ VoiceToTextAPI: CORS test failed for all URLs');
-      console.error('🔧 Android Emulator Troubleshooting:');
-      console.error('   1. Check backend: uvicorn main:app --host 0.0.0.0 --port 8000');
-      console.error('   2. Verify backend: curl http://192.168.100.137:8000/mobile-test');
-      console.error('   3. Try physical device instead of emulator');
-      console.error('   4. Check firewall settings allowing port 8000');
-      return false;
     } catch (error) {
       console.error('❌ VoiceToTextAPI: CORS test failed:', error);
-
-      // Provide specific error guidance
-      if (error instanceof Error) {
-        if (error.name === 'AbortError' || error.message.includes('Aborted')) {
-          console.error('🌐 VoiceToTextAPI: Connection timeout - Backend not accessible');
-          console.error('🔧 Android Emulator Issue: Backend must listen on 0.0.0.0:8000');
-          console.error('   Fix: uvicorn main:app --host 0.0.0.0 --port 8000');
-          console.error('   Check: lsof -i :8000 (should show 0.0.0.0:8000)');
-        } else if (error.message.includes('Network request failed')) {
-          console.error('🌐 VoiceToTextAPI: Network connectivity issue');
-          console.error('🔧 Ensure backend is running and accessible');
-        } else {
-          console.error('🔧 Unexpected error during CORS test');
-        }
-      } else {
-        console.error('🔧 Unexpected error during CORS test');
-      }
-
       return false;
     }
   }
@@ -938,568 +787,37 @@ export class VoiceToTextAPI {
     try {
       console.log('🔍 VoiceToTextAPI: Testing simple connectivity...');
 
-      // For Android, try multiple URLs like in the main API request
-      const urlsToTry =
-        Platform.OS === 'android'
-          ? [
-              'http://192.168.100.137:8000', // Direct IP for physical devices (try first)
-              'http://10.0.2.2:8000', // Android emulator host mapping (fallback)
-            ]
-          : [this.baseUrl]; // Other platforms use configured baseUrl
+      // Use the configured baseUrl (production endpoint)
+      const baseUrl = this.baseUrl;
 
-      for (const baseUrl of urlsToTry) {
-        try {
-          console.log(`🔍 Testing connectivity to: ${baseUrl}`);
+      try {
+        console.log(`🔍 Testing connectivity to: ${baseUrl}`);
 
-          // Test 1: Simple GET request to mobile-test endpoint
-          const response = await fetch(`${baseUrl}/mobile-test`, {
-            method: 'GET',
-            mode: 'cors',
-          });
+        // Test 1: Simple GET request to mobile-test endpoint
+        const response = await fetch(`${baseUrl}/mobile-test`, {
+          method: 'GET',
+          mode: 'cors',
+        });
 
-          console.log(
-            `✅ VoiceToTextAPI: Simple connectivity test response from ${baseUrl}: ${response.status}`,
-          );
-          console.log(`📊 Response headers:`, {
-            'access-control-allow-origin': response.headers.get('access-control-allow-origin'),
-            'access-control-allow-methods': response.headers.get('access-control-allow-methods'),
-            'content-type': response.headers.get('content-type'),
-          });
+        console.log(
+          `✅ VoiceToTextAPI: Simple connectivity test response from ${baseUrl}: ${response.status}`,
+        );
 
-          if (response.ok) {
-            const data = await response.json();
-            console.log('📋 Mobile test response:', data.message);
-            console.log(`✅ VoiceToTextAPI: Connectivity successful to ${baseUrl}`);
-            return true;
-          }
-        } catch (error) {
-          console.log(`❌ Connectivity test failed for ${baseUrl}:`, error);
-          // Continue to next URL
+        if (response.ok) {
+          const data = await response.json();
+          console.log('📋 Mobile test response:', data.message);
+          console.log(`✅ VoiceToTextAPI: Connectivity successful to ${baseUrl}`);
+          return true;
         }
+      } catch (error) {
+        console.log(`❌ Connectivity test failed for ${baseUrl}:`, error);
       }
 
-      console.error('❌ VoiceToTextAPI: All connectivity tests failed');
+      console.error('❌ VoiceToTextAPI: Connectivity test failed');
       return false;
     } catch (error) {
       console.error('❌ VoiceToTextAPI: Simple connectivity test failed:', error);
       return false;
     }
   }
-
-  /**
-   * Test connectivity by bypassing CORS entirely using a different endpoint
-   */
-  async testConnectivityBypass(): Promise<boolean> {
-    try {
-      console.log('🔍 VoiceToTextAPI: Testing connectivity bypass...');
-
-      // For Android, try multiple URLs like in the main API request
-      const urlsToTry =
-        Platform.OS === 'android'
-          ? [
-              'http://192.168.100.137:8000', // Direct IP for physical devices (try first)
-              'http://10.0.2.2:8000', // Android emulator host mapping (fallback)
-            ]
-          : [this.baseUrl]; // Other platforms use configured baseUrl
-
-      for (const baseUrl of urlsToTry) {
-        console.log(`🔍 Testing bypass connectivity to: ${baseUrl}`);
-
-        // Try multiple approaches for each URL
-        const tests = [
-          // Test 1: Simple fetch without mode specification
-          async () => {
-            const response = await fetch(`${baseUrl}/mobile-test`, {
-              method: 'GET',
-            });
-            return { name: 'Simple GET', status: response.status, ok: response.ok };
-          },
-
-          // Test 2: Fetch with no-cors mode (bypasses CORS but limited response access)
-          async () => {
-            const response = await fetch(`${baseUrl}/mobile-test`, {
-              method: 'GET',
-              mode: 'no-cors',
-            });
-            return { name: 'No-CORS GET', status: 'opaque', ok: response.type === 'opaque' };
-          },
-
-          // Test 3: Try the root endpoint which might have different CORS
-          async () => {
-            const response = await fetch(`${baseUrl}/`, {
-              method: 'GET',
-              mode: 'cors',
-            });
-            return { name: 'Root endpoint', status: response.status, ok: response.ok };
-          },
-        ];
-
-        for (const test of tests) {
-          try {
-            console.log(`🔍 ${baseUrl}: Trying ${test.name || 'test'}...`);
-            const result = await test();
-            console.log(
-              `📋 ${baseUrl} - ${result.name}: Status ${result.status}, OK: ${result.ok}`,
-            );
-            if (result.ok) {
-              console.log(`✅ ${result.name} succeeded to ${baseUrl} - connectivity working`);
-              return true;
-            }
-          } catch (error) {
-            console.log(`❌ ${baseUrl} - ${test.name || 'test'} failed:`, error);
-
-            // Analyze the error for this specific URL and test
-            if (error instanceof Error) {
-              if (error.name === 'AbortError') {
-                console.log(`   🕐 ${baseUrl}: Request timed out`);
-              } else if (error.message.includes('Network request failed')) {
-                console.log(`   🌐 ${baseUrl}: Network unreachable`);
-              } else if (error.message.includes('CORS')) {
-                console.log(`   🚫 ${baseUrl}: CORS issue`);
-              } else {
-                console.log(`   ❓ ${baseUrl}: ${error.message}`);
-              }
-            }
-          }
-        }
-
-        console.log(`❌ All tests failed for ${baseUrl}`);
-      }
-
-      console.error('❌ VoiceToTextAPI: All bypass connectivity tests failed');
-      return false;
-    } catch (error) {
-      console.error('❌ VoiceToTextAPI: Connectivity bypass test failed:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Test if the device can make HTTP requests at all
-   */
-  async testBasicHTTPCapability(): Promise<boolean> {
-    try {
-      console.log('🔍 VoiceToTextAPI: Testing basic HTTP capability...');
-
-      // Test with a public HTTP endpoint to verify HTTP requests work
-      const publicTestUrl = 'http://httpbin.org/get';
-
-      console.log(`🔍 Testing basic HTTP request to: ${publicTestUrl}`);
-
-      const response = await fetch(publicTestUrl, {
-        method: 'GET',
-        mode: 'cors',
-      });
-
-      console.log(`📋 Public HTTP test: ${response.status} ${response.statusText}`);
-
-      if (response.ok) {
-        console.log('✅ Device can make HTTP requests - network capability confirmed');
-        return true;
-      } else {
-        console.error('❌ Device HTTP request failed with status:', response.status);
-        return false;
-      }
-    } catch (error) {
-      console.error('❌ VoiceToTextAPI: Basic HTTP test failed:', error);
-
-      if (error instanceof Error) {
-        if (error.message.includes('Network request failed')) {
-          console.error('🚫 Android device cannot make HTTP requests at all');
-          console.error('🔧 Possible causes:');
-          console.error('   - Android security policy blocking HTTP');
-          console.error('   - Network connectivity issues');
-          console.error('   - Cleartext traffic not properly enabled');
-        }
-      }
-
-      return false;
-    }
-  }
-
-  /**
-   * Experimental test with different fetch configurations
-   */
-  async testExperimentalFetch(): Promise<boolean> {
-    try {
-      console.log('🔍 VoiceToTextAPI: Testing experimental fetch configurations...');
-
-      const testUrl = 'http://192.168.100.137:8000/mobile-test';
-
-      // Test 1: Minimal fetch configuration
-      try {
-        console.log('🔍 Test 1: Minimal fetch (no options)');
-        const response1 = await fetch(testUrl);
-        console.log(`📋 Minimal fetch: ${response1.status} ${response1.statusText}`);
-        if (response1.ok) {
-          console.log('✅ Minimal fetch succeeded!');
-          return true;
-        }
-      } catch (error) {
-        console.log('❌ Minimal fetch failed:', error);
-      }
-
-      // Test 2: No-cors mode
-      try {
-        console.log('🔍 Test 2: No-CORS mode');
-        const response2 = await fetch(testUrl, { mode: 'no-cors' });
-        console.log(
-          `📋 No-CORS fetch: ${response2.status} ${response2.statusText}, type: ${response2.type}`,
-        );
-        if (response2.type === 'opaque') {
-          console.log('✅ No-CORS fetch succeeded (opaque response)!');
-          return true;
-        }
-      } catch (error) {
-        console.log('❌ No-CORS fetch failed:', error);
-      }
-
-      // Test 3: Same-origin mode
-      try {
-        console.log('🔍 Test 3: Same-origin mode');
-        const response3 = await fetch(testUrl, { mode: 'same-origin' });
-        console.log(`📋 Same-origin fetch: ${response3.status} ${response3.statusText}`);
-        if (response3.ok) {
-          console.log('✅ Same-origin fetch succeeded!');
-          return true;
-        }
-      } catch (error) {
-        console.log('❌ Same-origin fetch failed:', error);
-      }
-
-      // Test 4: With explicit headers
-      try {
-        console.log('🔍 Test 4: With explicit headers');
-        const response4 = await fetch(testUrl, {
-          method: 'GET',
-          headers: {
-            Accept: 'application/json',
-            'Content-Type': 'application/json',
-          },
-        });
-        console.log(`📋 Headers fetch: ${response4.status} ${response4.statusText}`);
-        if (response4.ok) {
-          console.log('✅ Headers fetch succeeded!');
-          return true;
-        }
-      } catch (error) {
-        console.log('❌ Headers fetch failed:', error);
-      }
-
-      // Test 5: XMLHttpRequest fallback
-      try {
-        console.log('🔍 Test 5: XMLHttpRequest fallback');
-        const xhr = new XMLHttpRequest();
-
-        return new Promise((resolve, reject) => {
-          xhr.onreadystatechange = () => {
-            if (xhr.readyState === 4) {
-              console.log(`📋 XHR result: ${xhr.status} ${xhr.statusText}`);
-              if (xhr.status === 200) {
-                console.log('✅ XMLHttpRequest succeeded!');
-                resolve(true);
-              } else {
-                console.log('❌ XMLHttpRequest failed with status:', xhr.status);
-                resolve(false);
-              }
-            }
-          };
-
-          xhr.onerror = error => {
-            console.log('❌ XMLHttpRequest error:', error);
-            resolve(false);
-          };
-
-          xhr.open('GET', testUrl, true);
-          xhr.send();
-        });
-      } catch (error) {
-        console.log('❌ XMLHttpRequest setup failed:', error);
-      }
-
-      console.error('❌ All experimental fetch methods failed');
-      return false;
-    } catch (error) {
-      console.error('❌ VoiceToTextAPI: Experimental fetch test failed:', error);
-      return false;
-    }
-  }
-
-  /**
-   * Comprehensive network diagnostics
-   */
-  async testComprehensiveNetworkDiagnostics(): Promise<void> {
-    console.log('🔍 === COMPREHENSIVE NETWORK DIAGNOSTICS ===');
-
-    // Test 1: Platform and environment info
-    console.log('📱 Platform Information:');
-    console.log(`   OS: ${Platform.OS}`);
-    console.log(`   Version: ${Platform.Version}`);
-    console.log(`   Dev Mode: ${__DEV__}`);
-
-    // Test 2: Test public HTTPS endpoint (should work)
-    try {
-      console.log('🔍 Test 2: Public HTTPS endpoint');
-      const httpsResponse = await fetch('https://httpbin.org/get', {
-        method: 'GET',
-        headers: { 'User-Agent': 'EindrApp/1.0' },
-      });
-      console.log(`   ✅ HTTPS: ${httpsResponse.status} - React Native can make HTTPS requests`);
-    } catch (error) {
-      console.log(`   ❌ HTTPS failed: ${error} - React Native networking broken`);
-    }
-
-    // Test 3: Test public HTTP endpoint (might fail due to security)
-    try {
-      console.log('🔍 Test 3: Public HTTP endpoint');
-      const httpResponse = await fetch('http://httpbin.org/get', {
-        method: 'GET',
-        headers: { 'User-Agent': 'EindrApp/1.0' },
-      });
-      console.log(
-        `   ✅ HTTP: ${httpResponse.status} - React Native allows HTTP to external hosts`,
-      );
-    } catch (error) {
-      console.log(`   ❌ HTTP failed: ${error} - React Native blocking HTTP or network issue`);
-    }
-
-    // Test 4: Test local HTTPS (will fail but shows connection attempt)
-    try {
-      console.log('🔍 Test 4: Local HTTPS (will fail, but shows if connection is attempted)');
-      const localHttpsResponse = await fetch('https://192.168.100.137:8000/mobile-test');
-      console.log(`   ✅ Local HTTPS: ${localHttpsResponse.status}`);
-    } catch (error) {
-      console.log(`   ❌ Local HTTPS failed: ${error} - Expected (no SSL cert)`);
-    }
-
-    // Test 5: Test local HTTP with different configurations
-    const localUrls = [
-      'http://192.168.100.137:8000/mobile-test',
-      'http://10.0.2.2:8000/mobile-test',
-    ];
-
-    for (const url of localUrls) {
-      console.log(`🔍 Test 5: Local HTTP - ${url}`);
-
-      // Test 5a: Minimal fetch
-      try {
-        const response = await fetch(url);
-        console.log(`   ✅ Minimal: ${response.status} - Success!`);
-        return; // If we get here, we found a working URL
-      } catch (error) {
-        console.log(`   ❌ Minimal: ${error}`);
-      }
-
-      // Test 5b: No-CORS fetch
-      try {
-        const response = await fetch(url, { mode: 'no-cors' });
-        console.log(`   ✅ No-CORS: type=${response.type} - Partial success (can't read response)`);
-      } catch (error) {
-        console.log(`   ❌ No-CORS: ${error}`);
-      }
-
-      // Test 5c: With timeout
-      try {
-        const controller = new AbortController();
-        setTimeout(() => controller.abort(), 3000);
-        const response = await fetch(url, { signal: controller.signal });
-        console.log(`   ✅ Timeout: ${response.status} - Success with timeout!`);
-        return;
-      } catch (error) {
-        console.log(`   ❌ Timeout: ${error}`);
-      }
-    }
-
-    console.log('🔧 DIAGNOSIS COMPLETE - Check results above for root cause');
-    console.log('🔧 If HTTPS works but HTTP fails: Android security policy blocking HTTP');
-    console.log('🔧 If all external requests fail: React Native networking broken');
-    console.log('🔧 If external works but local fails: Network routing issue');
-  }
-
-  /**
-   * Alternative HTTP request using XMLHttpRequest
-   */
-  private async makeXHRRequest(
-    url: string,
-    formData: FormData,
-    timeout: number = this.timeout,
-  ): Promise<unknown> {
-    return new Promise((resolve, reject) => {
-      console.log(`🔄 VoiceToTextAPI: Trying XMLHttpRequest to ${url}`);
-
-      const xhr = new XMLHttpRequest();
-
-      // Set up timeout
-      const timeoutId = setTimeout(() => {
-        xhr.abort();
-        reject(new Error('XHR timeout'));
-      }, timeout);
-
-      xhr.onreadystatechange = () => {
-        if (xhr.readyState === 4) {
-          clearTimeout(timeoutId);
-
-          console.log(`📋 XHR Response: ${xhr.status} ${xhr.statusText}`);
-          console.log(`📋 XHR Response Headers: ${xhr.getAllResponseHeaders()}`);
-
-          if (xhr.status >= 200 && xhr.status < 300) {
-            try {
-              const result = JSON.parse(xhr.responseText);
-              console.log('✅ XHR Success:', result);
-              resolve(result);
-            } catch (parseError) {
-              console.error('❌ XHR JSON parse error:', parseError);
-              reject(parseError);
-            }
-          } else {
-            console.error(`❌ XHR HTTP error: ${xhr.status} ${xhr.statusText}`);
-            reject(new Error(`HTTP ${xhr.status}: ${xhr.statusText}`));
-          }
-        }
-      };
-
-      xhr.onerror = error => {
-        clearTimeout(timeoutId);
-        console.error('❌ XHR Network error:', error);
-        reject(new Error('XHR Network request failed'));
-      };
-
-      xhr.onabort = () => {
-        clearTimeout(timeoutId);
-        console.error('❌ XHR Request aborted');
-        reject(new Error('XHR Request aborted'));
-      };
-
-      try {
-        xhr.open('POST', url, true);
-
-        // Don't set Content-Type header - let the browser set it for FormData
-        xhr.send(formData);
-
-        console.log('📤 XHR Request sent');
-      } catch (error) {
-        clearTimeout(timeoutId);
-        console.error('❌ XHR Send error:', error);
-        reject(error);
-      }
-    });
-  }
-
-  /**
-   * Enhanced network diagnostics specifically for Android emulator issues
-   */
-  async testAndroidEmulatorConnectivity(): Promise<boolean> {
-    if (Platform.OS !== 'android') {
-      console.log('🔍 Not Android - skipping Android emulator connectivity test');
-      return true;
-    }
-
-    console.log('🔍 === ANDROID EMULATOR CONNECTIVITY DIAGNOSTICS ===');
-
-    // Test URLs in order of likelihood to work
-    const testUrls = [
-      'http://192.168.100.137:8000', // Direct IP for physical devices
-      'http://10.0.2.2:8000', // Android emulator host mapping
-      'http://127.0.0.1:8000', // Local loopback
-      'http://localhost:8000', // Local hostname
-    ];
-
-    for (const testUrl of testUrls) {
-      console.log(`🔍 Testing: ${testUrl}`);
-
-      try {
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 25000); // 25s timeout for consistency
-
-        const response = await fetch(`${testUrl}/mobile-test`, {
-          method: 'GET',
-          signal: controller.signal,
-          mode: 'cors',
-        });
-
-        clearTimeout(timeoutId);
-
-        if (response.ok) {
-          const data = await response.json();
-          console.log(`✅ SUCCESS: ${testUrl} - ${data.message}`);
-          console.log(`🔧 Use this URL in your app: ${testUrl}`);
-
-          // Update the baseUrl to the working one
-          this.baseUrl = testUrl;
-          console.log(`🔄 Updated baseUrl to: ${this.baseUrl}`);
-
-          return true;
-        } else {
-          console.log(`❌ HTTP Error: ${testUrl} - ${response.status}`);
-        }
-      } catch (error) {
-        if (error instanceof Error) {
-          if (error.name === 'AbortError') {
-            console.log(`⏰ Timeout: ${testUrl} - took too long`);
-          } else if (error.message.includes('Network request failed')) {
-            console.log(`🌐 Network: ${testUrl} - unreachable`);
-          } else {
-            console.log(`❌ Error: ${testUrl} - ${error.message}`);
-          }
-        } else {
-          console.log(`❌ Unknown: ${testUrl} - ${error}`);
-        }
-      }
-    }
-
-    console.log('❌ All Android URLs failed - backend connectivity issue');
-    console.log('🔧 Possible solutions:');
-    console.log('   1. Make sure backend runs: uvicorn main:app --host 0.0.0.0 --port 8000');
-    console.log('   2. Check firewall settings on your computer');
-    console.log('   3. Try restarting the Android emulator');
-    console.log('   4. Use a physical Android device instead');
-
-    return false;
-  }
 }
-
-// Add this method for testing backend responses
-export const testBackendResponse = async (): Promise<void> => {
-  console.log('🧪 Testing backend response with different test data...');
-
-  const api = new VoiceToTextAPI();
-
-  // Create test audio files with different content
-  const createTestAudio = (pattern: number): Uint8Array => {
-    const headerSize = 44;
-    const audioSize = 1000;
-    const testAudio = new Uint8Array(headerSize + audioSize);
-
-    // Fill with pattern
-    for (let i = headerSize; i < testAudio.length; i++) {
-      testAudio[i] = pattern + (i % 10);
-    }
-
-    return testAudio;
-  };
-
-  // Test with 3 different audio patterns
-  const testPatterns = [100, 150, 200];
-
-  for (let i = 0; i < testPatterns.length; i++) {
-    const testAudio = createTestAudio(testPatterns[i]);
-    console.log(`🧪 Test ${i + 1}: Sending audio with pattern ${testPatterns[i]}`);
-
-    try {
-      const response = await api.transcribe(testAudio, {
-        format: 'wav',
-        sampleRate: 16000,
-        duration: 1000,
-      });
-
-      console.log(`🧪 Test ${i + 1} Response: "${response.text}"`);
-    } catch (error) {
-      console.error(`🧪 Test ${i + 1} Failed:`, error);
-    }
-
-    // Wait 1 second between tests
-    await new Promise(resolve => setTimeout(resolve, 1000));
-  }
-
-  console.log('🧪 Backend response test complete');
-};

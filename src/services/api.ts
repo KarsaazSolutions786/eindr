@@ -1,10 +1,10 @@
 import axios, { InternalAxiosRequestConfig, AxiosError } from 'axios';
 import { store } from '@store/index'; // Import the store to access the token
 import { logout } from '@store/slices/authSlice';
-import Config from 'react-native-config';
+import { API_BASE_URL } from '@config/api';
 
 const api = axios.create({
-  baseURL: Config.API_URL,
+  baseURL: API_BASE_URL + '/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -22,12 +22,12 @@ api.interceptors.request.use(
   },
   (error: AxiosError) => {
     return Promise.reject(error);
-  }
+  },
 );
 
 // Response Interceptor: Handle common errors
 api.interceptors.response.use(
-  (response) => response,
+  response => response,
   (error: AxiosError) => {
     if (error.response) {
       switch (error.response.status) {
@@ -56,7 +56,7 @@ api.interceptors.response.use(
       console.error('Error:', error.message);
     }
     return Promise.reject(error);
-  }
+  },
 );
 
-export default api; 
+export default api;

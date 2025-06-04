@@ -218,7 +218,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
 
       // Update the current wake words state
       setCurrentWakeWords(wakeWords);
-      console.log(`🎤 HomeScreen: Configured wake words: ${wakeWords.join(', ')}`);
+      // console.log(`🎤 HomeScreen: Configured wake words: ${wakeWords.join(', ')}`);
 
       try {
         await engineInstance.initialize(); // No model = enhanced mock mode
@@ -250,7 +250,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
         }
 
         await engineInstance.startAlwaysListening();
-        console.log('🎤 HomeScreen: Always-listening mode activated');
+        // console.log('🎤 HomeScreen: Always-listening mode activated');
       } catch (listeningError) {
         console.warn(
           '⚠️ HomeScreen: Always-listening had issues, but engine is ready:',
@@ -402,11 +402,11 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
 
     // Log audio activity for debugging
     if (totalAudioProcessed % 100 === 0) {
-      console.log(
-        `🎤 HomeScreen: Audio level: ${level.toFixed(
-          3,
-        )}, Speech: ${isSpeech}, Processed: ${totalAudioProcessed}`,
-      );
+      // console.log(
+      //   `🎤 HomeScreen: Audio level: ${level.toFixed(
+      //     3,
+      //   )}, Speech: ${isSpeech}, Processed: ${totalAudioProcessed}`,
+      // );
     }
 
     // Clear processing indicator after short delay
@@ -431,11 +431,11 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
     });
 
     // Log inference details for debugging
-    console.log(
-      `🧠 HomeScreen: Inference: ${inferenceTime.toFixed(1)}ms, Confidence: ${confidence.toFixed(
-        3,
-      )}`,
-    );
+    // console.log(
+    //   `🧠 HomeScreen: Inference: ${inferenceTime.toFixed(1)}ms, Confidence: ${confidence.toFixed(
+    //     3,
+    //   )}`,
+    // );
   };
 
   // Handle voice activity detection start
@@ -466,7 +466,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
     try {
       await wakeWordEngine.current.startAlwaysListening();
       setListeningSessionCount(prev => prev + 1);
-      console.log('🎤 HomeScreen: Auto-started always-listening mode');
+      // console.log('🎤 HomeScreen: Auto-started always-listening mode');
 
       const autoStartMessage = {
         id: `auto-start-${Date.now()}`,
@@ -547,7 +547,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
 
         // Start always-listening
         await wakeWordEngine.current.startAlwaysListening();
-        console.log('🎤 HomeScreen: Started always-listening mode');
+        // console.log('🎤 HomeScreen: Started always-listening mode');
 
         const startMessage = {
           id: `start-${Date.now()}`,
@@ -900,6 +900,38 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
     }
   }, [isInitialized]);
 
+  // Handle manual stop recording
+  const handleManualStopRecording = async () => {
+    if (!wakeWordEngine.current || !isInitialized) {
+      console.warn('⚠️ HomeScreen: Wake word engine not initialized');
+      return;
+    }
+
+    try {
+      // Use the new manual stop method
+      await wakeWordEngine.current.manualStopRecording();
+      console.log('🛑 HomeScreen: Manual stop recording triggered');
+
+      const stopMessage = {
+        id: `manual-stop-${Date.now()}`,
+        text: '🛑 Recording stopped manually by user',
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages(prev => [...prev, stopMessage]);
+    } catch (error) {
+      console.error('❌ HomeScreen: Error stopping recording manually:', error);
+
+      const errorMessage = {
+        id: `stop-error-${Date.now()}`,
+        text: `❌ Manual stop error: ${(error as Error).message}`,
+        isUser: false,
+        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+      };
+      setMessages(prev => [...prev, errorMessage]);
+    }
+  };
+
   return (
     <View style={styles.container}>
       {/* Production Wake Word Orb */}
@@ -1025,6 +1057,16 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
           activeOpacity={0.7}>
           <Text style={styles.testButtonText}>🧪 Test Backend Responses</Text>
         </TouchableOpacity>
+
+        {/* Manual Stop Recording Button - Only show when recording */}
+        {engineState === WakeWordState.RECORDING && (
+          <TouchableOpacity
+            style={[styles.testButton, { backgroundColor: '#FF3B30' }]}
+            onPress={handleManualStopRecording}
+            activeOpacity={0.7}>
+            <Text style={styles.testButtonText}>🛑 Stop Recording</Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       {/* Partial Detection Results Panel (for debugging) */}
