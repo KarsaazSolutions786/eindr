@@ -358,8 +358,6 @@ The wake word system consists of:
 - **VoiceToTextAPI** caches transcriptions by audio fingerprint to avoid
   repeated API calls when the same audio is processed.
 - **TTSService** - Speaks AI responses using `react-native-tts`
-- **React Components** - UI integration
-
 ### Performance
 
 Typical performance metrics:
