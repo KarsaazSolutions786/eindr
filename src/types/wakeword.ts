@@ -60,6 +60,10 @@ export interface WakeWordConfig {
   maxRecordingDuration: number;
   silenceTimeout: number;
   enableVAD: boolean;
+  /**
+   * Voice activity detector sensitivity (1 = default)
+   */
+  vadSensitivity: number;
 
   // Audio processing
   enablePreEmphasis: boolean;
