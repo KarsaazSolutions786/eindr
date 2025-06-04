@@ -21,6 +21,7 @@ import {
   PerformanceMetrics,
 } from '../../types/wakeword';
 import { useWakeWord } from '../../hooks/useWakeWord';
+import { speak } from '../../services/ttsService';
 
 // Interface for the reminder item data
 interface ReminderItem {
@@ -363,6 +364,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
     };
 
     setMessages(prev => [...prev, commandMessage, responseMessage]);
+    speak(responseText);
   };
 
   // Handle engine state changes

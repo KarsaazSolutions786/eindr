@@ -357,8 +357,7 @@ The wake word system consists of:
 - **VoiceToTextAPI** - Backend communication
 - **VoiceToTextAPI** caches transcriptions by audio fingerprint to avoid
   repeated API calls when the same audio is processed.
-- **React Components** - UI integration
-
+- **TTSService** - Speaks AI responses using `react-native-tts`
 ### Performance
 
 Typical performance metrics:
@@ -367,6 +366,8 @@ Typical performance metrics:
 - **Memory usage**: ~10-20MB additional
 - **CPU usage**: ~5-10% during active listening
 - **Battery impact**: Minimal when optimized
+
+For customizing the conversational model, see **docs/BLOOM_TRAINING_GUIDE.md**.
 
 ### Troubleshooting
 
