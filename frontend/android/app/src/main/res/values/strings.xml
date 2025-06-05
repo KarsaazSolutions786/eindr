@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Eindr</string>
+    <string name="facebook_app_id">711116024929895</string>
+    <string name="fb_login_protocol_scheme">fb711116024929895</string>
+    <string name="facebook_client_token">0934ed89495991f9ea5b48710b5b839d</string>
+</resources>
