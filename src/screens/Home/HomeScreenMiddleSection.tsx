@@ -172,7 +172,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       return;
     }
 
-    console.log('🚀 HomeScreen: Initializing wake word engine with enhanced mock mode...');
+    console.log('🚀 HomeScreen: Initializing wake word engine with TensorFlow Lite model...');
     setIsInitializing(true);
     initializationAttempted.current = true;
 
@@ -207,8 +207,8 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
         throw new Error('Failed to create WakeWordEngine instance');
       }
 
-      // Initialize directly in enhanced mock mode (bypass TensorFlow Lite for now)
-      console.log('🔄 HomeScreen: Starting enhanced mock mode directly...');
+      // Initialize with bundled TensorFlow Lite model
+      console.log('🔄 HomeScreen: Loading TensorFlow Lite model...');
 
       // Configure wake words in the engine
       const wakeWords = ['hey', 'hello', 'assistant', 'hey eindr'];
@@ -221,8 +221,9 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       // console.log(`🎤 HomeScreen: Configured wake words: ${wakeWords.join(', ')}`);
 
       try {
-        await engineInstance.initialize(); // No model = enhanced mock mode
-        console.log('✅ HomeScreen: Enhanced mock mode initialized successfully');
+        const modelPath = require('../../../assets/models/gru.tflite');
+        await engineInstance.initialize(modelPath);
+        console.log('✅ HomeScreen: TensorFlow Lite model initialized successfully');
       } catch (initError) {
         console.warn('⚠️ HomeScreen: Initialization had issues, but continuing:', initError);
         // Don't throw here - the instance is still valid, just initialization had issues
@@ -260,12 +261,12 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       }
 
       setIsInitialized(true);
-      console.log('✅ HomeScreen: Wake word engine ready with enhanced mock mode');
+      console.log('✅ HomeScreen: Wake word engine ready with TensorFlow Lite model');
 
       // Add initialization message to chat
       const initMessage = {
         id: `init-${Date.now()}`,
-        text: '🎤 Wake word engine initialized with enhanced mock mode - real audio analysis active!',
+        text: '🎤 Wake word engine initialized with TensorFlow Lite model!',
         isUser: false,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
