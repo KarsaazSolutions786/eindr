@@ -69,10 +69,11 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
   const [isEngineActive, setIsEngineActive] = useState(false);
   const [performanceStats, setPerformanceStats] = useState<PerformanceMetrics | null>(null);
   const [currentWakeWords, setCurrentWakeWords] = useState<string[]>([
-    'hey',
-    'hello',
-    'assistant',
-    'hey eindr',
+    'eindr',
+    'inder',
+    'endr',
+    'iindr',
+    'indr',
   ]);
 
   // Real-time listening feedback
@@ -172,9 +173,18 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       return;
     }
 
-    console.log('🚀 HomeScreen: Initializing wake word engine with enhanced mock mode...');
+    console.log('🚀 HomeScreen: Initializing wake word engine with TensorFlow Lite model...');
     setIsInitializing(true);
     initializationAttempted.current = true;
+
+    // Add loading message to chat immediately
+    const loadingMessage = {
+      id: `loading-${Date.now()}`,
+      text: '⏳ Initializing wake word engine with TensorFlow Lite model...',
+      isUser: false,
+      timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+    };
+    setMessages(prev => [...prev, loadingMessage]);
 
     try {
       // Create wake word engine instance if not exists
@@ -207,11 +217,11 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
         throw new Error('Failed to create WakeWordEngine instance');
       }
 
-      // Initialize directly in enhanced mock mode (bypass TensorFlow Lite for now)
-      console.log('🔄 HomeScreen: Starting enhanced mock mode directly...');
+      // Initialize with bundled TensorFlow Lite model
+      console.log('🔄 HomeScreen: Loading TensorFlow Lite model...');
 
       // Configure wake words in the engine
-      const wakeWords = ['hey', 'hello', 'assistant', 'hey eindr'];
+      const wakeWords = ['eindr', 'inder', 'endr', 'iindr', 'indr'];
       wakeWords.forEach(wakeWord => {
         engineInstance.addWakeWord(wakeWord, 0.7);
       });
@@ -221,10 +231,60 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       // console.log(`🎤 HomeScreen: Configured wake words: ${wakeWords.join(', ')}`);
 
       try {
-        await engineInstance.initialize(); // No model = enhanced mock mode
-        console.log('✅ HomeScreen: Enhanced mock mode initialized successfully');
+        // Load TensorFlow Lite model with timeout
+        let modelAsset;
+
+        try {
+          // Load the model from the JavaScript assets directory (where Metro can access it)
+          modelAsset = require('../../../assets/models/gru.tflite');
+          console.log('🔄 HomeScreen: Loading gru.tflite from JavaScript assets...');
+        } catch (modelError) {
+          console.warn('⚠️ HomeScreen: Could not load model from JavaScript assets:', modelError);
+          console.error(
+            '❌ HomeScreen: Model file not found. Make sure gru.tflite is in src/assets/models/',
+          );
+          // Initialize without model (fallback mode)
+          console.log('🔄 HomeScreen: Initializing without model file (fallback mode)...');
+          await engineInstance.initialize();
+          console.log('✅ HomeScreen: Fallback mode initialized successfully');
+          throw new Error('TensorFlow Lite model file not found - running in fallback mode');
+        }
+
+        if (modelAsset) {
+          console.log('🔄 HomeScreen: Starting TensorFlow Lite model initialization...');
+
+          // Add timeout to prevent hanging
+          const initTimeout = new Promise((_, reject) => {
+            setTimeout(() => {
+              reject(new Error('Model initialization timeout after 10 seconds'));
+            }, 10000); // 10 second timeout
+          });
+
+          const modelInit = engineInstance.initialize(modelAsset);
+
+          try {
+            // Race between initialization and timeout
+            await Promise.race([modelInit, initTimeout]);
+            console.log('✅ HomeScreen: TensorFlow Lite model initialized successfully');
+          } catch (timeoutError) {
+            console.warn('⚠️ HomeScreen: Model initialization timed out, using fallback mode');
+            // Initialize without model as fallback
+            await engineInstance.initialize();
+            console.log('✅ HomeScreen: Fallback mode initialized after timeout');
+            throw new Error('Model initialization timeout - using fallback mode');
+          }
+        }
       } catch (initError) {
         console.warn('⚠️ HomeScreen: Initialization had issues, but continuing:', initError);
+        if (String(initError).includes('custom op')) {
+          const helpMessage = {
+            id: `model-error-${Date.now()}`,
+            text: '❌ Model contains custom ops. Run scripts/fix_tflite_model.py to generate a compatible model.',
+            isUser: false,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          };
+          setMessages(prev => [...prev, helpMessage]);
+        }
         // Don't throw here - the instance is still valid, just initialization had issues
       }
 
@@ -260,12 +320,12 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       }
 
       setIsInitialized(true);
-      console.log('✅ HomeScreen: Wake word engine ready with enhanced mock mode');
+      console.log('✅ HomeScreen: Wake word engine ready with TensorFlow Lite model');
 
       // Add initialization message to chat
       const initMessage = {
         id: `init-${Date.now()}`,
-        text: '🎤 Wake word engine initialized with enhanced mock mode - real audio analysis active!',
+        text: '🎤 Wake word engine ready! Listening for: "eindr", "inder", "endr", "iindr", "indr"',
         isUser: false,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
@@ -626,20 +686,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       const { VoiceToTextAPI } = await import('../../wakeword/api/VoiceToTextAPI');
       const api = new VoiceToTextAPI();
 
-      // Test 1: Bypass connectivity test
-      const bypassTest = await api.testConnectivityBypass();
-
-      const bypassResultMessage = {
-        id: `bypass-test-result-${Date.now()}`,
-        text: bypassTest
-          ? '✅ Bypass connectivity test passed! Network is working.'
-          : '❌ Bypass connectivity test failed! Network issue detected.',
-        isUser: false,
-        timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-      };
-      setMessages(prev => [...prev, bypassResultMessage]);
-
-      // Test 2: Simple connectivity
+      // Test 1: Simple connectivity
       const simpleTest = await api.testSimpleConnectivity();
 
       const simpleResultMessage = {
@@ -652,7 +699,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       };
       setMessages(prev => [...prev, simpleResultMessage]);
 
-      // Test 3: CORS
+      // Test 2: CORS
       const corsTest = await api.testCORS();
 
       const corsResultMessage = {
@@ -668,9 +715,9 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       // Summary message
       const summaryMessage = {
         id: `summary-${Date.now()}`,
-        text: `📊 Test Summary: Bypass: ${bypassTest ? '✅' : '❌'}, Simple: ${
-          simpleTest ? '✅' : '❌'
-        }, CORS: ${corsTest ? '✅' : '❌'}`,
+        text: `📊 Test Summary: Simple: ${simpleTest ? '✅' : '❌'}, CORS: ${
+          corsTest ? '✅' : '❌'
+        }`,
         isUser: false,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
@@ -832,7 +879,8 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
 
   // Get orb status text
   const getOrbStatus = () => {
-    if (!isInitialized) return 'Initializing voice engine...';
+    if (isInitializing) return '⏳ Loading TensorFlow Lite model...';
+    if (!isInitialized) return '🔄 Starting voice engine...';
 
     switch (engineState) {
       case WakeWordState.LISTENING:
