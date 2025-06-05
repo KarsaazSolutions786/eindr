@@ -15,11 +15,14 @@ To use the TensorFlow Lite model in production:
 
 ### 1. Enable TensorFlow Lite Model Loading
 
-Update `HomeScreenMiddleSection.tsx` to use the bundled model:
+Update `HomeScreenMiddleSection.tsx` to use the bundled model. If `gru.tflite`
+fails to load due to unsupported operations, first run
+`python scripts/fix_tflite_model.py` to generate `gru_fixed.tflite` and update
+the code accordingly:
 
 ```typescript
 // Replace the mock initialization with:
-const modelPath = require('../../../assets/models/gru.tflite');
+const modelPath = require('../../../assets/models/gru_fixed.tflite');
 await wakeWordEngine.current.initialize(modelPath);
 ```
 

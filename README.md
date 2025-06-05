@@ -374,5 +374,9 @@ Typical performance metrics:
 2. **Permission denied**: Check microphone permissions in device settings
 3. **Poor detection**: Adjust `confidenceThreshold` and retrain model
 4. **High CPU usage**: Increase `processingInterval` in config
+5. **Stuck on initialization**: Your model may contain custom TensorFlow
+   operations. Run `python scripts/fix_tflite_model.py` to create
+   `assets/models/gru_fixed.tflite` and update the model path in
+   `HomeScreenMiddleSection.tsx`.
 
 ## Getting Started

@@ -221,11 +221,28 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       // console.log(`🎤 HomeScreen: Configured wake words: ${wakeWords.join(', ')}`);
 
       try {
-        const modelPath = require('../../../assets/models/gru.tflite');
-        await engineInstance.initialize(modelPath);
+        let modelAsset;
+        try {
+          modelAsset = require('../../../assets/models/gru_fixed.tflite');
+          console.log('🔄 HomeScreen: Loading gru_fixed.tflite...');
+        } catch {
+          console.log('ℹ️ HomeScreen: gru_fixed.tflite not found, using gru.tflite');
+          modelAsset = require('../../../assets/models/gru.tflite');
+        }
+
+        await engineInstance.initialize(modelAsset);
         console.log('✅ HomeScreen: TensorFlow Lite model initialized successfully');
       } catch (initError) {
         console.warn('⚠️ HomeScreen: Initialization had issues, but continuing:', initError);
+        if (String(initError).includes('custom op')) {
+          const helpMessage = {
+            id: `model-error-${Date.now()}`,
+            text: '❌ Model contains custom ops. Run scripts/fix_tflite_model.py to generate a compatible model.',
+            isUser: false,
+            timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          };
+          setMessages(prev => [...prev, helpMessage]);
+        }
         // Don't throw here - the instance is still valid, just initialization had issues
       }
 

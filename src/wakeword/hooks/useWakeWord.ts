@@ -62,10 +62,14 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
     config,
     modelPath = (() => {
       try {
-        return require('../../../assets/models/gru.tflite');
-      } catch (error) {
-        console.warn('Default model path not found, please provide modelPath in options');
-        return null;
+        return require('../../../assets/models/gru_fixed.tflite');
+      } catch {
+        try {
+          return require('../../../assets/models/gru.tflite');
+        } catch (error) {
+          console.warn('Default model path not found, please provide modelPath in options');
+          return null;
+        }
       }
     })(),
     autoInitialize = false,

@@ -278,6 +278,8 @@ useEffect(() => {
    - Ensure `gru.tflite` is in `assets/models/`
    - Check model format and file size
    - Verify model is compatible with TensorFlow Lite
+   - If you see errors about custom operations, run `python scripts/fix_tflite_model.py`
+     to generate `gru_fixed.tflite` and update `HomeScreenMiddleSection.tsx`
 
 2. **"Permission denied"**
 
