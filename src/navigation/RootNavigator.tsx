@@ -187,7 +187,7 @@ const withBackground2 = <P extends object>(Component: React.ComponentType<P>) =>
 
 const RootNavigator = () => {
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
-  const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList>('Login');
+  const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList>('Home');
 
   useEffect(() => {
     // Determine initial route based on auth state and isNew flag
@@ -207,7 +207,10 @@ const RootNavigator = () => {
       initialRouteName={initialRoute}
       screenOptions={{
         headerShown: false,
-        animation: 'fade',
+        animation: 'slide_from_right',
+        gestureEnabled: true,
+        gestureDirection: 'horizontal',
+        presentation: 'card',
       }}>
       {/* Onboarding Screens */}
       <Stack.Screen name="Welcome" component={withBackground2(WelcomeScreen)} />
