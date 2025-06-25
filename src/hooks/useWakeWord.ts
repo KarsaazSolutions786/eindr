@@ -68,7 +68,7 @@ export interface UseWakeWordReturn {
 export const useWakeWord = (options: UseWakeWordOptions = {}): UseWakeWordReturn => {
   const {
     config = {},
-    modelPath = '../../assets/models/gru.tflite',
+    modelPath = '../../assets/models/eindr_complete.tflite',
     autoStart = false,
     enablePerformanceTracking = true,
     callbacks = {},

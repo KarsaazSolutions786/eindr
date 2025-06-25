@@ -62,7 +62,7 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
     config,
     modelPath = (() => {
       try {
-        return require('../../../assets/models/gru.tflite');
+        return require('../../../assets/models/eindr_complete.tflite');
       } catch (error) {
         console.warn('Default model path not found, please provide modelPath in options');
         return null;
@@ -92,7 +92,7 @@ export function useWakeWord(options: UseWakeWordOptions = {}): UseWakeWordReturn
     try {
       if (!modelPath) {
         throw new Error(
-          'No model path provided. Please provide modelPath in useWakeWord options or ensure gru.tflite exists in assets/models/',
+          'No model path provided. Please provide modelPath in useWakeWord options or ensure eindr_complete.tflite exists in assets/models/',
         );
       }
 

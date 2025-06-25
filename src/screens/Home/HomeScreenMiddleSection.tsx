@@ -221,14 +221,58 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       console.log('🔄 HomeScreen: Loading TensorFlow Lite model...');
 
       // Configure wake words in the engine
-      const wakeWords = ['eindr', 'inder', 'endr', 'iindr', 'indr'];
-      wakeWords.forEach(wakeWord => {
-        engineInstance.addWakeWord(wakeWord, 0.7);
+      // ROBUST MODE: Only listen to positive "eindr" variants, reject everything else
+      const positiveWords = [
+        // Core eindr variants
+        'eindr',
+        'inder',
+        'endr',
+        'iindr',
+        'indr',
+        // Additional phonetic variants from training data
+        'ayn dur',
+        'ayn duh',
+        'in dur',
+        'in darr',
+        'ayn dar',
+        'ay ndar',
+        'ee ndar',
+        'een dar',
+        'ayn der',
+        'ein der',
+        'en druh',
+        'ain dr',
+        'eh inder',
+        'in dor',
+        'in thar',
+        'in dra',
+        'in dir',
+        'en der',
+        'ayin dr',
+        'ai yin de',
+        'e in da',
+        'eyn der',
+        'eyn dr',
+        'ein dr',
+        'eh een dr',
+        'eh yin da',
+        'e in dar',
+      ];
+
+      // Add ONLY positive words with appropriate thresholds
+      positiveWords.forEach(wakeWord => {
+        // Higher thresholds for robust detection - only accept clear matches
+        let threshold = 0.7; // Standard threshold
+
+        // Slightly lower for longer phonetic variants
+        if (wakeWord.includes(' ')) {
+          threshold = 0.65; // For multi-word variants
+        }
+
+        engineInstance.addWakeWord(wakeWord, threshold);
       });
 
-      // Update the current wake words state
-      setCurrentWakeWords(wakeWords);
-      // console.log(`🎤 HomeScreen: Configured wake words: ${wakeWords.join(', ')}`);
+      setCurrentWakeWords(positiveWords);
 
       try {
         // Load TensorFlow Lite model with timeout
@@ -236,12 +280,12 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
 
         try {
           // Load the model from the JavaScript assets directory (where Metro can access it)
-          modelAsset = require('../../../assets/models/gru.tflite');
-          console.log('🔄 HomeScreen: Loading gru.tflite from JavaScript assets...');
+          modelAsset = require('../../../assets/models/eindr_complete.tflite');
+          console.log('🔄 HomeScreen: Loading eindr_complete.tflite from JavaScript assets...');
         } catch (modelError) {
           console.warn('⚠️ HomeScreen: Could not load model from JavaScript assets:', modelError);
           console.error(
-            '❌ HomeScreen: Model file not found. Make sure gru.tflite is in src/assets/models/',
+            '❌ HomeScreen: Model file not found. Make sure eindr_complete.tflite is in src/assets/models/',
           );
           // Initialize without model (fallback mode)
           console.log('🔄 HomeScreen: Initializing without model file (fallback mode)...');
@@ -325,7 +369,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
       // Add initialization message to chat
       const initMessage = {
         id: `init-${Date.now()}`,
-        text: '🎤 Wake word engine ready! Listening for: "eindr", "inder", "endr", "iindr", "indr"',
+        text: '🎤 ROBUST MODE: Only listening for positive "eindr" variants. Will reject all negative words like "black", "green", "blue", etc.',
         isUser: false,
         timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
       };
@@ -1067,7 +1111,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
             ? 'Error occurred - tap orb to restart'
             : isInitialized
             ? 'Ready - always-listening will auto-start'
-            : 'Initializing TensorFlow Lite model...'}
+            : 'Loading eindr_complete.tflite model...'}
         </Text>
         <Text style={styles.wakeWords}>
           Wake Words: {currentWakeWords.map((word: string) => `"${word}"`).join(', ')}
@@ -1077,7 +1121,7 @@ const HomeScreenMiddleSection: React.FC<HomeScreenMiddleSectionProps> = ({
             ? `${
                 engineState === WakeWordState.LISTENING ? '🟢 Live Detection Mode' : '⭕ Mock Mode'
               } - Audio Processing: ${isProcessingAudio ? '🟢 Active' : '⭕ Idle'}`
-            : 'Loading gru.tflite model...'}
+            : 'Loading eindr_complete.tflite model...'}
         </Text>
 
         {/* Microphone Test Button */}

@@ -3,6 +3,18 @@ import { WakeWordConfig } from '../types/wakeword';
 /**
  * Dynamic Wake Word Detection Configuration
  * Flexible settings for runtime-configurable wake word detection with TensorFlow Lite
+ *
+ * IMPORTANT: Current model issue with "black" detection
+ * =====================================================
+ * The eindr_complete.tflite model was trained with:
+ * - POSITIVE words: "eindr" variants (ayn dur, in dur, ein der, etc.)
+ * - NEGATIVE words: "black", "back", "blank", etc.
+ *
+ * This means the model was explicitly trained to REJECT "black" and similar words.
+ * To detect "black", we need either:
+ * 1. Extremely low confidence thresholds (0.1 or lower) to override negative training
+ * 2. A new model trained with "black" as positive words
+ * 3. Audio preprocessing to make "black" sound more like "eindr"
  */
 
 // Performance configuration for production use
@@ -39,8 +51,8 @@ export const DEFAULT_WAKEWORD_CONFIG: WakeWordConfig = {
   bitsPerSample: 16,
   bufferSize: 4096, // Audio buffer size for capture
 
-  // Wake word detection - configurable at runtime
-  confidenceThreshold: 0.7, // Default threshold for wake word detection
+  // Wake word detection - robust mode to reject negative words
+  confidenceThreshold: 0.75, // Higher threshold for robust detection - only clear positive matches
   enableMultipleWakeWords: true, // Support multiple wake words
   wakeWords: [], // Empty by default - set dynamically
 
@@ -53,20 +65,20 @@ export const DEFAULT_WAKEWORD_CONFIG: WakeWordConfig = {
   enableVAD: true, // Voice Activity Detection for auto-stop
   vadSensitivity: 1.0, // VAD sensitivity (1 = default)
 
-  // Audio processing
+  // Audio processing - enhanced for robust positive word detection
   enablePreEmphasis: true,
-  preEmphasisCoefficient: 0.97,
+  preEmphasisCoefficient: 0.97, // Standard pre-emphasis for clear speech
   enableNoiseReduction: true,
-  noiseGateThreshold: 0.01,
+  noiseGateThreshold: 0.015, // Higher noise gate to filter out weak signals
 
-  // MFCC feature extraction (optimized for TensorFlow Lite)
+  // MFCC feature extraction (optimized for robust detection)
   numMFCC: 13, // Number of MFCC coefficients
-  numMelFilters: 26, // Number of mel filters
-  fftSize: 512, // FFT size for spectral analysis
-  windowType: 'hann', // Window function
+  numMelFilters: 26, // Standard mel filters for clear detection
+  fftSize: 512, // Standard FFT size
+  windowType: 'hann', // Standard window function
 
-  // TensorFlow Lite model settings
-  modelInputShape: [1, 29, 13], // Batch, time, features (configurable)
+  // TensorFlow Lite model settings - robust mode
+  modelInputShape: [1, 29, 13], // Batch, time, features
   modelOutputShape: [1, 1], // Single output for binary classification
   normalizeInput: true, // Normalize MFCC features
 
@@ -258,8 +270,8 @@ export const API_CONFIG = {
 // Model configuration for TensorFlow Lite
 export const MODEL_CONFIG = {
   // Model file information
-  fileName: 'gru.tflite',
-  expectedSize: 19456, // Expected file size in bytes
+  fileName: 'eindr_complete.tflite',
+  expectedSize: 21708, // Expected file size in bytes (21.2 KB)
   version: '1.0',
 
   // Model architecture

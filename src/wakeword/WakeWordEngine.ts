@@ -344,7 +344,7 @@ export class WakeWordEngine {
         this.callbacks.onModelInference(inferenceTime, prediction);
       }
 
-      // Process predictions for each wake word
+      // Process predictions with robust positive word filtering
       const detections = await this.processPredictions(prediction);
 
       // Check for valid detections
@@ -471,31 +471,114 @@ export class WakeWordEngine {
   }
 
   /**
-   * Process TensorFlow Lite model predictions into wake word detections
+   * Process predictions with robust positive word filtering
    */
   private async processPredictions(prediction: number): Promise<WakeWordDetection[]> {
     const detections: WakeWordDetection[] = [];
+    const timestamp = Date.now();
 
-    // Skip if no wake words are configured
-    if (!this.config.wakeWords || this.config.wakeWords.length === 0) {
-      return detections;
-    }
+    // Define negative words that should always be rejected
+    const negativeWords = [
+      'black',
+      'back',
+      'blank',
+      'green',
+      'blue',
+      'red',
+      'yellow',
+      'under',
+      'ander',
+      'ender',
+      'indor',
+      'inner',
+      'anger',
+      'hinder',
+      'hunter',
+      'android',
+      'enter',
+      'winter',
+      'calendar',
+      'commander',
+      'okay',
+      'hey',
+      'hello',
+      'hi',
+      'yeah',
+      'nope',
+      'sure',
+      'listen',
+    ];
 
-    // For multi-class models, process each wake word prediction
-    this.config.wakeWords.forEach((wakeWord, index) => {
-      // Use the single prediction for all wake words (binary classification)
+    // Define positive eindr variants (from training data)
+    const positiveWords = [
+      'eindr',
+      'inder',
+      'endr',
+      'iindr',
+      'indr',
+      'ayn dur',
+      'ayn duh',
+      'in dur',
+      'in darr',
+      'ayn dar',
+      'ay ndar',
+      'ee ndar',
+      'een dar',
+      'ayn der',
+      'ein der',
+      'en druh',
+      'ain dr',
+      'eh inder',
+      'in dor',
+      'in thar',
+      'in dra',
+      'in dir',
+      'en der',
+      'ayin dr',
+      'ai yin de',
+      'e in da',
+      'eyn der',
+      'eyn dr',
+      'ein dr',
+      'eh een dr',
+      'eh yin da',
+      'e in dar',
+    ];
+
+    for (const wakeWord of this.config.wakeWords) {
+      // Skip if this word is in the negative list
+      if (negativeWords.some(neg => wakeWord.toLowerCase().includes(neg.toLowerCase()))) {
+        continue; // Explicitly reject negative words
+      }
+
+      // Only process if it's a known positive word
+      if (!positiveWords.some(pos => pos.toLowerCase() === wakeWord.toLowerCase())) {
+        continue; // Skip unknown words
+      }
+
+      const threshold = this.getWakeWordThreshold(wakeWord);
       const confidence = prediction;
 
-      detections.push({
-        wakeWord,
-        confidence,
-        timestamp: Date.now(),
-        audioLength: PERFORMANCE_CONFIG.ringBufferSize / this.config.sampleRate,
-      });
-    });
+      // Robust detection: require high confidence for positive words
+      if (confidence >= threshold) {
+        const detection: WakeWordDetection = {
+          wakeWord,
+          confidence,
+          timestamp,
+          audioLength: PERFORMANCE_CONFIG.ringBufferSize / this.config.sampleRate,
+        };
 
-    // Sort by confidence (highest first)
-    detections.sort((a, b) => b.confidence - a.confidence);
+        detections.push(detection);
+
+        // Notify detection callback
+        if (this.callbacks.onWakeWordDetected) {
+          this.callbacks.onWakeWordDetected(detection);
+        }
+
+        // Track this detection for debouncing
+        this.lastDetectionTime = timestamp;
+      }
+    }
 
     return detections;
   }

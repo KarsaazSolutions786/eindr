@@ -20,7 +20,7 @@ export class ModelManager implements IModelManager {
 
       // Load model using react-native-fast-tflite
       // The modelPath should be a require() statement for bundled assets
-      // e.g., require('../../assets/models/gru.tflite')
+      // e.g., require('../../assets/models/eindr_complete.tflite')
       this.model = await loadTensorflowModel(modelPath);
 
       this.isModelLoaded = true;
@@ -46,7 +46,7 @@ export class ModelManager implements IModelManager {
     }
 
     try {
-      // Expected input shape for gru.tflite: [1, 29, 13]
+      // Expected input shape for eindr_complete.tflite: [1, 29, 13]
       const expectedShape = [1, 29, 13];
 
       // Ensure input shape matches model requirements
@@ -82,7 +82,7 @@ export class ModelManager implements IModelManager {
     }
 
     try {
-      // Expected input shape for gru.tflite: [1, 29, 13]
+      // Expected input shape for eindr_complete.tflite: [1, 29, 13]
       const expectedShape = [1, 29, 13];
 
       // Ensure input shape matches model requirements
@@ -136,8 +136,8 @@ export class ModelManager implements IModelManager {
   } {
     return {
       loaded: this.isModelLoaded,
-      inputShape: [1, 29, 13], // gru.tflite input shape
-      outputShape: [1, 1], // gru.tflite output shape
+      inputShape: [1, 29, 13], // eindr_complete.tflite input shape
+      outputShape: [1, 1], // eindr_complete.tflite output shape
     };
   }
 
@@ -150,7 +150,7 @@ export class ModelManager implements IModelManager {
     }
 
     try {
-      // Create dummy input to test model - gru.tflite expects [1, 29, 13]
+      // Create dummy input to test model - eindr_complete.tflite expects [1, 29, 13]
       const inputSize = 1 * 29 * 13; // 377 features
       const dummyInput = new Float32Array(inputSize);
       dummyInput.fill(0); // Fill with zeros
@@ -162,7 +162,7 @@ export class ModelManager implements IModelManager {
         throw new Error('Model produced no outputs');
       }
 
-      // Validate output shape - gru.tflite should output single value
+      // Validate output shape - eindr_complete.tflite should output single value
       const output = outputs[0];
       if (output.length !== 1) {
         console.warn(
