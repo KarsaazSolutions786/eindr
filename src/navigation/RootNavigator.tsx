@@ -19,10 +19,9 @@ import OnboardingSecondScreen from '@screens/onboarding/OnboardingSecondScreen';
 import OnboardingThirdScreen from '@screens/onboarding/OnboardingThirdScreen';
 import OnboardingFourthScreen from '@screens/onboarding/OnboardingFourthScreen';
 import OnboardingFifthScreen from '@screens/onboarding/OnboardingFifthScreen';
-import PlansScreen from '@screens/onboarding/PlansScreen';
+import PlansScreen from '@screens/onboarding/PlansScreen'; 
 
 // App Screens
-import HomeScreen from '@screens/home/HomeScreen';
 import RemindersScreen from '@screens/app/RemindersScreen';
 import NotesScreen from '@screens/notes/NotesScreen';
 import FriendsScreen from '@screens/app/FriendsScreen';
@@ -45,6 +44,7 @@ import BackgroundScreen2 from '@components/common/BackgroundScreen2';
 import DashboardScreen from '@screens/dashboard/DashboardScreen';
 import UserTransactionsScreen from '@screens/ledger/UserTransactionsScreen';
 import { CardDetailsScreen, EditCardScreen, AddCardScreen } from '@screens/payment';
+import HomeScreen from '@screens/Home/HomeScreen';
 
 // Define Friend type
 interface Friend {
