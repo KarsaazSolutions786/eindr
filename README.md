@@ -1,378 +1,183 @@
-This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
+# Eindr - AI-Powered Task Management App
 
-# Getting Started
+Eindr is a sophisticated React Native application that combines AI-powered task management with voice commands, reminders, and social features. Built with TypeScript and modern React Native practices, it offers a seamless and intuitive user experience.
 
-> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
+## Core Features
 
-## Step 1: Start Metro
+### 1. AI-Powered Task Management
 
-First, you will need to run **Metro**, the JavaScript build tool for React Native.
+- **Smart Voice Commands**: Create and manage tasks using natural language
+- **Intelligent Task Processing**: AI-driven understanding of task context and requirements
+- **Wake Word Detection**: Custom wake word system using TensorFlow Lite
+- **Voice-to-Text Integration**: Real-time voice command processing
 
-To start the Metro dev server, run the following command from the root of your React Native project:
+### 2. Reminders & Calendar
+
+- **Smart Reminders**: Voice-based reminder creation and management
+- **Calendar Integration**: Sync with device calendar
+- **Multiple Views**: Today, Weekly, and Monthly calendar views
+- **Categories**: Organize reminders by category
+- **Time-based Organization**: Automatic sorting and scheduling
+
+### 3. Notes & Lists
+
+- **Rich Text Notes**: Create and edit detailed notes
+- **Quick Lists**: Easy creation of shopping lists, to-dos, etc.
+- **Pin Important Notes**: Keep critical information easily accessible
+- **Favorites System**: Mark and organize favorite notes
+- **Search Functionality**: Quick search through all notes
+
+### 4. Ledger Management
+
+- **Financial Tracking**: Keep track of money lent and borrowed
+- **Transaction History**: Detailed history of all financial transactions
+- **Payment Integration**: Secure card management and payments
+- **Due Date Reminders**: Automatic reminders for pending payments
+
+### 5. Social Features
+
+- **Friend System**: Connect with other users
+- **Shared Tasks**: Collaborate on tasks and reminders
+- **Activity Tracking**: View friends' public activities
+- **Profile Management**: Customize profile and privacy settings
+
+### 6. Premium Features
+
+- **Starter Plan** ($6.99/month):
+
+  - 50 Reminders
+  - Basic TTS voice assistant
+  - Notes & lists
+  - 2 Languages
+  - Voice reminder creation
+
+- **Pro Plan** ($12.99/month):
+
+  - Unlimited reminders
+  - AI voice assistant + TTS
+  - Habit Tracking
+  - 10 languages
+  - Share with 3 friends
+  - Calendar sync
+
+- **Elite Plan**:
+  - All Pro features
+  - Health tracking
+  - Premium support
+  - Advanced AI features
+
+## Technical Architecture
+
+### Frontend (React Native)
+
+- TypeScript for type safety
+- Redux for state management
+- React Navigation for routing
+- Custom UI components with gradient borders
+- Responsive design for all device sizes
+
+### AI & Voice Processing
+
+- TensorFlow Lite for wake word detection
+- Custom voice activity detection
+- MFCC feature extraction
+- Real-time audio processing
+- Voice-to-text API integration
+
+### Security
+
+- Secure authentication system
+- Protected API endpoints
+- Encrypted data storage
+- Privacy-focused design
+
+## Getting Started
+
+### Prerequisites
+
+- Node.js (v14 or later)
+- React Native development environment
+- CocoaPods (for iOS)
+- Android Studio (for Android)
+
+### Installation
+
+1. Clone the repository:
 
 ```sh
-# Using npm
-npm start
-
-# OR using Yarn
-yarn start
+git clone [repository-url]
 ```
 
-## Step 2: Build and run your app
-
-With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
-
-### Android
+2. Install dependencies:
 
 ```sh
-# Using npm
-npm run android
-
-# OR using Yarn
-yarn android
+npm install
 ```
 
-### iOS
-
-For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
-
-The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+3. Install CocoaPods (iOS):
 
 ```sh
 bundle install
-```
-
-Then, and every time you update your native dependencies, run:
-
-```sh
 bundle exec pod install
 ```
 
-For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
+4. Set up environment variables:
 
-```sh
-# Using npm
-npm run ios
-
-# OR using Yarn
-yarn ios
-```
-
-If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
-
-This is one way to run your app — you can also build it directly from Android Studio or Xcode.
-
-## Step 3: Modify your app
-
-Now that you have successfully run the app, let's make changes!
-
-Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
-
-When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
-
-- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
-- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
-
-## Congratulations! :tada:
-
-You've successfully run and modified your React Native App. :partying_face:
-
-### Now what?
-
-- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
-- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
-
-# Troubleshooting
-
-If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
-
-# Learn More
-
-To learn more about React Native, take a look at the following resources:
-
-- [React Native Website](https://reactnative.dev) - learn more about React Native.
-- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
-- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
-- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
-- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
-
-# Eindr Mobile App
-
-## Environment Setup
-
-### Environment Variables
-
-The app uses environment variables for different configurations. We use `react-native-config` to manage these variables.
-
-#### Available Environment Files
-
-- `.env.development` - Development environment
-- `.env.production` - Production environment
-- `.env.example` - Template for creating new environment files
-
-#### Environment Variables
-
-| Variable               | Description                    | Example                   |
-| ---------------------- | ------------------------------ | ------------------------- |
-| API_URL                | Base URL for API calls         | http://localhost:8000/api |
-| ENABLE_ANALYTICS       | Enable/disable analytics       | true/false                |
-| ENABLE_CRASH_REPORTING | Enable/disable crash reporting | true/false                |
-| APP_NAME               | Name of the application        | Eindr                     |
-| APP_VERSION            | Version of the application     | 1.0.0                     |
-| DEBUG_MODE             | Enable/disable debug mode      | true/false                |
-| SENTRY_DSN             | Sentry DSN for error tracking  |                           |
-| GOOGLE_ANALYTICS_ID    | Google Analytics ID            |                           |
+- Copy `.env.example` to `.env.development`
+- Update variables as needed
 
 ### Running the App
 
-#### Development
+#### Development Mode
 
-```bash
-# Start Metro bundler in development mode
-npm run start:dev
+```sh
+# Start Metro bundler
+npm start
 
-# Run on Android in development mode
-npm run android:dev
+# Run on Android
+npm run android
 
-# Run on iOS in development mode
-npm run ios:dev
+# Run on iOS
+npm run ios
 ```
 
-#### Production
+#### Production Mode
 
-```bash
-# Start Metro bundler in production mode
-npm run start:prod
-
-# Run on Android in production mode
+```sh
+# Android
 npm run android:prod
 
-# Run on iOS in production mode
+# iOS
 npm run ios:prod
 ```
 
-### Setting Up a New Environment
-
-1. Copy `.env.example` to create a new environment file:
-
-   ```bash
-   cp .env.example .env.development
-   ```
-
-2. Update the values in the new environment file
-
-3. Add the new environment file to `.gitignore` if it contains sensitive information
-
-### Best Practices
-
-1. Never commit sensitive information in environment files
-2. Always use `.env.example` as a template for new environment files
-3. Keep environment files in sync across team members
-4. Use different environment files for different stages (development, staging, production)
-
-# Eindr - React Native App
-
-A comprehensive React Native application built with TypeScript, featuring modern UI components, authentication, and advanced functionality including wake word detection.
-
-## Features
-
-- **Authentication & Social Login** - Email, Google, Facebook, Apple Sign-In
-- **Notes & Calendar** - Rich text editing and calendar integration
-- **Friends & Social** - Friend requests and social features
-- **Payments & Ledger** - Card management and transaction tracking
-- **Wake Word Detection** - Mycroft Precise integration with TensorFlow Lite
-- **Modern UI** - Beautiful gradients, animations, and responsive design
-
-## Wake Word Detection
-
-This app includes a comprehensive wake word detection system powered by **Mycroft Precise** and **TensorFlow Lite**. The implementation supports real-time audio processing, MFCC feature extraction, and voice-to-text integration.
-
-### Setup Instructions
-
-#### 1. Model Placement
-
-Place your Mycroft Precise GRU TensorFlow Lite model in the assets directory:
+## Project Structure
 
 ```
-assets/models/gru.tflite
+src/
+├── assets/          # Images, fonts, and static files
+├── components/      # Reusable UI components
+├── screens/         # Application screens
+├── navigation/      # Navigation configuration
+├── services/        # API and business logic
+├── store/          # Redux store and slices
+├── theme/          # Theme configuration
+├── utils/          # Utility functions
+└── wakeword/       # Wake word detection system
 ```
 
-**Model Requirements:**
+## Contributing
 
-- Format: TensorFlow Lite (`.tflite`)
-- Input: MFCC features `[1, 29, 13]` (batch, sequence, features)
-- Output: Binary classification confidence `[1, 1]`
-- Sample Rate: 16kHz mono audio
+1. Fork the repository
+2. Create your feature branch
+3. Commit your changes
+4. Push to the branch
+5. Create a Pull Request
 
-#### 2. Permissions Setup
+## License
 
-The required permissions have been added to both platforms:
+This project is proprietary and confidential. All rights reserved.
 
-**Android** (`android/app/src/main/AndroidManifest.xml`):
+## Support
 
-```xml
-<uses-permission android:name="android.permission.RECORD_AUDIO" />
-```
-
-**iOS** (`ios/Eindr/Info.plist`):
-
-```xml
-<key>NSMicrophoneUsageDescription</key>
-<string>This app needs access to the microphone for wake word detection and voice commands.</string>
-```
-
-#### 3. Backend API Configuration
-
-Configure your voice-to-text API endpoint in the wake word interface:
-
-```typescript
-<WakeWordInterface
-  apiBaseURL="https://your-api-endpoint.com"
-  onTextReceived={(text, response) => {
-    console.log('Transcribed:', text);
-  }}
-/>
-```
-
-### Usage Examples
-
-#### Basic Implementation
-
-```typescript
-import { useWakeWord } from '@wakeword';
-
-function MyComponent() {
-  const wakeWord = useWakeWord({
-    config: {
-      confidenceThreshold: 0.7,
-      enableHaptics: true,
-      maxRecordingDuration: 30000,
-    },
-    autoInitialize: true,
-  });
-
-  return (
-    <WakeWordButton
-      state={wakeWord.state}
-      onPress={() => {
-        if (wakeWord.isListening) {
-          wakeWord.stopListening();
-        } else {
-          wakeWord.startListening();
-        }
-      }}
-    />
-  );
-}
-```
-
-#### Complete Interface
-
-```typescript
-import { WakeWordInterface } from '@wakeword';
-
-function VoiceControlScreen() {
-  return (
-    <WakeWordInterface
-      autoStart={false}
-      onTextReceived={(text, response) => {
-        // Handle transcribed voice commands
-        processVoiceCommand(text);
-      }}
-      onWakeWordDetected={() => {
-        // Handle wake word detection
-        console.log('Wake word detected!');
-      }}
-      config={{
-        confidenceThreshold: 0.6,
-        enableHaptics: true,
-        maxRecordingDuration: 10000,
-      }}
-    />
-  );
-}
-```
-
-### Configuration Options
-
-| Option                 | Type    | Default | Description                          |
-| ---------------------- | ------- | ------- | ------------------------------------ |
-| `confidenceThreshold`  | number  | 0.7     | Detection confidence threshold (0-1) |
-| `sampleRate`           | number  | 16000   | Audio sample rate in Hz              |
-| `bufferSize`           | number  | 4096    | Audio buffer size                    |
-| `maxRecordingDuration` | number  | 30000   | Max recording time in ms             |
-| `silenceTimeout`       | number  | 800     | Silence detection timeout in ms      |
-| `vadSensitivity`       | number  | 1.0     | VAD sensitivity (higher = more sensitive) |
-| `enableHaptics`        | boolean | true    | Enable haptic feedback               |
-
-### API Endpoints
-
-The voice-to-text API expects multipart form data:
-
-```typescript
-POST /api/voice-to-text
-Content-Type: multipart/form-data
-
-{
-  audio: Blob,           // Audio file
-  duration: string,      // Duration in ms
-  format: string,        // Audio format (wav/mp3/aac)
-  sampleRate: string,    // Sample rate
-  requestId: string      // Unique request ID
-}
-```
-
-**Response:**
-
-```json
-{
-  "success": true,
-  "text": "transcribed text",
-  "requestId": "voice-1234567890-abc123"
-}
-```
-
-### Testing
-
-Access the wake word demo through:
-
-1. Navigate to **Settings** → **Development** → **Wake Word Demo**
-2. Or directly import and use `WakeWordDemoScreen`
-
-The demo includes:
-
-- Real-time wake word detection
-- Voice command recording and transcription
-- Performance monitoring and debugging tools
-- Configuration testing
-
-### Architecture
-
-The wake word system consists of:
-
-- **WakeWordEngine** - Core detection engine
-- **AudioProcessor** - MFCC feature extraction
-- **ModelManager** - TensorFlow Lite inference
-- **RingBuffer** - Efficient audio buffering
-- **VoiceToTextAPI** - Backend communication
-- **VoiceToTextAPI** caches transcriptions by audio fingerprint to avoid
-  repeated API calls when the same audio is processed.
-- **React Components** - UI integration
-
-### Performance
-
-Typical performance metrics:
-
-- **Model inference**: ~5-15ms per prediction
-- **Memory usage**: ~10-20MB additional
-- **CPU usage**: ~5-10% during active listening
-- **Battery impact**: Minimal when optimized
-
-### Troubleshooting
-
-1. **Model not loading**: Ensure `gru.tflite` is in `assets/models/`
-2. **Permission denied**: Check microphone permissions in device settings
-3. **Poor detection**: Adjust `confidenceThreshold` and retrain model
-4. **High CPU usage**: Increase `processingInterval` in config
-
-## Getting Started
+For support, please contact our team at [support-email].
