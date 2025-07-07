@@ -1,0 +1,7 @@
+{
+  "sample_rate": 16000,
+  "n_mfcc": 13,
+  "n_fft": 512,
+  "hop_length": 160,
+  "model_type": "RandomForestClassifier"
+}

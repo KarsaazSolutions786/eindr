@@ -69,7 +69,7 @@ const OnboardingFifthScreen = () => {
         {/* Top GIF Animation */}
         <View style={styles.gifContainer}>
           <Image
-            source={require('@assets/images/gif.gif')}
+            source={require('../../assets/images/gif.gif')}
             style={styles.gif}
             resizeMode="contain"
           />
