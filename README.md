@@ -174,10 +174,3 @@ src/
 4. Push to the branch
 5. Create a Pull Request
 
-## License
-
-This project is proprietary and confidential. All rights reserved.
-
-## Support
-
-For support, please contact our team at [support-email].
