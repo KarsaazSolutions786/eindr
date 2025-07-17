@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, SafeAreaView, StatusBar, ImageBackground } from 'react-native';
+import { View, StyleSheet, SafeAreaView, ImageBackground } from 'react-native';
 
 interface BackgroundScreenProps {
   children?: React.ReactNode;
@@ -7,17 +7,14 @@ interface BackgroundScreenProps {
 
 const BackgroundScreen: React.FC<BackgroundScreenProps> = ({ children }) => {
   return (
-    <>
-      <StatusBar barStyle="light-content" backgroundColor="#16182A" />
-      <SafeAreaView style={styles.safeArea}>
-        <ImageBackground
-          source={require('../assets/images/background1.png')}
-          style={styles.backgroundImage}
-          resizeMode="cover">
-          <View style={styles.content}>{children}</View>
-        </ImageBackground>
-      </SafeAreaView>
-    </>
+    <SafeAreaView style={styles.safeArea}>
+      <ImageBackground
+        source={require('../assets/images/background1.png')}
+        style={styles.backgroundImage}
+        resizeMode="cover">
+        <View style={styles.content}>{children}</View>
+      </ImageBackground>
+    </SafeAreaView>
   );
 };
 

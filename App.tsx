@@ -8,6 +8,8 @@
 import React, { useEffect } from 'react';
 import { View, StyleSheet, Dimensions } from 'react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
+import { StatusBar } from 'expo-status-bar';
+import * as SplashScreen from 'expo-splash-screen';
 import Config from 'react-native-config';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { NavigationContainer } from '@react-navigation/native';
@@ -16,6 +18,9 @@ import RootLayout from './src/navigation/RootLayout';
 import { store } from './src/store';
 import Toast from 'react-native-toast-message';
 import ErrorBoundary from '@components/ErrorBoundary';
+
+// Keep the splash screen visible while we fetch resources
+SplashScreen.preventAutoHideAsync();
 
 const { width, height } = Dimensions.get('window');
 
@@ -30,13 +35,23 @@ const { width, height } = Dimensions.get('window');
  */
 
 const App = () => {
-  // Gaoogle SignIn configuration
+  // Google SignIn configuration
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: Config.WEB_CLIENT_ID,
       iosClientId: Config.IOS_CLIENT_ID,
       offlineAccess: false,
     });
+  }, []);
+
+  // Hide splash screen after app is ready
+  useEffect(() => {
+    const hideSplashScreen = async () => {
+      // You can add any initialization logic here
+      await SplashScreen.hideAsync();
+    };
+    
+    hideSplashScreen();
   }, []);
 
   return (
@@ -47,6 +62,7 @@ const App = () => {
             <NavigationContainer>
               <RootLayout />
             </NavigationContainer>
+            <StatusBar style="light" backgroundColor="#16182A" />
             <Toast />
           </SafeAreaProvider>
         </View>

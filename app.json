@@ -1,4 +1,58 @@
 {
-  "name": "Eindr",
-  "displayName": "Eindr"
+  "expo": {
+    "name": "Eindr",
+    "slug": "eindr",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/Logo/logo.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/Logo/logo.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#16182A"
+    },
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.eindr.app",
+      "buildNumber": "1",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "This app uses microphone for voice commands and wake word detection",
+        "NSContactsUsageDescription": "This app accesses contacts to help you find friends already using Eindr",
+        "NSCalendarsUsageDescription": "This app syncs with your calendar to manage reminders",
+        "NSSpeechRecognitionUsageDescription": "This app uses speech recognition for voice commands"
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/Logo/logo.png",
+        "backgroundColor": "#16182A"
+      },
+      "package": "com.eindr.app",
+      "versionCode": 1,
+      "permissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.READ_CONTACTS",
+        "android.permission.WRITE_CALENDAR",
+        "android.permission.READ_CALENDAR"
+      ]
+    },
+    "web": {
+      "favicon": "./assets/Logo/logo.png"
+    },
+    "plugins": [
+      "expo-dev-client",
+      "expo-font",
+      "expo-asset",
+      "expo-build-properties",
+      "expo-web-browser"
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "your-project-id"
+      }
+    }
+  }
 }
