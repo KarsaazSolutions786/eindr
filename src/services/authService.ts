@@ -1,28 +1,46 @@
-import api from './api';
+import api, { authApi, customerApi } from './api';
 
 // --- Define Types ---
-// TODO: Align these types with the actual backend API response/request structures
+// Aligned with the actual backend API response/request structures
 
 interface LoginRequest {
   email: string;
   password: string;
+  remember_me?: boolean;
 }
 
 interface RegisterRequest {
-  fullName: string;
   email: string;
   password: string;
+  confirm_password: string;
+  full_name: string;
+  gender?: string;
+  is_new?: boolean;
+}
+
+interface Customer {
+  id: number;
+  email: string;
+  is_verified: boolean;
+  is_active: boolean;
+  created_at: string;
+  last_login: string | null;
+  login_attempts: number;
+  locked_until: string | null;
+  subscription_plan_id: number;
+  profile: {
+    full_name: string;
+    gender: string;
+    is_new: boolean;
+  };
 }
 
 interface AuthResponse {
-  user: {
-    id: string;
-    name: string;
-    email: string;
-    isNew: boolean;
-    // Add other fields returned by backend
-  };
-  token: string;
+  access_token: string;
+  refresh_token: string;
+  token_type: string;
+  expires_in: number;
+  customer: Customer;
 }
 
 interface ForgotPasswordRequest {
@@ -37,14 +55,9 @@ interface ForgotPasswordRequest {
  */
 export const checkUserStatus = async (): Promise<{ isNew: boolean }> => {
   try {
-    // In a real implementation, this would check with the backend
-    // For now, we'll simulate it with a local storage check
-    // If this is running in a React Native environment
-    if (typeof localStorage !== 'undefined') {
-      const hasSeenOnboarding = localStorage.getItem('hasSeenOnboarding');
-      return { isNew: hasSeenOnboarding !== 'true' };
-    }
-    return { isNew: true }; // Default to true if localStorage is not available
+    // Get current user info from auth service
+    const response = await authApi.get('/auth/me');
+    return { isNew: response.data.profile?.is_new || false };
   } catch (error) {
     console.error('Error checking user status:', error);
     return { isNew: false }; // Default to false if there's an error
@@ -56,44 +69,46 @@ export const checkUserStatus = async (): Promise<{ isNew: boolean }> => {
  */
 export const completeOnboarding = async (): Promise<void> => {
   try {
-    // In a real implementation, this would update the backend
-    // For now, we'll simulate it with a local storage update
-    if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('hasSeenOnboarding', 'true');
-    }
+    // Update user profile to mark onboarding as complete
+    await customerApi.put('/customers/me', { is_new: false });
   } catch (error) {
     console.error('Error completing onboarding:', error);
   }
 };
 
+/**
+ * Refresh access token using refresh token
+ */
+export const refreshToken = async (refreshToken: string): Promise<AuthResponse> => {
+  const response = await authApi.post<AuthResponse>('/auth/refresh', {
+    refresh_token: refreshToken
+  });
+  return response.data;
+};
+
+/**
+ * Get current user information
+ */
+export const getCurrentUser = async (): Promise<Customer> => {
+  const response = await authApi.get<Customer>('/auth/me');
+  return response.data;
+};
+
 export const loginUser = async (credentials: LoginRequest): Promise<AuthResponse> => {
-  // Assuming backend returns user and token on successful login at /auth/login
-  const response = await api.post<AuthResponse>('/auth/login', credentials);
-
-  // In a real implementation, we might need to check if the user is new
-  // For demo purposes, we'll assume new users have isNew: true
-  if (!response.data.user.hasOwnProperty('isNew')) {
-    response.data.user.isNew = true; // Default to true if not provided by backend
-  }
-
+  // Send login request to auth service
+  const response = await authApi.post<AuthResponse>('/auth/login', credentials);
   return response.data;
 };
 
 export const registerUser = async (userData: RegisterRequest): Promise<AuthResponse> => {
-  // Assuming backend returns user and token on successful registration at /auth/register
-  const response = await api.post<AuthResponse>('/auth/register', userData);
-
-  // New users are always marked as new
-  if (!response.data.user.hasOwnProperty('isNew')) {
-    response.data.user.isNew = true;
-  }
-
+  // Send registration request to auth service
+  const response = await authApi.post<AuthResponse>('/auth/register', userData);
   return response.data;
 };
 
 export const requestPasswordReset = async (data: ForgotPasswordRequest): Promise<void> => {
-  // Assuming backend sends email and returns success/failure at /auth/forgot-password
-  await api.post('/auth/forgot-password', data);
+  // Send password reset request to auth service
+  await authApi.post('/auth/forgot-password', data);
   // No specific data needed in response for this example
 };
 
@@ -124,6 +139,37 @@ export const loginWithApple = async (identityToken: string): Promise<AuthRespons
   const response = await api.post<AuthResponse>('/auth/apple', { identityToken });
   console.log('Backend response for Apple login:', response.data);
   return response.data;
+};
+
+/**
+ * Logout user and revoke tokens
+ */
+export const logoutUser = async (): Promise<void> => {
+  try {
+    await authApi.post('/auth/logout');
+  } catch (error) {
+    console.error('Error during logout:', error);
+    // Continue with logout even if API call fails
+  }
+};
+
+/**
+ * Revoke a specific token
+ */
+export const revokeToken = async (token: string): Promise<void> => {
+  await authApi.post('/auth/revoke-token', { token });
+};
+
+/**
+ * Validate if a token is still valid
+ */
+export const validateToken = async (token: string): Promise<boolean> => {
+  try {
+    await authApi.post('/auth/validate-token', { token });
+    return true;
+  } catch (error) {
+    return false;
+  }
 };
 
 // --- TODO: Add other auth-related API calls as needed ---

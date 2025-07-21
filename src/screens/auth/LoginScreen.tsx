@@ -11,6 +11,7 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import { useDispatch, useSelector } from 'react-redux';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -26,7 +27,7 @@ import { Input, Button, SocialButton, Header } from '@components/common';
 import theme from '@theme/theme';
 import { AccessToken } from 'react-native-fbsdk-next';
 import { LoginManager } from 'react-native-fbsdk-next';
-import { loginWithFacebook } from '@services/authService';
+import { loginWithFacebook, loginUser } from '@services/authService';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Login'>;
 
@@ -72,27 +73,27 @@ const LoginScreen = ({ navigation }: Props) => {
     if (valid) {
       setIsLoading(true);
       try {
-        // In a real implementation, this would make an actual API call
-        // const response = await loginUser({ email, password });
+        // Make actual API call to login
+        const response = await loginUser({ email, password });
 
-        // For now, simulate a successful login with a dummy user
-        const user = {
-          id: '123',
-          name: 'User',
-          email: email,
-          isNew: true, // This flag determines whether to show onboarding
-        };
+        // Save tokens and user data to AsyncStorage
+        await AsyncStorage.setItem('token', response.access_token);
+        await AsyncStorage.setItem('refreshToken', response.refresh_token);
+        await AsyncStorage.setItem('user', JSON.stringify(response.customer));
 
         // Dispatch auth success to store the user in Redux state
         dispatch(
           authSuccess({
-            user: user,
-            token: 'dummy-token', // This would come from the API in a real implementation
+            customer: response.customer,
+            access_token: response.access_token,
+            refresh_token: response.refresh_token,
+            token_type: response.token_type,
+            expires_in: response.expires_in,
           }),
         );
 
         // Check if user is new to determine where to navigate
-        if (user.isNew) {
+        if (response.customer.profile.is_new) {
           navigation.navigate('Welcome');
         } else {
           navigation.navigate('Home');

@@ -12,8 +12,10 @@ import Config from 'react-native-config';
 import { GoogleSignin } from '@react-native-google-signin/google-signin';
 import { NavigationContainer } from '@react-navigation/native';
 import { Provider } from 'react-redux';
+import { PersistGate } from 'redux-persist/integration/react';
 import RootLayout from './src/navigation/RootLayout';
-import { store } from './src/store';
+import { store, persistor } from './src/store';
+import { initializeAuth } from './src/services/authInitService';
 import Toast from 'react-native-toast-message';
 import ErrorBoundary from '@components/ErrorBoundary';
 
@@ -30,7 +32,7 @@ const { width, height } = Dimensions.get('window');
  */
 
 const App = () => {
-  // Gaoogle SignIn configuration
+  // Google SignIn configuration and auth initialization
   useEffect(() => {
     GoogleSignin.configure({
       webClientId: Config.WEB_CLIENT_ID,
@@ -39,17 +41,24 @@ const App = () => {
     });
   }, []);
 
+  // Handle authentication initialization after persist rehydration
+  const handlePersistorReady = async () => {
+    await initializeAuth();
+  };
+
   return (
     <ErrorBoundary>
       <Provider store={store}>
-        <View style={styles.root}>
-          <SafeAreaProvider>
-            <NavigationContainer>
-              <RootLayout />
-            </NavigationContainer>
-            <Toast />
-          </SafeAreaProvider>
-        </View>
+        <PersistGate loading={null} persistor={persistor} onBeforeLift={handlePersistorReady}>
+          <View style={styles.root}>
+            <SafeAreaProvider>
+              <NavigationContainer>
+                <RootLayout />
+              </NavigationContainer>
+              <Toast />
+            </SafeAreaProvider>
+          </View>
+        </PersistGate>
       </Provider>
     </ErrorBoundary>
   );

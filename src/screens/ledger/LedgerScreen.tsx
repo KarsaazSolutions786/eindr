@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Platform } from 'react-native';
+import { useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import theme from '@theme/theme';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import ScreenHeader from '../../components/common/ScreenHeader';
@@ -8,6 +10,10 @@ import LinearGradient from 'react-native-linear-gradient';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../../navigation/RootNavigator';
+import { logout } from '@store/slices/authSlice';
+import { logoutUser as logoutUserAPI } from '@services/authService';
+import { logoutUser } from '@services/authInitService';
+import { AppDispatch } from '@store/index';
 import styles from './styles/LedgerScreenStyles';
 
 // Define types for our transaction data
@@ -28,6 +34,7 @@ interface LedgerSummary {
 type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
 
 const LedgerScreen = () => {
+  const dispatch = useDispatch<AppDispatch>();
   const [activeTab, setActiveTab] = useState('balance');
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [summary, setSummary] = useState<LedgerSummary>({
@@ -132,11 +139,24 @@ const LedgerScreen = () => {
     setSidebarVisible(!sidebarVisible);
   };
 
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      // Call the logout API endpoint
+      await logoutUserAPI();
+    } catch (error) {
+      console.error('Logout API call failed:', error);
+    } finally {
+      // Always clear local state and storage, even if API call fails
+      await logoutUser();
+    }
+  };
+
   return (
     <View style={styles.container}>
       <ScreenHeader title="Ledger" onMenuPress={toggleSidebar} onProfilePress={() => {}} />
 
-      <Sidebar isVisible={sidebarVisible} onClose={() => setSidebarVisible(false)} />
+      <Sidebar isVisible={sidebarVisible} onClose={() => setSidebarVisible(false)} onLogout={handleLogout} />
 
       {/* Tabs */}
       <View style={styles.tabContainer}>

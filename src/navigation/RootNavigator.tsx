@@ -187,19 +187,21 @@ const withBackground2 = <P extends object>(Component: React.ComponentType<P>) =>
 
 const RootNavigator = () => {
   const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
-  const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList>('Home');
-
+  const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList>('Login');
+  
+  // Update initial route based on auth state changes
   useEffect(() => {
-    // Determine initial route based on auth state and isNew flag
-    if (isAuthenticated) {
-      if (user?.isNew) {
-        setInitialRoute('Welcome');
-      } else {
-        setInitialRoute('Home');
+    const getInitialRoute = (): keyof RootStackParamList => {
+      if (!isAuthenticated) {
+        return 'Login';
       }
-    } else {
-      setInitialRoute('Login');
-    }
+      if (user?.profile?.is_new) {
+        return 'Welcome';
+      }
+      return 'Home';
+    };
+
+    setInitialRoute(getInitialRoute());
   }, [isAuthenticated, user]);
 
   return (

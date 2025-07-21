@@ -114,22 +114,24 @@ const RegisterScreen = ({ navigation }: Props) => {
     if (isValid) {
       dispatch(authStart());
       try {
-        // In a real implementation, this would call the API
-        // const userData = { fullName, email, gender, password };
-        // const response = await registerUser(userData);
-
-        // For now, simulate a successful registration with a dummy user
-        const user = {
-          id: '123',
-          name: fullName,
-          email: email,
-          isNew: true, // This flag determines whether to show onboarding
+        // Make actual API call to register
+        const userData = {
+          email,
+          password,
+          confirm_password: confirmPassword,
+          full_name: fullName,
+          gender: gender.toLowerCase(),
+          is_new: true
         };
+        const response = await registerUser(userData);
 
         dispatch(
           authSuccess({
-            user: user,
-            token: 'dummy-token', // This would come from the API in a real implementation
+            customer: response.customer,
+            access_token: response.access_token,
+            refresh_token: response.refresh_token,
+            token_type: response.token_type,
+            expires_in: response.expires_in,
           }),
         );
 

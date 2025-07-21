@@ -1,10 +1,17 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigationState } from '@react-navigation/native';
+import { useDispatch } from 'react-redux';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 import MainLayout from '../layouts/MainLayout';
 import RootNavigator, { screenConfig } from './RootNavigator';
 import Sidebar from '../components/common/Sidebar';
+import { logout } from '@store/slices/authSlice';
+import { logoutUser as logoutUserAPI } from '@services/authService';
+import { logoutUser } from '@services/authInitService';
+import { AppDispatch } from '@store/index';
 
 const RootLayout: React.FC = () => {
+  const dispatch = useDispatch<AppDispatch>();
   // You can manage this with your auth system
   const [isLoggedIn, setIsLoggedIn] = useState(true);
   const [isSidebarVisible, setIsSidebarVisible] = useState(false);
@@ -37,6 +44,20 @@ const RootLayout: React.FC = () => {
     setIsSidebarVisible(!isSidebarVisible);
   };
 
+  // Handle logout
+  const handleLogout = async () => {
+    try {
+      // Call the logout API endpoint
+      await logoutUserAPI();
+    } catch (error) {
+      console.error('Logout API call failed:', error);
+    } finally {
+      // Always clear local state and storage, even if API call fails
+      await logoutUser();
+      setIsLoggedIn(false);
+    }
+  };
+
   // Header properties for the MainLayout
   const headerProps = {
     isLoggedIn,
@@ -57,6 +78,7 @@ const RootLayout: React.FC = () => {
         isVisible={isSidebarVisible}
         onClose={() => setIsSidebarVisible(false)}
         userName="Kamran"
+        onLogout={handleLogout}
       />
     </>
   );

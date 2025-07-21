@@ -114,7 +114,7 @@ The app uses environment variables for different configurations. We use `react-n
 
 | Variable               | Description                    | Example                   |
 | ---------------------- | ------------------------------ | ------------------------- |
-| API_URL                | Base URL for API calls         | http://localhost:8000/api |
+| API_URL                | Base URL for API calls         | https://auth-production-37f1.up.railway.app/api |
 | ENABLE_ANALYTICS       | Enable/disable analytics       | true/false                |
 | ENABLE_CRASH_REPORTING | Enable/disable crash reporting | true/false                |
 | APP_NAME               | Name of the application        | Eindr                     |
