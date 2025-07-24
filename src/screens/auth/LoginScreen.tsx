@@ -11,7 +11,7 @@ import {
   Alert,
   ScrollView,
 } from 'react-native';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StorageService } from '@services/storageService';
 import { useDispatch, useSelector } from 'react-redux';
 import { GoogleSignin, statusCodes } from '@react-native-google-signin/google-signin';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
@@ -76,10 +76,18 @@ const LoginScreen = ({ navigation }: Props) => {
         // Make actual API call to login
         const response = await loginUser({ email, password });
 
-        // Save tokens and user data to AsyncStorage
-        await AsyncStorage.setItem('token', response.access_token);
-        await AsyncStorage.setItem('refreshToken', response.refresh_token);
-        await AsyncStorage.setItem('user', JSON.stringify(response.customer));
+        // Store authentication data using centralized function
+        await StorageService.storeAuthData({
+          token: response.access_token,
+          refreshToken: response.refresh_token,
+          user: response.customer
+        });
+
+        console.log('🔐 Login successful! User data:', {
+          userId: response.customer.id,
+          email: response.customer.email,
+          isNew: response.customer.profile?.is_new
+        });
 
         // Dispatch auth success to store the user in Redux state
         dispatch(
@@ -92,11 +100,15 @@ const LoginScreen = ({ navigation }: Props) => {
           }),
         );
 
+        console.log('🚀 Auth success dispatched, navigating...');
+
         // Check if user is new to determine where to navigate
         if (response.customer.profile.is_new) {
+          console.log('📍 Navigating to Welcome (new user)');
           navigation.navigate('Welcome');
         } else {
-          navigation.navigate('Home');
+          console.log('📍 Navigating to Dashboard (existing user)');
+          navigation.navigate('Dashboard');
         }
       } catch (error: Error | unknown) {
         const errorMessage =

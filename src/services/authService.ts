@@ -1,3 +1,4 @@
+import axios from 'axios';
 import api, { authApi, customerApi } from './api';
 
 // --- Define Types ---
@@ -13,8 +14,8 @@ interface RegisterRequest {
   email: string;
   password: string;
   confirm_password: string;
-  full_name: string;
-  gender?: string;
+  first_name: string;
+  last_name?: string;
   is_new?: boolean;
 }
 
@@ -24,13 +25,25 @@ interface Customer {
   is_verified: boolean;
   is_active: boolean;
   created_at: string;
+  updated_at: string;
   last_login: string | null;
   login_attempts: number;
   locked_until: string | null;
-  subscription_plan_id: number;
   profile: {
-    full_name: string;
-    gender: string;
+    first_name: string | null;
+    last_name: string | null;
+    display_name: string | null;
+    bio: string | null;
+    phone_number: string | null;
+    timezone: string;
+    language: string;
+    is_public: boolean;
+    id: number;
+    customer_id: number;
+    avatar_url: string | null;
+    is_verified: boolean;
+    created_at: string;
+    updated_at: string;
     is_new: boolean;
   };
 }
@@ -55,8 +68,8 @@ interface ForgotPasswordRequest {
  */
 export const checkUserStatus = async (): Promise<{ isNew: boolean }> => {
   try {
-    // Get current user info from auth service
-    const response = await authApi.get('/auth/me');
+    // Get current user info from customer service
+    const response = await customerApi.get('/customers/me');
     return { isNew: response.data.profile?.is_new || false };
   } catch (error) {
     console.error('Error checking user status:', error);
@@ -66,13 +79,115 @@ export const checkUserStatus = async (): Promise<{ isNew: boolean }> => {
 
 /**
  * Mark that the user has completed onboarding
+ * Updates the backend profile to set is_new: false
  */
 export const completeOnboarding = async (): Promise<void> => {
   try {
-    // Update user profile to mark onboarding as complete
-    await customerApi.put('/customers/me', { is_new: false });
-  } catch (error) {
-    console.error('Error completing onboarding:', error);
+    console.log('🔄 Completing onboarding...');
+    
+    // Check authentication status for debugging
+    const { store } = require('@store/index');
+    const authState = store.getState().auth;
+    const { token, refreshToken: currentRefreshToken, isAuthenticated, user } = authState;
+    
+    console.log('🔑 Authentication status:', {
+      hasToken: !!token,
+      hasRefreshToken: !!currentRefreshToken,
+      isAuthenticated,
+      hasUser: !!user
+    });
+    
+    if (token) {
+      console.log('🔑 Token preview:', token.substring(0, 20) + '...');
+    }
+    
+    // Proceed with API call - let the API handle authentication
+    console.log('📡 Attempting to update backend...');
+    
+    // Get current user data first to ensure we have the latest info
+    const currentUser = await customerApi.get('/customers/me');
+    console.log('👤 Current user data:', JSON.stringify(currentUser.data, null, 2));
+    
+    // Create the correct request body structure based on the API specification
+    // The API expects a flat customer object with is_new at the root level
+    const updatePayload = {
+      email: currentUser.data.email,
+      is_active: currentUser.data.is_active,
+      is_verified: currentUser.data.is_verified,
+      is_new: false // This is the key change - set to false to complete onboarding
+    };
+    
+    console.log('📤 Sending customer update:', JSON.stringify(updatePayload, null, 2));
+    
+    // Use PUT method with the correct payload structure
+    const updateResponse = await customerApi.put('/customers/me', updatePayload);
+    
+    console.log('✅ Onboarding completed successfully via API');
+    console.log('📋 Update response:', JSON.stringify(updateResponse.data, null, 2));
+    
+  } catch (error: any) {
+    console.error('❌ Error during onboarding completion:', error);
+    
+    // Log more detailed error information
+    if (error.response) {
+      console.error('📋 Error response status:', error.response.status);
+      console.error('📋 Error response data:', JSON.stringify(error.response.data, null, 2));
+      console.error('📋 Error response headers:', JSON.stringify(error.response.headers, null, 2));
+      
+      // Handle specific authentication errors with token refresh
+      if ((error.response.status === 401 || error.response.status === 403) && 
+          error.response.data?.detail === 'Not authenticated') {
+        console.warn('🔐 Authentication token appears to be invalid or expired');
+        
+        // Attempt token refresh as per authentication flow documentation
+        const { store } = require('@store/index');
+        const currentRefreshToken = store.getState().auth.refreshToken;
+        
+        if (currentRefreshToken) {
+          try {
+            console.log('🔄 Attempting token refresh...');
+            const refreshResponse = await refreshToken(currentRefreshToken);
+            
+            // Update tokens in store
+            const { setTokens } = require('@store/slices/authSlice');
+            store.dispatch(setTokens({
+              token: refreshResponse.access_token,
+              refreshToken: refreshResponse.refresh_token || currentRefreshToken
+            }));
+            
+            console.log('✅ Token refreshed successfully, retrying onboarding update...');
+            
+            // Retry the original request with new token
+            const retryUser = await customerApi.get('/customers/me');
+            const retryPayload = {
+              email: retryUser.data.email,
+              is_active: retryUser.data.is_active,
+              is_verified: retryUser.data.is_verified,
+              is_new: false
+            };
+            
+            const retryResponse = await customerApi.put('/customers/me', retryPayload);
+            console.log('✅ Onboarding completed successfully after token refresh');
+            console.log('📋 Retry response:', JSON.stringify(retryResponse.data, null, 2));
+            return;
+            
+          } catch (refreshError: any) {
+            console.error('❌ Token refresh failed:', refreshError);
+            console.log('🚪 User needs to re-authenticate');
+            
+            // Clear invalid tokens and logout user
+            const { logout } = require('@store/slices/authSlice');
+            store.dispatch(logout());
+          }
+        } else {
+          console.warn('⚠️ No refresh token available for token refresh');
+        }
+      }
+    }
+    
+    // Don't throw the error - allow the app to continue
+    // The local state will still be updated in PlansScreen
+    console.log('ℹ️ Local onboarding state will be updated in PlansScreen');
   }
 };
 
@@ -90,7 +205,7 @@ export const refreshToken = async (refreshToken: string): Promise<AuthResponse> 
  * Get current user information
  */
 export const getCurrentUser = async (): Promise<Customer> => {
-  const response = await authApi.get<Customer>('/auth/me');
+  const response = await customerApi.get<Customer>('/customers/me');
   return response.data;
 };
 
@@ -165,7 +280,17 @@ export const revokeToken = async (token: string): Promise<void> => {
  */
 export const validateToken = async (token: string): Promise<boolean> => {
   try {
-    await authApi.post('/auth/validate-token', { token });
+    // Create a temporary axios instance without interceptors to avoid double token sending
+    const tempApi = axios.create({
+      baseURL: authApi.defaults.baseURL,
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      timeout: 10000
+    });
+    
+    await tempApi.post('/auth/validate-token');
     return true;
   } catch (error) {
     return false;

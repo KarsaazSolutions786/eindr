@@ -9,11 +9,13 @@ import {
   ScrollView,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { useSelector } from 'react-redux';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 import theme from '@theme/theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
+import { RootState } from '@store/index';
 
 interface ProfileSettingItemProps {
   label: string;
@@ -53,6 +55,7 @@ const ProfileSettingItem: React.FC<ProfileSettingItemProps> = ({
 
 const ProfileSettingsScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const { user } = useSelector((state: RootState) => state.auth);
 
   // Hide header when component mounts
   React.useLayoutEffect(() => {
@@ -90,11 +93,15 @@ const ProfileSettingsScreen: React.FC = () => {
       <ScrollView style={styles.scrollContainer} showsVerticalScrollIndicator={false}>
         <View style={styles.profileSection}>
           <Image
-            source={{ uri: 'https://randomuser.me/api/portraits/women/90.jpg' }}
+            source={{ 
+              uri: user?.profile?.avatar_url || 'https://randomuser.me/api/portraits/women/90.jpg' 
+            }}
             style={styles.profileImage}
           />
-          <Text style={styles.name}>Zara khan</Text>
-          <Text style={styles.email}>zara.khan@example.com</Text>
+          <Text style={styles.name}>
+            {user?.profile?.display_name || `${user?.profile?.first_name || ''} ${user?.profile?.last_name || ''}`.trim() || 'User'}
+          </Text>
+          <Text style={styles.email}>{user?.email || 'No email'}</Text>
         </View>
 
         <View style={styles.settingsSection}>

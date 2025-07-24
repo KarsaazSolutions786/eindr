@@ -2,7 +2,7 @@ import axios, { InternalAxiosRequestConfig, AxiosError, AxiosResponse } from 'ax
 import { store } from '@store/index'; // Import the store to access the token
 import { logout, setTokens } from '@store/slices/authSlice';
 import Config from 'react-native-config';
-import AsyncStorage from '@react-native-async-storage/async-storage';
+import { StorageService } from './storageService';
 
 // Microservices API endpoints
 const API_ENDPOINTS = {
@@ -52,6 +52,14 @@ const addInterceptors = (apiInstance: any) => {
       const token = store.getState().auth.token; // Get token from Redux state
       if (token && config.headers) {
         config.headers.Authorization = `Bearer ${token}`;
+        console.log('🔑 Adding auth token to request:', {
+          url: config.url,
+          method: config.method,
+          hasToken: !!token,
+          tokenPreview: token ? `${token.substring(0, 20)}...` : 'none'
+        });
+      } else {
+        console.warn('⚠️ No auth token available for request:', config.url);
       }
       return config;
     },
@@ -69,16 +77,25 @@ const addInterceptors = (apiInstance: any) => {
       if (error.response) {
         switch (error.response.status) {
           case 401:
-            // Handle unauthorized access - try to refresh token
-            if (!originalRequest._retry) {
+          case 403:
+            // Handle unauthorized/forbidden access - try to refresh token
+            // Check if this is an authentication error that can be resolved with token refresh
+             const errorData = error.response.data as any;
+             const isAuthError = errorData?.detail === 'Not authenticated' || 
+                                errorData?.detail === 'Invalid token' ||
+                                error.response.status === 401;
+            
+            if (isAuthError && !originalRequest._retry) {
               originalRequest._retry = true;
               
               try {
-                const refreshToken = await AsyncStorage.getItem('refreshToken');
-                if (refreshToken) {
+                const authData = await StorageService.getAuthData();
+                if (authData.refreshToken) {
+                  console.log('🔄 Attempting automatic token refresh...');
+                  
                   // Try to refresh the token
                   const refreshResponse = await authApi.post('/auth/refresh', {
-                    refresh_token: refreshToken
+                    refresh_token: authData.refreshToken
                   });
                   
                   const { access_token, refresh_token: newRefreshToken } = refreshResponse.data;
@@ -88,32 +105,48 @@ const addInterceptors = (apiInstance: any) => {
                     token: access_token, 
                     refreshToken: newRefreshToken 
                   }));
-                  await AsyncStorage.setItem('token', access_token);
-                  await AsyncStorage.setItem('refreshToken', newRefreshToken);
+                  
+                  // Update tokens using StorageService
+                  await StorageService.updateTokens(access_token, newRefreshToken);
+                  
+                  console.log('✅ Token refreshed successfully, retrying original request...');
                   
                   // Retry the original request with new token
                   if (originalRequest.headers) {
                     originalRequest.headers.Authorization = `Bearer ${access_token}`;
                   }
-                  return apiInstance(originalRequest);
+                  
+                  try {
+                    const retryResponse = await apiInstance(originalRequest);
+                    console.log('✅ Retry request successful after token refresh');
+                    return retryResponse;
+                  } catch (retryError: any) {
+                    console.error('❌ Retry request failed even after token refresh:', retryError.response?.status, retryError.response?.data);
+                    // Don't logout here - let the error propagate
+                    throw retryError;
+                  }
+                } else {
+                  // No refresh token available, logout user
+                  console.error('❌ No refresh token available');
+                  store.dispatch(logout());
+                  await StorageService.clearAuthData();
                 }
               } catch (refreshError) {
-                console.error('Token refresh failed:', refreshError);
+                console.error('❌ Token refresh failed:', refreshError);
                 // If refresh fails, logout user
                 store.dispatch(logout());
-                await AsyncStorage.multiRemove(['token', 'refreshToken', 'user']);
+                await StorageService.clearAuthData();
                 return Promise.reject(refreshError);
               }
+            } else if (error.response.status === 403 && !isAuthError) {
+              // Handle non-auth 403 errors (insufficient permissions)
+              console.error('Access forbidden - insufficient permissions');
+            } else if (!originalRequest._retry) {
+              // Only logout if we haven't already tried to refresh the token
+              console.error('❌ Authentication failed completely');
+              store.dispatch(logout());
+              await StorageService.clearAuthData();
             }
-            
-            // If retry failed or no refresh token, logout
-            store.dispatch(logout());
-            await AsyncStorage.multiRemove(['token', 'refreshToken', 'user']);
-            break;
-            
-          case 403:
-            // Handle forbidden access
-            console.error('Access forbidden - insufficient permissions');
             break;
             
           case 404:

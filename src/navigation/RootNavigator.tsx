@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { useSelector } from 'react-redux';
+import { View, ActivityIndicator } from 'react-native';
 import { RootState } from '@store/rootReducer';
 import BackgroundScreen from '@components/BackgroundScreen';
 
@@ -186,23 +187,51 @@ const withBackground2 = <P extends object>(Component: React.ComponentType<P>) =>
 };
 
 const RootNavigator = () => {
-  const { isAuthenticated, user } = useSelector((state: RootState) => state.auth);
-  const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList>('Login');
+  const { isAuthenticated, user, isInitialized } = useSelector((state: RootState) => state.auth);
+  const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
   
   // Update initial route based on auth state changes
   useEffect(() => {
+    // Only determine initial route after auth initialization is complete
+    if (!isInitialized) {
+      console.log('⏳ Waiting for auth initialization...');
+      return;
+    }
+
     const getInitialRoute = (): keyof RootStackParamList => {
+      console.log('🧭 Determining initial route:', {
+        isAuthenticated,
+        hasUser: !!user,
+        userIsNew: user?.profile?.is_new,
+        userId: user?.id,
+        isInitialized
+      });
+      
       if (!isAuthenticated) {
+        console.log('📍 Initial route: Login (not authenticated)');
         return 'Login';
       }
       if (user?.profile?.is_new) {
+        console.log('📍 Initial route: Welcome (new user)');
         return 'Welcome';
       }
-      return 'Home';
+      console.log('📍 Initial route: Dashboard (existing authenticated user)');
+      return 'Dashboard';
     };
 
     setInitialRoute(getInitialRoute());
-  }, [isAuthenticated, user]);
+  }, [isAuthenticated, user, isInitialized]);
+
+  // Show loading screen while auth is initializing
+  if (!isInitialized || initialRoute === null) {
+    return (
+      <BackgroundScreen>
+        <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+          <ActivityIndicator size="large" color="#ffffff" />
+        </View>
+      </BackgroundScreen>
+    );
+  }
 
   return (
     <Stack.Navigator

@@ -17,10 +17,12 @@ const RegisteredScreen = ({ navigation }: Props) => {
 
   const handleConfirm = () => {
     // Check if user is new to determine where to navigate
-    if (user?.isNew) {
+    if (user?.profile?.is_new) {
+      console.log('📍 Navigating to Welcome (new user from RegisteredScreen)');
       navigation.navigate('Welcome');
     } else {
-      navigation.navigate('Home');
+      console.log('📍 Navigating to Dashboard (existing user from RegisteredScreen)');
+      navigation.navigate('Dashboard');
     }
   };
 

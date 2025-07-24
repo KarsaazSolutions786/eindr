@@ -10,34 +10,36 @@ import {
   Dimensions,
   StatusBar,
   Switch,
+  ActivityIndicator,
+  Alert,
+  RefreshControl,
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
+import { NativeStackNavigationProp } from '@react-navigation/native-stack';
+import { RootStackParamList } from '@navigation/RootNavigator';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@store/rootReducer';
+import { getCurrentUser } from '@services/authService';
+import { updateUser } from '@store/slices/authSlice';
+import { StorageService } from '@services/storageService';
+import { UserDataService, ReminderItem, ActivityItem, HistoryItem, UserDataSummary } from '@services/userDataService';
 
 const { width } = Dimensions.get('window');
 
-interface ReminderItem {
-  id: string;
-  title: string;
-}
-
-interface ActivityItem {
-  id: string;
-  title: string;
-}
-
-interface HistoryItem {
-  id: string;
-  title: string;
-  date: string;
-  time: string;
-}
-
 const UserProfileScreen: React.FC = () => {
-  const navigation = useNavigation();
+  const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
+  const dispatch = useDispatch();
   const [isTrustedFriend, setIsTrustedFriend] = useState<boolean>(true);
   const [canSetNotes, setCanSetNotes] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
+  const [userProfileData, setUserProfileData] = useState<UserDataSummary | null>(null);
+  const [isLoadingProfileData, setIsLoadingProfileData] = useState(false);
+  
+  // Get user data from Redux store
+  const { user, isAuthenticated, isInitialized } = useSelector((state: RootState) => state.auth);
 
   // Hide header when component mounts
   React.useLayoutEffect(() => {
@@ -46,47 +48,217 @@ const UserProfileScreen: React.FC = () => {
     });
   }, [navigation]);
 
-  // Mock data for reminders
-  const reminders: ReminderItem[] = [
-    { id: '1', title: 'Morning walk' },
-    { id: '2', title: "Doc's Appointment" },
-  ];
+  // Fetch latest user data from API
+  const fetchUserData = async () => {
+    if (!isAuthenticated) {
+      console.log('ProfileScreen: Not authenticated, skipping fetch');
+      return;
+    }
+    
+    try {
+      console.log('ProfileScreen: Fetching user data from API...');
+      setIsRefreshing(true);
+      const userData = await getCurrentUser();
+      console.log('ProfileScreen: Received user data:', {
+        id: userData.id,
+        email: userData.email,
+        firstName: userData.profile?.first_name,
+        lastName: userData.profile?.last_name,
+        displayName: userData.profile?.display_name
+      });
+      dispatch(updateUser(userData));
+      await StorageService.updateUser(userData);
+      console.log('ProfileScreen: User data updated in store and storage');
+    } catch (error) {
+      console.error('ProfileScreen: Error fetching user data:', error);
+      // Don't show alert for network errors, just log them
+      if (error instanceof Error && error.message.includes('Network')) {
+        console.log('ProfileScreen: Network error, will retry later');
+      } else {
+        Alert.alert('Error', 'Failed to refresh profile data. Please try again.');
+      }
+    } finally {
+      setIsRefreshing(false);
+    }
+  };
 
-  // Mock data for activities
-  const activities: ActivityItem[] = [
-    { id: '1', title: 'Morning walk' },
-    { id: '2', title: "Doc's Appointment" },
-    { id: '3', title: 'Coffee - Date' },
-    { id: '4', title: 'Morning walk' },
-    { id: '5', title: "Doc's Appointment" },
-  ];
+  // Fetch user profile data (reminders, activities, history)
+  const fetchProfileData = async () => {
+    if (!isAuthenticated) {
+      console.log('ProfileScreen: Not authenticated, skipping profile data fetch');
+      return;
+    }
 
-  // Mock data for history
-  const historyItems: HistoryItem[] = [
-    { id: '1', title: 'Walk the dog', date: '12/12/25', time: '2PM' },
-    { id: '2', title: 'Call the dentist', date: '12/12/25', time: '1PM' },
-  ];
+    try {
+      console.log('ProfileScreen: Fetching profile data...');
+      setIsLoadingProfileData(true);
+      const profileData = await UserDataService.getUserProfileData();
+      console.log('ProfileScreen: Received profile data:', {
+        remindersCount: profileData.reminders.length,
+        activitiesCount: profileData.activities.length,
+        historyCount: profileData.history.length,
+        stats: profileData.stats
+      });
+      setUserProfileData(profileData);
+    } catch (error) {
+      console.error('ProfileScreen: Error fetching profile data:', error);
+      // Keep existing data on error, don't show alert for better UX
+    } finally {
+      setIsLoadingProfileData(false);
+    }
+  };
+
+  // Combined refresh function
+  const refreshAllData = async () => {
+    await Promise.all([
+      fetchUserData(),
+      fetchProfileData()
+    ]);
+  };
+
+  // Load user data when component mounts or when authentication state changes
+  useEffect(() => {
+    console.log('ProfileScreen: useEffect triggered', { 
+      isAuthenticated, 
+      isInitialized, 
+      user: user ? 'User exists' : 'No user' 
+    });
+    
+    // Only proceed if auth is initialized
+    if (!isInitialized) {
+      console.log('ProfileScreen: Auth not initialized yet, waiting...');
+      return;
+    }
+    
+    if (isAuthenticated) {
+      // If we don't have user data, fetch it
+      if (!user) {
+        console.log('ProfileScreen: No user data found, fetching from API');
+        fetchUserData();
+      } else {
+        console.log('ProfileScreen: User data already available');
+      }
+      
+      // Always fetch profile data when authenticated
+      if (!userProfileData) {
+        console.log('ProfileScreen: No profile data found, fetching from API');
+        fetchProfileData();
+      }
+    } else {
+      console.log('ProfileScreen: User not authenticated');
+    }
+  }, [isAuthenticated, isInitialized, user]);
+
+  // Debug user data changes
+  useEffect(() => {
+    console.log('ProfileScreen: User data changed:', {
+      hasUser: !!user,
+      email: user?.email,
+      firstName: user?.profile?.first_name,
+      lastName: user?.profile?.last_name,
+      displayName: user?.profile?.display_name,
+      avatarUrl: user?.profile?.avatar_url
+    });
+  }, [user]);
+
+  // Get data from state or use empty arrays as fallback
+  const reminders = userProfileData?.reminders || [];
+  const activities = userProfileData?.activities || [];
+  const historyItems = userProfileData?.history || [];
+  const stats = userProfileData?.stats || {
+    totalReminders: 0,
+    completedReminders: 0,
+    totalLedgerAmount: 0,
+    recentActivities: 0
+  };
+  
+  // Get user's display name or fallback to first name + last name or email
+  const getUserDisplayName = () => {
+    console.log('ProfileScreen: Getting display name for user:', {
+      hasUser: !!user,
+      email: user?.email,
+      firstName: user?.profile?.first_name,
+      lastName: user?.profile?.last_name,
+      displayName: user?.profile?.display_name
+    });
+    
+    if (!user) {
+      console.log('ProfileScreen: No user found, returning Guest User');
+      return 'Guest User';
+    }
+    
+    if (user.profile?.display_name) {
+      console.log('ProfileScreen: Using display name:', user.profile.display_name);
+      return user.profile.display_name;
+    }
+    
+    if (user.profile?.first_name || user.profile?.last_name) {
+      const fullName = `${user.profile.first_name || ''} ${user.profile.last_name || ''}`.trim();
+      console.log('ProfileScreen: Using full name:', fullName);
+      return fullName;
+    }
+    
+    const emailUsername = user.email.split('@')[0];
+    console.log('ProfileScreen: Using email username:', emailUsername);
+    return emailUsername; // Fallback to username part of email
+  };
 
   return (
     <View style={styles.container}>
       <StatusBar barStyle="light-content" backgroundColor="#1F1F35" />
 
-      <ScrollView showsVerticalScrollIndicator={false} >
-        <View style={styles.profileContainer}>
-          <Image
-            source={{ uri: 'https://randomuser.me/api/portraits/women/46.jpg' }}
-            style={styles.profileImage}
+      <ScrollView 
+        showsVerticalScrollIndicator={false}
+        refreshControl={
+          <RefreshControl
+            refreshing={isRefreshing || isLoadingProfileData}
+            onRefresh={refreshAllData}
+            tintColor="#FFFFFF"
+            colors={['#FFFFFF']}
           />
-          <Text style={styles.profileName}>Zara khan</Text>
+        }
+      >
+        <View style={styles.profileContainer}>
+          {!isInitialized || isLoading || isRefreshing ? (
+            <ActivityIndicator size="large" color="#FFFFFF" />
+          ) : !isAuthenticated ? (
+            <>
+              <Text style={styles.profileName}>Please log in to view your profile</Text>
+            </>
+          ) : (
+            <>
+              <Image
+                source={{
+                  uri: user?.profile?.avatar_url || 'https://randomuser.me/api/portraits/women/46.jpg'
+                }}
+                style={styles.profileImage}
+              />
+              <Text style={styles.profileName}>{getUserDisplayName()}</Text>
+              {user?.profile?.bio && (
+                <Text style={styles.profileBio}>{user.profile.bio}</Text>
+              )}
+              {!user && (
+                <TouchableOpacity 
+                  style={styles.refreshButton}
+                  onPress={fetchUserData}
+                >
+                  <Text style={styles.refreshButtonText}>Tap to refresh profile</Text>
+                </TouchableOpacity>
+              )}
+            </>
+          )}
 
           <View style={styles.actionsContainer}>
             <TouchableOpacity style={styles.actionButton}>
               <Ionicons name="people-outline" size={20} color="#FFF" />
               <Text style={styles.actionText}>Friends</Text>
             </TouchableOpacity>
-            <TouchableOpacity style={styles.actionButton}>
-              <MaterialIcons name="access-time" size={20} color="#FFF" />
-              <Text style={styles.actionText}>Set Reminder</Text>
+            <TouchableOpacity 
+              style={styles.actionButton}
+              onPress={() => navigation.navigate('EditProfileScreen')}
+            >
+              <Ionicons name="pencil-outline" size={20} color="#FFF" />
+              <Text style={styles.actionText}>Edit Profile</Text>
             </TouchableOpacity>
           </View>
         </View>
@@ -98,45 +270,69 @@ const UserProfileScreen: React.FC = () => {
           <Text style={styles.sectionTitle}>Interaction Summery</Text>
 
           <TouchableOpacity style={styles.sectionHeader}>
-            <Text style={styles.sectionSubtitle}>12 Shared Reminders</Text>
+            <Text style={styles.sectionSubtitle}>{stats.totalReminders} Shared Reminders</Text>
             <Ionicons name="chevron-forward" size={18} color="#FFF" />
           </TouchableOpacity>
 
           <View style={styles.reminderContainer}>
-            {reminders.map(reminder => (
-              <View key={reminder.id} style={styles.reminderItem}>
-                <Text style={styles.reminderText}>{reminder.title}</Text>
+            {reminders.length > 0 ? (
+              reminders.map(reminder => (
+                <View key={reminder.id} style={styles.reminderItem}>
+                  <Text style={styles.reminderText}>{reminder.title}</Text>
+                </View>
+              ))
+            ) : (
+              <View style={styles.emptyStateContainer}>
+                <Text style={styles.emptyStateText}>No shared reminders</Text>
               </View>
-            ))}
+            )}
           </View>
 
           <TouchableOpacity style={styles.sectionHeader}>
-            <Text style={styles.sectionSubtitle}>5 Ledger Activity</Text>
+            <Text style={styles.sectionSubtitle}>{stats.recentActivities} Ledger Activity</Text>
             <Ionicons name="chevron-forward" size={18} color="#FFF" />
           </TouchableOpacity>
 
           <View style={styles.activityRowContainer}>
-            <View style={styles.activityRow}>
-              <View style={styles.activityItem}>
-                <Text style={styles.activityText}>{activities[0].title}</Text>
+            {activities.length > 0 ? (
+              <>
+                <View style={styles.activityRow}>
+                  {activities[0] && (
+                    <View style={styles.activityItem}>
+                      <Text style={styles.activityText}>{activities[0].title}</Text>
+                    </View>
+                  )}
+                  {activities[1] && (
+                    <View style={styles.activityItem}>
+                      <Text style={styles.activityText}>{activities[1].title}</Text>
+                    </View>
+                  )}
+                </View>
+                {activities[2] && (
+                  <View style={styles.activityRow}>
+                    <View style={styles.activityItem}>
+                      <Text style={styles.activityText}>{activities[2].title}</Text>
+                    </View>
+                  </View>
+                )}
+                <View style={styles.activityRow}>
+                  {activities[3] && (
+                    <View style={styles.activityItem}>
+                      <Text style={styles.activityText}>{activities[3].title}</Text>
+                    </View>
+                  )}
+                  {activities[4] && (
+                    <View style={styles.activityItem}>
+                      <Text style={styles.activityText}>{activities[4].title}</Text>
+                    </View>
+                  )}
+                </View>
+              </>
+            ) : (
+              <View style={styles.emptyStateContainer}>
+                <Text style={styles.emptyStateText}>No recent activities</Text>
               </View>
-              <View style={styles.activityItem}>
-                <Text style={styles.activityText}>{activities[1].title}</Text>
-              </View>
-            </View>
-            <View style={styles.activityRow}>
-              <View style={styles.activityItem}>
-                <Text style={styles.activityText}>{activities[2].title}</Text>
-              </View>
-            </View>
-            <View style={styles.activityRow}>
-              <View style={styles.activityItem}>
-                <Text style={styles.activityText}>{activities[3].title}</Text>
-              </View>
-              <View style={styles.activityItem}>
-                <Text style={styles.activityText}>{activities[4].title}</Text>
-              </View>
-            </View>
+            )}
           </View>
         </View>
 
@@ -181,17 +377,23 @@ const UserProfileScreen: React.FC = () => {
         <View style={[styles.sectionContainer, styles.historySection]}>
           <Text style={styles.sectionTitle}>History</Text>
 
-          {historyItems.map(item => (
-            <View key={item.id} style={styles.historyItem}>
-              <View style={styles.historyLeft}>
-                <Ionicons name="time-outline" size={20} color="#CCC" style={styles.historyIcon} />
-                <Text style={styles.historyText}>{item.title}</Text>
+          {historyItems.length > 0 ? (
+            historyItems.map(item => (
+              <View key={item.id} style={styles.historyItem}>
+                <View style={styles.historyLeft}>
+                  <Ionicons name="time-outline" size={20} color="#CCC" style={styles.historyIcon} />
+                  <Text style={styles.historyText}>{item.title}</Text>
+                </View>
+                <Text style={styles.historyTime}>
+                  {item.date} - {item.time}
+                </Text>
               </View>
-              <Text style={styles.historyTime}>
-                {item.date} - {item.time}
-              </Text>
+            ))
+          ) : (
+            <View style={styles.emptyStateContainer}>
+              <Text style={styles.emptyStateText}>No history available</Text>
             </View>
-          ))}
+          )}
         </View>
       </ScrollView>
     </View>
@@ -221,6 +423,13 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
     marginTop: 15,
+    marginBottom: 10,
+  },
+  profileBio: {
+    fontSize: 14,
+    color: '#CCCCCC',
+    textAlign: 'center',
+    marginHorizontal: 20,
     marginBottom: 20,
   },
   actionsContainer: {
@@ -356,6 +565,28 @@ const styles = StyleSheet.create({
   historyTime: {
     color: 'rgba(255, 255, 255, 0.7)',
     fontSize: 14,
+  },
+  refreshButton: {
+    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    paddingHorizontal: 20,
+    paddingVertical: 10,
+    borderRadius: 20,
+    marginTop: 20,
+  },
+  refreshButtonText: {
+    color: '#FFFFFF',
+    fontSize: 14,
+    fontWeight: '600',
+    textAlign: 'center',
+  },
+  emptyStateContainer: {
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  emptyStateText: {
+    color: 'rgba(255, 255, 255, 0.6)',
+    fontSize: 14,
+    fontStyle: 'italic',
   },
 });
 

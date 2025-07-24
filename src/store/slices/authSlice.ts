@@ -6,13 +6,25 @@ interface User {
   is_verified: boolean;
   is_active: boolean;
   created_at: string;
+  updated_at: string;
   last_login: string | null;
   login_attempts: number;
   locked_until: string | null;
-  subscription_plan_id: number;
   profile: {
-    full_name: string;
-    gender: string;
+    first_name: string | null;
+    last_name: string | null;
+    display_name: string | null;
+    bio: string | null;
+    phone_number: string | null;
+    timezone: string;
+    language: string;
+    is_public: boolean;
+    id: number;
+    customer_id: number;
+    avatar_url: string | null;
+    is_verified: boolean;
+    created_at: string;
+    updated_at: string;
     is_new: boolean;
   };
 }
@@ -20,6 +32,7 @@ interface User {
 interface AuthState {
   isAuthenticated: boolean;
   isLoading: boolean;
+  isInitialized: boolean;
   error: string | null;
   user: User | null;
   token: string | null;
@@ -31,6 +44,7 @@ interface AuthState {
 const initialState: AuthState = {
   isAuthenticated: false,
   isLoading: false,
+  isInitialized: false,
   error: null,
   user: null,
   token: null,
@@ -55,6 +69,7 @@ const authSlice = createSlice({
       expires_in: number;
     }>) => {
       state.isLoading = false;
+      state.isInitialized = true;
       state.isAuthenticated = true;
       state.user = action.payload.customer;
       state.token = action.payload.access_token;
@@ -81,15 +96,19 @@ const authSlice = createSlice({
     },
     logout: state => {
       state.isAuthenticated = false;
+      state.isInitialized = true;
       state.user = null;
       state.token = null;
       state.refreshToken = null;
       state.tokenType = 'bearer';
       state.expiresIn = null;
     },
+    setInitialized: (state, action: PayloadAction<boolean>) => {
+      state.isInitialized = action.payload;
+    },
   },
 });
 
-export const { authStart, authSuccess, authFailure, updateUser, clearError, setTokens, logout } =
+export const { authStart, authSuccess, authFailure, updateUser, clearError, setTokens, logout, setInitialized } =
   authSlice.actions;
 export default authSlice.reducer;

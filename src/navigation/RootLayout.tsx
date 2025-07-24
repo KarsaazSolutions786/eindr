@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigationState } from '@react-navigation/native';
 import { useDispatch } from 'react-redux';
-import AsyncStorage from '@react-native-async-storage/async-storage';
 import MainLayout from '../layouts/MainLayout';
 import RootNavigator, { screenConfig } from './RootNavigator';
 import Sidebar from '../components/common/Sidebar';
 import { logout } from '@store/slices/authSlice';
 import { logoutUser as logoutUserAPI } from '@services/authService';
 import { logoutUser } from '@services/authInitService';
+import { StorageService } from '@services/storageService';
 import { AppDispatch } from '@store/index';
 
 const RootLayout: React.FC = () => {

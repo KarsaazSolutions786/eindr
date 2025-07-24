@@ -76,20 +76,6 @@ const OnboardingFourthScreen = () => {
   };
 
   const handleGetStarted = () => {
-    // Mark user as not new anymore
-    const user = {
-      // Include necessary user data here
-      isNew: false,
-    };
-
-    // Update the auth state to reflect that user has completed onboarding
-    dispatch(
-      authSuccess({
-        user: user,
-        token: 'dummy-token', // Replace with actual token if available
-      }),
-    );
-
     // Navigate to the fifth onboarding screen
     navigation.navigate('OnboardingFifth');
   };

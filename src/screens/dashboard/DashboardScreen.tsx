@@ -18,6 +18,10 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { Calendar, DateData } from 'react-native-calendars';
 import ReminderModal, { ReminderData } from '@components/modals/ReminderModal';
 import BlurViewFix from '@components/common/BlurViewFix';
+import { useSelector, useDispatch } from 'react-redux';
+import { RootState } from '@store/rootReducer';
+import { updateUser } from '@store/slices/authSlice';
+import { completeOnboarding } from '@services/authService';
 
 // Import components
 import TodayView from './components/TodayView';
@@ -77,6 +81,9 @@ const timeToMinutes = (timeStr: string) => {
 };
 
 const DashboardScreen: React.FC<Props> = ({ navigation }) => {
+  const dispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state.auth);
+  
   const [selectedDay, setSelectedDay] = useState(3);
   const [activeTab, setActiveTab] = useState('Today');
   const [calendarVisible, setCalendarVisible] = useState(false);
@@ -84,9 +91,32 @@ const DashboardScreen: React.FC<Props> = ({ navigation }) => {
   const [reminderModalVisible, setReminderModalVisible] = useState(false);
   const [slideAnim] = useState(new Animated.Value(Dimensions.get('window').height));
 
-
   // Add scroll state tracking
   const scrollY = useRef(new Animated.Value(0)).current;
+
+  // Update is_new field when user successfully navigates to dashboard
+  useEffect(() => {
+    const updateUserOnboarding = async () => {
+      if (user?.profile?.is_new) {
+        try {
+          await completeOnboarding();
+          // Update the Redux state to reflect the change
+          dispatch(updateUser({
+            ...user,
+            profile: {
+              ...user.profile,
+              is_new: false
+            }
+          }));
+          console.log('User onboarding completed successfully');
+        } catch (error) {
+          console.error('Failed to complete onboarding:', error);
+        }
+      }
+    };
+
+    updateUserOnboarding();
+  }, [user, dispatch]);
 
   // Generate 14 days for the calendar
   const generateDays = () => {

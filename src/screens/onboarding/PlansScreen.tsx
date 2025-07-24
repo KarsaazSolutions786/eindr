@@ -9,12 +9,17 @@ import {
   Platform,
   Dimensions,
 } from 'react-native';
+import { StorageService } from '@services/storageService';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import GradientBorder from '@components/common/GradientBorder';
 import LinearGradient from 'react-native-linear-gradient';
+import { useDispatch, useSelector } from 'react-redux';
+import { RootState } from '@store/index';
+import { updateUser } from '@store/slices/authSlice';
+import { completeOnboarding } from '@services/authService';
 
 type PlansScreenNavigationProp = NativeStackNavigationProp<RootStackParamList, 'Plans'>;
 
@@ -48,6 +53,8 @@ const featuresHighlights = [
 
 const PlansScreen = () => {
   const navigation = useNavigation<PlansScreenNavigationProp>();
+  const dispatch = useDispatch();
+  const { user } = useSelector((state: RootState) => state.auth);
   const [selectedPlan, setSelectedPlan] = useState<string | null>(null);
 
   const renderBulletPoint = (text: string, index: number) => (
@@ -156,12 +163,43 @@ const PlansScreen = () => {
     );
   };
 
-  const handleButtonPress = () => {
+  const handleButtonPress = async () => {
     if (selectedPlan) {
-      navigation.reset({
-        index: 0,
-        routes: [{ name: 'Home' }],
-      });
+      try {
+        // Complete onboarding
+        await completeOnboarding();
+        
+        // Update user state
+        if (user) {
+          const updatedUser = {
+            ...user,
+            profile: {
+              ...user.profile,
+              is_new: false
+            }
+          };
+          
+          dispatch(updateUser(updatedUser));
+          
+          // Update AsyncStorage with the updated user data using StorageService
+          await StorageService.updateUserProfile({ is_new: false });
+        }
+        
+        console.log('✅ Onboarding completed, navigating to dashboard');
+        
+        // Navigate to Dashboard and reset the navigation stack
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Dashboard' }],
+        });
+      } catch (error) {
+        console.error('❌ Error during onboarding completion:', error);
+        // Still navigate to dashboard even if local update fails
+        navigation.reset({
+          index: 0,
+          routes: [{ name: 'Dashboard' }],
+        });
+      }
     } else {
       setSelectedPlan('starter');
     }
