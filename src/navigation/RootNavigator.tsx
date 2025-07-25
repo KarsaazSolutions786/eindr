@@ -187,40 +187,33 @@ const withBackground2 = <P extends object>(Component: React.ComponentType<P>) =>
 };
 
 const RootNavigator = () => {
-  const { isAuthenticated, user, isInitialized } = useSelector((state: RootState) => state.auth);
+  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
+  const isInitialized = useSelector((state: RootState) => state.auth.isInitialized);
+  const isNew = useSelector((state: RootState) => state.auth.user?.profile?.is_new ?? false);
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
   
-  // Update initial route based on auth state changes
   useEffect(() => {
-    // Only determine initial route after auth initialization is complete
     if (!isInitialized) {
       console.log('⏳ Waiting for auth initialization...');
       return;
     }
-
+  
     const getInitialRoute = (): keyof RootStackParamList => {
-      console.log('🧭 Determining initial route:', {
-        isAuthenticated,
-        hasUser: !!user,
-        userIsNew: user?.profile?.is_new,
-        userId: user?.id,
-        isInitialized
-      });
-      
+      console.log('🧭 Determining initial route:', { isAuthenticated, isNew, isInitialized });
       if (!isAuthenticated) {
         console.log('📍 Initial route: Login (not authenticated)');
         return 'Login';
       }
-      if (user?.profile?.is_new) {
+      if (isNew) {
         console.log('📍 Initial route: Welcome (new user)');
         return 'Welcome';
       }
       console.log('📍 Initial route: Dashboard (existing authenticated user)');
       return 'Dashboard';
     };
-
+  
     setInitialRoute(getInitialRoute());
-  }, [isAuthenticated, user, isInitialized]);
+  }, [isAuthenticated, isInitialized, isNew]);
 
   // Show loading screen while auth is initializing
   if (!isInitialized || initialRoute === null) {

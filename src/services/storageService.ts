@@ -9,6 +9,7 @@ export const STORAGE_KEYS = {
   ONBOARDING_COMPLETED: 'onboarding_completed',
   LAST_LOGIN: 'last_login',
   TOKEN_EXPIRY: 'token_expiry',
+  PROFILE_DRAFT: 'profile_draft',
 } as const;
 
 // Type definitions
@@ -45,6 +46,16 @@ export interface AuthData {
   token: string;
   refreshToken: string;
   user: StoredUser;
+}
+
+export interface ProfileDraftData {
+  first_name: string;
+  last_name: string;
+  display_name: string;
+  bio: string;
+  phone_number: string;
+  is_public: boolean;
+  lastSaved: string;
 }
 
 /**
@@ -332,6 +343,52 @@ export class StorageService {
     } catch (error) {
       console.error('❌ Error getting storage info:', error);
       return { keys: [], totalItems: 0 };
+    }
+  }
+
+  /**
+   * Store profile draft data
+   */
+  static async storeProfileDraft(draftData: Omit<ProfileDraftData, 'lastSaved'>): Promise<void> {
+    try {
+      const profileDraft: ProfileDraftData = {
+        ...draftData,
+        lastSaved: new Date().toISOString(),
+      };
+      await AsyncStorage.setItem(STORAGE_KEYS.PROFILE_DRAFT, JSON.stringify(profileDraft));
+      console.log('✅ Profile draft stored successfully');
+    } catch (error) {
+      console.error('❌ Error storing profile draft:', error);
+      throw new Error('Failed to store profile draft');
+    }
+  }
+
+  /**
+   * Retrieve profile draft data
+   */
+  static async getProfileDraft(): Promise<ProfileDraftData | null> {
+    try {
+      const draftJson = await AsyncStorage.getItem(STORAGE_KEYS.PROFILE_DRAFT);
+      if (!draftJson) {
+        return null;
+      }
+      return JSON.parse(draftJson);
+    } catch (error) {
+      console.error('❌ Error retrieving profile draft:', error);
+      return null;
+    }
+  }
+
+  /**
+   * Clear profile draft data
+   */
+  static async clearProfileDraft(): Promise<void> {
+    try {
+      await AsyncStorage.removeItem(STORAGE_KEYS.PROFILE_DRAFT);
+      console.log('✅ Profile draft cleared successfully');
+    } catch (error) {
+      console.error('❌ Error clearing profile draft:', error);
+      throw new Error('Failed to clear profile draft');
     }
   }
 }
