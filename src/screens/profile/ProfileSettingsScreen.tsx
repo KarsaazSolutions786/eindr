@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   View,
   Text,
@@ -16,6 +16,7 @@ import theme from '@theme/theme';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
 import { RootStackParamList } from '@navigation/RootNavigator';
 import { RootState } from '@store/index';
+import { UserDataService } from '@services/userDataService';
 
 interface ProfileSettingItemProps {
   label: string;
@@ -56,6 +57,11 @@ const ProfileSettingItem: React.FC<ProfileSettingItemProps> = ({
 const ProfileSettingsScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
   const { user } = useSelector((state: RootState) => state.auth);
+  const [counts, setCounts] = useState({
+    reminders: 0,
+    notes: 0,
+    friends: 0
+  });
 
   // Hide header when component mounts
   React.useLayoutEffect(() => {
@@ -63,6 +69,29 @@ const ProfileSettingsScreen: React.FC = () => {
       headerShown: false,
     });
   }, [navigation]);
+
+  // Fetch counts when component mounts
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const [reminderStats, notesStats, friendsStats] = await Promise.allSettled([
+          UserDataService.getReminderStats(),
+          UserDataService.getNotesStats(),
+          UserDataService.getFriendsStats()
+        ]);
+
+        setCounts({
+          reminders: reminderStats.status === 'fulfilled' ? reminderStats.value.total : 0,
+          notes: notesStats.status === 'fulfilled' ? notesStats.value.total : 0,
+          friends: friendsStats.status === 'fulfilled' ? friendsStats.value.total : 0
+        });
+      } catch (error) {
+        console.error('Error fetching counts:', error);
+      }
+    };
+
+    fetchCounts();
+  }, []);
 
   const handleGoBack = () => {
     navigation.goBack();
@@ -119,19 +148,19 @@ const ProfileSettingsScreen: React.FC = () => {
 
           <ProfileSettingItem
             label="Active reminder"
-            value="5"
+            value={counts.reminders.toString()}
             onPress={() => navigation.navigate('Reminders')}
           />
 
           <ProfileSettingItem
             label="Active Notes"
-            value="3"
+            value={counts.notes.toString()}
             onPress={() => navigation.navigate('Notes')}
           />
 
           <ProfileSettingItem
             label="Friends list"
-            value="10 Friend"
+            value={`${counts.friends} Friend${counts.friends !== 1 ? 's' : ''}`}
             onPress={() => navigation.navigate('Friends')}
           />
 

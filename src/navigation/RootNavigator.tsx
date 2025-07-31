@@ -25,12 +25,14 @@ import PlansScreen from '@screens/onboarding/PlansScreen';
 // App Screens
 import RemindersScreen from '@screens/app/RemindersScreen';
 import NotesScreen from '@screens/notes/NotesScreen';
-import FriendsScreen from '@screens/app/FriendsScreen';
+import NoteEdit from '@screens/notes/NoteEdit';
+// import NoteShareScreen from '@screens/notes/NoteShareScreen';
+// import NoteStatsScreen from '@screens/notes/NoteStatsScreen';
+import FriendsScreen from '@screens/friends/FriendsScreen';
 import SettingsScreen from '@screens/app/SettingsScreen';
 import CalendarScreen from '@screens/CalendarScreen';
 import ScanScreen from '@screens/ScanScreen';
 import KeyboardScreen from '@screens/KeyboardScreen';
-import NoteEdit from '@screens/notes/NoteEdit';
 import FriendRequests from '@screens/friends/FriendRequests';
 import { ProfileScreen, ProfileSettingsScreen } from '@screens/profile';
 import ChangePasswordScreen from '@screens/profile/ChangePasswordScreen';
@@ -96,7 +98,6 @@ export type RootStackParamList = {
   Scan: undefined;
   Keyboard: undefined;
   FriendRequests: undefined;
-  NoteEdit: { id: string; content: string };
   ProfileScreen: { friend: Friend; isFriend: boolean };
   ProfileSettingsScreen: undefined;
   ChangePasswordScreen: undefined;
@@ -149,7 +150,6 @@ export const screenConfig: Record<keyof RootStackParamList, NavigationOptions> =
   Scan: { showHeader: true, showBottomBar: true },
   Keyboard: { showHeader: true, showBottomBar: true },
   FriendRequests: { showHeader: true, showBottomBar: true },
-  NoteEdit: { showHeader: true, showBottomBar: true },
   ProfileScreen: { showHeader: true, showBottomBar: true },
   ProfileSettingsScreen: { showHeader: false, showBottomBar: false },
   ChangePasswordScreen: { showHeader: false, showBottomBar: true },
@@ -187,33 +187,40 @@ const withBackground2 = <P extends object>(Component: React.ComponentType<P>) =>
 };
 
 const RootNavigator = () => {
-  const isAuthenticated = useSelector((state: RootState) => state.auth.isAuthenticated);
-  const isInitialized = useSelector((state: RootState) => state.auth.isInitialized);
-  const isNew = useSelector((state: RootState) => state.auth.user?.profile?.is_new ?? false);
+  const { isAuthenticated, user, isInitialized } = useSelector((state: RootState) => state.auth);
   const [initialRoute, setInitialRoute] = useState<keyof RootStackParamList | null>(null);
   
+  // Update initial route based on auth state changes
   useEffect(() => {
+    // Only determine initial route after auth initialization is complete
     if (!isInitialized) {
       console.log('⏳ Waiting for auth initialization...');
       return;
     }
-  
+
     const getInitialRoute = (): keyof RootStackParamList => {
-      console.log('🧭 Determining initial route:', { isAuthenticated, isNew, isInitialized });
+      console.log('🧭 Determining initial route:', {
+        isAuthenticated,
+        hasUser: !!user,
+        userIsNew: user?.profile?.is_new,
+        userId: user?.id,
+        isInitialized
+      });
+      
       if (!isAuthenticated) {
         console.log('📍 Initial route: Login (not authenticated)');
         return 'Login';
       }
-      if (isNew) {
+      if (user?.profile?.is_new) {
         console.log('📍 Initial route: Welcome (new user)');
         return 'Welcome';
       }
       console.log('📍 Initial route: Dashboard (existing authenticated user)');
       return 'Dashboard';
     };
-  
+
     setInitialRoute(getInitialRoute());
-  }, [isAuthenticated, isInitialized, isNew]);
+  }, [isAuthenticated, user, isInitialized]);
 
   // Show loading screen while auth is initializing
   if (!isInitialized || initialRoute === null) {
@@ -262,7 +269,6 @@ const RootNavigator = () => {
       <Stack.Screen name="Ledger" component={withBackground(LedgerScreen)} />
       <Stack.Screen name="Reminders" component={withBackground(RemindersScreen)} />
       <Stack.Screen name="Notes" component={withBackground(NotesScreen)} />
-      <Stack.Screen name="NoteEdit" component={withBackground(NoteEdit)} />
       <Stack.Screen name="Friends" component={withBackground(FriendsScreen)} />
       <Stack.Screen name="Settings" component={withBackground(SettingsScreen)} />
       <Stack.Screen name="Calendar" component={withBackground(CalendarScreen)} />

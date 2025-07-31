@@ -23,7 +23,9 @@ const FriendRequests: React.FC = () => {
     <View style={styles.container}>
       <SearchBar value={search} onChangeText={setSearch} />
       <FriendsNavBar activeTab={activeTab} setActiveTab={setActiveTab} />
-      <View style={styles.listContainer}>{Content}</View>
+      <View style={styles.listContainer}>
+        {Content}
+      </View>
     </View>
   );
 };

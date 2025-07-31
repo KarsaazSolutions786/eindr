@@ -46,7 +46,7 @@ const LedgerScreen = () => {
   const navigation = useNavigation<NavigationProp>();
 
   useEffect(() => {
-    // This would be replaced with an API call to fetch real data
+    // Fetch real data from the ledger service API
     fetchLedgerData();
   }, []);
 
@@ -74,19 +74,32 @@ const LedgerScreen = () => {
     });
   };
 
-  // Mock function to simulate API call
-  const fetchLedgerData = () => {
-    // This is placeholder data that would be replaced with actual API response
-    const mockTransactions: Transaction[] = [
-      { id: 1, name: 'Hassan', type: 'receive', amount: 80000, status: "Owe's you" },
-      { id: 2, name: 'Yasir', type: 'pay', amount: 80000, status: 'You Owe' },
-      { id: 3, name: 'Waseem', type: 'receive', amount: 10000, status: "Owe's you" },
-      { id: 4, name: 'Arsalan', type: 'pay', amount: 40000, status: 'You Owe' },
-      { id: 5, name: 'Arbab', type: 'receive', amount: 8000, status: "Owe's you" },
-    ];
-
-    // Update state with mock data - summary will be calculated by the useEffect
-    setTransactions(mockTransactions);
+  // Function to fetch ledger data from API
+  const fetchLedgerData = async () => {
+    try {
+      // Import the ledger API
+      const { ledgerApi } = await import('@services/api');
+      
+      // Fetch transactions from the API
+      const response = await ledgerApi.get('/entries');
+      
+      // Transform API response to match our Transaction interface
+      const apiTransactions = response.data || [];
+      const transformedTransactions: Transaction[] = apiTransactions.map((entry: any) => ({
+        id: entry.id,
+        name: entry.friend_name || `Friend ${entry.friend_id}`,
+        type: entry.ledger_direction_id === 1 ? 'receive' : 'pay', // Assuming 1 = receive, 2 = pay
+        amount: parseFloat(entry.amount),
+        status: entry.ledger_direction_id === 1 ? "Owe's you" : 'You Owe'
+      }));
+      
+      // Update state with real data - summary will be calculated by the useEffect
+      setTransactions(transformedTransactions);
+    } catch (error) {
+      console.error('Error fetching ledger data:', error);
+      // Set empty transactions on error
+      setTransactions([]);
+    }
   };
 
   const renderTransactionItem = (item: Transaction) => {
@@ -142,13 +155,11 @@ const LedgerScreen = () => {
   // Handle logout
   const handleLogout = async () => {
     try {
-      // Call the logout API endpoint
-      await logoutUserAPI();
+      // Use performLogout from authAudit which handles refresh token properly
+      const { performLogout } = await import('../../utils/authAudit');
+      await performLogout();
     } catch (error) {
-      console.error('Logout API call failed:', error);
-    } finally {
-      // Always clear local state and storage, even if API call fails
-      await logoutUser();
+      console.error('Logout failed:', error);
     }
   };
 

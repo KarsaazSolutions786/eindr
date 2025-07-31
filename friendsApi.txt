@@ -1,0 +1,235 @@
+/friends/requests
+Request body
+application/json
+		Example Value
+		Schema
+{
+  "friend_email": "string",
+  "message": "string"
+}
+
+Responses
+Code
+Description
+Links
+200
+Successful Response
+Media type
+application/json
+Controls Accept header.
+		Example Value
+		Schema
+{
+  "id": "string",
+  "customer_id": "string",
+  "friend_id": "string",
+  "friend_name": "string",
+  "friend_email": "string",
+  "status": "string",
+  "created_at": "2025-07-31T10:59:44.171Z",
+  "accepted_at": "2025-07-31T10:59:44.171Z"
+
+
+
+Ç
+
+
+/friends/
+https://friend-service-production.up.railway.app/friends/
+[
+  {
+    "id": "3",
+    "customer_id": "4",
+    "friend_id": "8",
+    "friend_name": "ali",
+    "friend_email": "ali@email.com",
+    "status": "pending",
+    "created_at": "2025-07-28T21:40:56.753545",
+    "accepted_at": null
+  },
+  {
+    "id": "4",
+    "customer_id": "4",
+    "friend_id": "5",
+    "friend_name": "a",
+    "friend_email": "a@example.com",
+    "status": "pending",
+    "created_at": "2025-07-29T05:52:13.705311",
+    "accepted_at": null
+  },
+  {
+    "id": "6",
+    "customer_id": "4",
+    "friend_id": "9",
+    "friend_name": "alikhanshah",
+    "friend_email": "alikhanshah@gmail.co",
+    "status": "pending",
+    "created_at": "2025-07-29T05:59:15.073608",
+    "accepted_at": null
+  },
+  {
+    "id": "7",
+    "customer_id": "4",
+    "friend_id": "16",
+    "friend_name": "billa",
+    "friend_email": "billa@gmail.com",
+    "status": "pending",
+    "created_at": "2025-07-29T06:05:02.789140",
+    "accepted_at": null
+  },
+  {
+    "id": "8",
+    "customer_id": "4",
+    "friend_id": "19",
+    "friend_name": "uzair",
+    "friend_email": "uzair@example.com",
+    "status": "pending",
+    "created_at": "2025-07-29T12:38:01.542969",
+    "accepted_at": null
+  },
+  {
+    "id": "9",
+    "customer_id": "4",
+    "friend_id": "10",
+    "friend_name": "aliahmed",
+    "friend_email": "aliahmed@gmail.com",
+    "status": "pending",
+    "created_at": "2025-07-29T15:38:32.474651",
+    "accepted_at": null
+  },
+  {
+    "id": "10",
+    "customer_id": "4",
+    "friend_id": "17",
+    "friend_name": "kala",
+    "friend_email": "kala@gmail.com",
+    "status": "pending",
+    "created_at": "2025-07-31T07:54:02.643148",
+    "accepted_at": null
+  }
+]
+
+
+
+
+/friends/requests/{friendship_id}/accept
+https://friend-service-production.up.railway.app/friends/requests/4/accept
+
+
+
+/friends/requests/{friendship_id}
+https://friend-service-production.up.railway.app/friends/requests/2
+
+
+/friends/stats
+Successful Response
+Media type
+application/json
+Controls Accept header.
+		Example Value
+		Schema
+{
+  "total_friends": 0,
+  "pending_requests": 0,
+  "sent_requests": 0,
+  "shared_reminders": 0,
+  "shared_notes": 0
+}
+
+
+
+/friends/history
+https://friend-service-production.up.railway.app/friends/history
+
+[
+  {
+    "id": 18,
+    "requester_id": 4,
+    "requested_id": 17,
+    "action": "sent",
+    "message": null,
+    "created_at": "2025-07-31T07:54:02.643296",
+    "requester_email": "syedashhad17@gmail.com",
+    "requested_email": "kala@gmail.com"
+  },
+  {
+    "id": 17,
+    "requester_id": 4,
+    "requested_id": 1,
+    "action": "canceled",
+    "message": null,
+    "created_at": "2025-07-31T07:31:45.523311",
+    "requester_email": "syedashhad17@gmail.com",
+    "requested_email": "afnan@example.com"
+  },
+  {
+    "id": 16,
+    "requester_id": 4,
+    "requested_id": 10,
+    "action": "sent",
+    "message": null,
+    "created_at": "2025-07-29T15:38:32.474769",
+    "requester_email": "syedashhad17@gmail.com",
+    "requested_email": "aliahmed@gmail.com"
+  },
+  {
+    "id": 15,
+    "requester_id": 4,
+    "requested_id": 19,
+    "action": "sent",
+    "message": null,
+    "created_at": "2025-07-29T12:38:01.543170",
+    "requester_email": "syedashhad17@gmail.com",
+    "requested_email": "uzair@example.com"
+  },
+  {
+    "id": 14,
+    "requester_id": 16,
+    "requested_id": 4,
+    "action": "incoming",
+    "message": null,
+    "created_at": "2025-07-29T06:05:02.789260",
+    "requester_email": "billa@gmail.com",
+    "requested_email": "syedashhad17@gmail.com"
+  },
+  {
+    "id": 13,
+    "requester_id": 4,
+    "requested_id": 9,
+    "action": "sent",
+    "message": null,
+    "created_at": "2025-07-29T05:59:15.073741",
+    "requester_email": "syedashhad17@gmail.com",
+    "requested_email": "alikhanshah@gmail.co"
+  },
+  {
+    "id": 10,
+    "requester_id": 4,
+    "requested_id": 5,
+    "action": "sent",
+    "message": null,
+    "created_at": "2025-07-29T05:52:13.705430",
+    "requester_email": "syedashhad17@gmail.com",
+    "requested_email": "a@example.com"
+  },
+  {
+    "id": 9,
+    "requester_id": 4,
+    "requested_id": 8,
+    "action": "sent",
+    "message": null,
+    "created_at": "2025-07-28T21:40:56.753675",
+    "requester_email": "syedashhad17@gmail.com",
+    "requested_email": "ali@email.com"
+  },
+  {
+    "id": 8,
+    "requester_id": 4,
+    "requested_id": 1,
+    "action": "sent",
+    "message": null,
+    "created_at": "2025-07-28T20:48:14.250711",
+    "requester_email": "syedashhad17@gmail.com",
+    "requested_email": "afnan@example.com"
+  }
+]

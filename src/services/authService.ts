@@ -14,12 +14,12 @@ interface RegisterRequest {
   email: string;
   password: string;
   confirm_password: string;
-  first_name: string;
-  last_name?: string;
+  full_name: string;
+  gender: string;
   is_new?: boolean;
 }
 
-interface Customer {
+export interface Customer {
   id: number;
   email: string;
   is_verified: boolean;
@@ -48,7 +48,7 @@ interface Customer {
   };
 }
 
-interface AuthResponse {
+export interface AuthResponse {
   access_token: string;
   refresh_token: string;
   token_type: string;
@@ -259,9 +259,9 @@ export const loginWithApple = async (identityToken: string): Promise<AuthRespons
 /**
  * Logout user and revoke tokens
  */
-export const logoutUser = async (): Promise<void> => {
+export const logoutUser = async (refreshToken: string): Promise<void> => {
   try {
-    await authApi.post('/auth/logout');
+    await authApi.post('/auth/logout', { refresh_token: refreshToken });
   } catch (error) {
     console.error('Error during logout:', error);
     // Continue with logout even if API call fails

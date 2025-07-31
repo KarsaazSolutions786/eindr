@@ -25,7 +25,6 @@ import { ProfileService, ProfileUpdateRequest } from '@services/profileService';
 import { updateUser } from '@store/slices/authSlice';
 import { debugAuthState, isUserAuthenticated } from '@utils/authDebug';
 import { StorageService } from '@services/storageService';
-import { getCurrentUser } from '@services/authService';
 
 const EditProfileScreen: React.FC = () => {
   const navigation = useNavigation<NativeStackNavigationProp<RootStackParamList>>();
@@ -35,94 +34,101 @@ const EditProfileScreen: React.FC = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isSaving, setIsSaving] = useState<boolean>(false);
   const [profileData, setProfileData] = useState<ProfileUpdateRequest>({
-  first_name: '',
-  last_name: '',
-  display_name: '',
-  bio: '',
-  phone_number: '',
-  is_public: false,
-});
+    first_name: '',
+    last_name: '',
+    display_name: '',
+    bio: '',
+    phone_number: '',
+    is_public: false,
+  });
   const [isDraftLoaded, setIsDraftLoaded] = useState<boolean>(false);
-const [isFetching, setIsFetching] = useState<boolean>(true);
+  const [isInitialized, setIsInitialized] = useState<boolean>(false);
 
-  // Fetch latest user data and load draft on component mount
-useEffect(() => {
-  const fetchAndLoadData = async () => {
-    setIsFetching(true);
-    try {
-      const userData = await getCurrentUser();
-      dispatch(updateUser(userData));
-      setProfileData({
-        first_name: userData.profile?.first_name || '',
-        last_name: userData.profile?.last_name || '',
-        display_name: userData.profile?.display_name || '',
-        bio: userData.profile?.bio || '',
-        phone_number: userData.profile?.phone_number || '',
-        is_public: userData.profile?.is_public || false,
-      });
-      console.log('🔄 Fetched latest user data for edit profile');
-    } catch (error) {
-      console.error('❌ Error fetching latest user data:', error);
-      // Fallback to existing user data if fetch fails
-      setProfileData({
-        first_name: user?.profile?.first_name || '',
-        last_name: user?.profile?.last_name || '',
-        display_name: user?.profile?.display_name || '',
-        bio: user?.profile?.bio || '',
-        phone_number: user?.profile?.phone_number || '',
-        is_public: user?.profile?.is_public || false,
-      });
-    }
+  // Initialize form data with user data when component mounts
+  useEffect(() => {
+    const initializeFormData = async () => {
+      try {
+        console.log('🔄 Initializing EditProfile form data...');
+        console.log('👤 Current user data:', {
+          hasUser: !!user,
+          firstName: user?.profile?.first_name,
+          lastName: user?.profile?.last_name,
+          displayName: user?.profile?.display_name,
+          bio: user?.profile?.bio,
+          phoneNumber: user?.profile?.phone_number,
+          isPublic: user?.profile?.is_public
+        });
 
-    try {
-      const draftData = await StorageService.getProfileDraft();
-      if (draftData) {
-        setProfileData(prev => ({
-          ...prev,
-          first_name: draftData.first_name ?? prev.first_name,
-          last_name: draftData.last_name ?? prev.last_name,
-          display_name: draftData.display_name ?? prev.display_name,
-          bio: draftData.bio ?? prev.bio,
-          phone_number: draftData.phone_number ?? prev.phone_number,
-          is_public: draftData.is_public ?? prev.is_public,
-        }));
-        console.log('📝 Profile draft loaded from storage');
+        // First, try to load user data from Redux store
+        if (user?.profile) {
+          const userProfileData = {
+            first_name: user.profile.first_name || '',
+            last_name: user.profile.last_name || '',
+            display_name: user.profile.display_name || '',
+            bio: user.profile.bio || '',
+            phone_number: user.profile.phone_number || '',
+            is_public: user.profile.is_public || false,
+          };
+          
+          setProfileData(userProfileData);
+          console.log('✅ Form initialized with user profile data:', userProfileData);
+        } else {
+          // If no user data, try to load draft data as fallback
+          console.log('⚠️ No user profile data found, checking for draft data...');
+          const draftData = await StorageService.getProfileDraft();
+          if (draftData) {
+            setProfileData({
+              first_name: draftData.first_name || '',
+              last_name: draftData.last_name || '',
+              display_name: draftData.display_name || '',
+              bio: draftData.bio || '',
+              phone_number: draftData.phone_number || '',
+              is_public: draftData.is_public || false,
+            });
+            console.log('📝 Form initialized with draft data:', draftData);
+          } else {
+            console.log('ℹ️ No draft data found, using empty form');
+          }
+        }
+        
+        setIsDraftLoaded(true);
+        setIsInitialized(true);
+      } catch (error) {
+        console.error('❌ Error initializing form data:', error);
+        setIsDraftLoaded(true);
+        setIsInitialized(true);
       }
-    } catch (error) {
-      console.error('❌ Error loading profile draft:', error);
+    };
+
+    if (!isInitialized) {
+      initializeFormData();
     }
-
-    setIsDraftLoaded(true);
-    setIsFetching(false);
-  };
-
-  fetchAndLoadData();
-}, [dispatch]);
+  }, [user, isInitialized]);
 
   // Save draft data when profile data changes
-useEffect(() => {
-  if (!isDraftLoaded || isFetching) return; // Don't save until initial load and fetch are complete
+  useEffect(() => {
+    if (!isDraftLoaded) return; // Don't save until initial load is complete
 
-  const saveDraftData = async () => {
-    try {
-      await StorageService.storeProfileDraft({
-        first_name: profileData.first_name || '',
-        last_name: profileData.last_name || '',
-        display_name: profileData.display_name || '',
-        bio: profileData.bio || '',
-        phone_number: profileData.phone_number || '',
-        is_public: profileData.is_public || false,
-      });
-      console.log('💾 Profile draft auto-saved');
-    } catch (error) {
-      console.error('❌ Error saving profile draft:', error);
-    }
-  };
+    const saveDraftData = async () => {
+      try {
+        await StorageService.storeProfileDraft({
+          first_name: profileData.first_name || '',
+          last_name: profileData.last_name || '',
+          display_name: profileData.display_name || '',
+          bio: profileData.bio || '',
+          phone_number: profileData.phone_number || '',
+          is_public: profileData.is_public || false,
+        });
+        console.log('💾 Profile draft auto-saved');
+      } catch (error) {
+        console.error('❌ Error saving profile draft:', error);
+      }
+    };
 
-  // Debounce the save operation
-  const timeoutId = setTimeout(saveDraftData, 1000);
-  return () => clearTimeout(timeoutId);
-}, [profileData, isDraftLoaded, isFetching]);
+    // Debounce the save operation
+    const timeoutId = setTimeout(saveDraftData, 1000);
+    return () => clearTimeout(timeoutId);
+  }, [profileData, isDraftLoaded]);
   
   // No need for explicit permission request with react-native-image-picker
 
@@ -255,7 +261,10 @@ useEffect(() => {
         display_name: profileData.display_name?.trim() || '',
         bio: profileData.bio?.trim() || '', // Optional field
         phone_number: profileData.phone_number?.trim() || '',
+        timezone: profileData.timezone,
+        language: profileData.language,
         is_public: profileData.is_public,
+        avatar_url: profileData.avatar_url
       };
       
       // Remove undefined and empty values (except for optional fields)

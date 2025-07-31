@@ -47,13 +47,12 @@ const RootLayout: React.FC = () => {
   // Handle logout
   const handleLogout = async () => {
     try {
-      // Call the logout API endpoint
-      await logoutUserAPI();
+      // Use performLogout from authAudit which handles refresh token properly
+      const { performLogout } = await import('../utils/authAudit');
+      await performLogout();
+      setIsLoggedIn(false);
     } catch (error) {
-      console.error('Logout API call failed:', error);
-    } finally {
-      // Always clear local state and storage, even if API call fails
-      await logoutUser();
+      console.error('Logout failed:', error);
       setIsLoggedIn(false);
     }
   };

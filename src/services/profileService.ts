@@ -13,7 +13,6 @@ export interface ProfileUpdateRequest {
   timezone?: string;
   language?: string;
   is_public?: boolean;
-  is_new?: boolean;
   avatar_url?: string;
 }
 
@@ -41,28 +40,21 @@ export class ProfileService {
       
       // Make API call to update profile - use PUT method like onboarding completion
       // First get current user data to preserve required fields
-const currentUser = await customerApi.get('/customers/me');
-const currentProfile = currentUser.data.profile || {};
-
-// Create update payload with current data + new profile data
-const updatePayload = {
-  email: currentUser.data.email,
-  is_active: currentUser.data.is_active,
-  is_verified: currentUser.data.is_verified,
-  is_new: profileData.is_new ?? currentUser.data.is_new ?? false,
-  first_name: profileData.first_name ?? currentProfile.first_name ?? '',
-  last_name: profileData.last_name ?? currentProfile.last_name ?? '',
-  display_name: profileData.display_name ?? currentProfile.display_name ?? '',
-  bio: profileData.bio ?? currentProfile.bio ?? '',
-  phone_number: profileData.phone_number ?? currentProfile.phone_number ?? '',
-  timezone: profileData.timezone ?? currentProfile.timezone ?? 'UTC',
-  language: profileData.language ?? currentProfile.language ?? 'en',
-  is_public: profileData.is_public ?? currentProfile.is_public ?? false
-};
-
-console.log('📤 Sending profile update:', JSON.stringify(updatePayload, null, 2));
-
-const response = await customerApi.put('/customers/me', updatePayload);
+      const currentUser = await customerApi.get('/customers/me');
+      
+      // Create update payload with current data + new profile data
+      const updatePayload = {
+        email: currentUser.data.email,
+        is_active: currentUser.data.is_active,
+        is_verified: currentUser.data.is_verified,
+        is_new: currentUser.data.is_new,
+        ...currentUser.data.profile,
+        ...profileData
+      };
+      
+      console.log('📤 Sending profile update:', JSON.stringify(updatePayload, null, 2));
+      
+      const response = await customerApi.put('/customers/me', updatePayload);
       
       console.log('✅ Profile updated successfully');
       console.log('📋 Update response:', JSON.stringify(response.data, null, 2));

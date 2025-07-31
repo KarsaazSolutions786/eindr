@@ -151,13 +151,20 @@ const UserProfileScreen: React.FC = () => {
 
   // Debug user data changes
   useEffect(() => {
-    console.log('ProfileScreen: User data changed:', {
+    console.log('🔍 ProfileScreen - User data changed:', {
       hasUser: !!user,
+      userId: user?.id,
       email: user?.email,
-      firstName: user?.profile?.first_name,
-      lastName: user?.profile?.last_name,
-      displayName: user?.profile?.display_name,
-      avatarUrl: user?.profile?.avatar_url
+      profile: user?.profile ? {
+        firstName: user.profile.first_name,
+        lastName: user.profile.last_name,
+        displayName: user.profile.display_name,
+        bio: user.profile.bio,
+        avatarUrl: user.profile.avatar_url
+      } : null,
+      displayName: getUserDisplayName(),
+      bio: getUserBio(),
+      avatarUrl: getUserAvatarUrl()
     });
   }, [user]);
 
@@ -187,20 +194,43 @@ const UserProfileScreen: React.FC = () => {
       return 'Guest User';
     }
     
-    if (user.profile?.display_name) {
+    if (user.profile?.display_name && user.profile.display_name.trim() !== '') {
       console.log('ProfileScreen: Using display name:', user.profile.display_name);
       return user.profile.display_name;
     }
     
     if (user.profile?.first_name || user.profile?.last_name) {
       const fullName = `${user.profile.first_name || ''} ${user.profile.last_name || ''}`.trim();
-      console.log('ProfileScreen: Using full name:', fullName);
-      return fullName;
+      if (fullName !== '') {
+        console.log('ProfileScreen: Using full name:', fullName);
+        return fullName;
+      }
     }
     
-    const emailUsername = user.email.split('@')[0];
-    console.log('ProfileScreen: Using email username:', emailUsername);
-    return emailUsername; // Fallback to username part of email
+    if (user.email) {
+      const emailUsername = user.email.split('@')[0];
+      console.log('ProfileScreen: Using email username:', emailUsername);
+      return emailUsername; // Fallback to username part of email
+    }
+    
+    console.log('ProfileScreen: No valid name found, returning Guest User');
+    return 'Guest User';
+  };
+
+  // Get user's bio or return null
+  const getUserBio = () => {
+    if (user?.profile?.bio && user.profile.bio.trim() !== '') {
+      return user.profile.bio;
+    }
+    return null;
+  };
+
+  // Get user's avatar URL or return default
+  const getUserAvatarUrl = () => {
+    if (user?.profile?.avatar_url && user.profile.avatar_url.trim() !== '') {
+      return user.profile.avatar_url;
+    }
+    return 'https://randomuser.me/api/portraits/women/46.jpg';
   };
 
   return (
@@ -229,13 +259,13 @@ const UserProfileScreen: React.FC = () => {
             <>
               <Image
                 source={{
-                  uri: user?.profile?.avatar_url || 'https://randomuser.me/api/portraits/women/46.jpg'
+                  uri: getUserAvatarUrl()
                 }}
                 style={styles.profileImage}
               />
               <Text style={styles.profileName}>{getUserDisplayName()}</Text>
-              {user?.profile?.bio && (
-                <Text style={styles.profileBio}>{user.profile.bio}</Text>
+              {getUserBio() && (
+                <Text style={styles.profileBio}>{getUserBio()}</Text>
               )}
               {!user && (
                 <TouchableOpacity 
@@ -267,7 +297,23 @@ const UserProfileScreen: React.FC = () => {
 
         {/* Interaction Summary */}
         <View style={styles.sectionContainer}>
-          <Text style={styles.sectionTitle}>Interaction Summery</Text>
+          <Text style={styles.sectionTitle}>Interaction Summary</Text>
+          
+          {/* Stats Overview */}
+          <View style={styles.statsContainer}>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{stats.totalReminders || 0}</Text>
+              <Text style={styles.statLabel}>Reminders</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{stats.totalNotes || 0}</Text>
+              <Text style={styles.statLabel}>Notes</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Text style={styles.statNumber}>{stats.totalFriends || 0}</Text>
+              <Text style={styles.statLabel}>Friends</Text>
+            </View>
+          </View>
 
           <TouchableOpacity style={styles.sectionHeader}>
             <Text style={styles.sectionSubtitle}>{stats.totalReminders} Shared Reminders</Text>
@@ -469,6 +515,31 @@ const styles = StyleSheet.create({
     fontWeight: '600',
     color: '#FFFFFF',
     marginBottom: 15,
+  },
+  statsContainer: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    backgroundColor: 'rgba(50, 50, 77, 0.5)',
+    borderRadius: 15,
+    paddingVertical: 20,
+    marginBottom: 20,
+    borderWidth: 1,
+    borderColor: 'rgba(255, 255, 255, 0.1)',
+  },
+  statItem: {
+    alignItems: 'center',
+    flex: 1,
+  },
+  statNumber: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: '#FFFFFF',
+    marginBottom: 5,
+  },
+  statLabel: {
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.7)',
+    textAlign: 'center',
   },
   sectionHeader: {
     flexDirection: 'row',

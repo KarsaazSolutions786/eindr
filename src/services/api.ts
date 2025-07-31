@@ -11,11 +11,12 @@ const API_ENDPOINTS = {
   REMINDER_SERVICE: Config.REMINDER_SERVICE_URL || 'https://reminder-service-production.up.railway.app',
   NOTE_SERVICE: Config.NOTE_SERVICE_URL || 'https://note-service-production.up.railway.app',
   LEDGER_SERVICE: Config.LEDGER_SERVICE_URL || 'https://ledger-service-production.up.railway.app',
-  CHAT_SERVICE: Config.CHAT_SERVICE_URL || 'https://scheduler-service-production-4dd1.up.railway.app',
-  INTENT_SERVICE: Config.INTENT_SERVICE_URL || 'https://friend-service-production.up.railway.app',
-  STT_SERVICE: Config.STT_SERVICE_URL || 'https://history-service-production.up.railway.app',
-  TTS_SERVICE: Config.TTS_SERVICE_URL || 'https://tts-production-37f1.up.railway.app',
-  AI_PIPELINE_SERVICE: Config.AI_PIPELINE_SERVICE_URL || 'https://ai-pipeline-production-37f1.up.railway.app',
+  CHAT_SERVICE: Config.CHAT_SERVICE_URL || 'https://chat-service-production-86e0.up.railway.app',
+  FRIEND_SERVICE: Config.FRIEND_SERVICE_URL || 'https://friend-service-production.up.railway.app',
+  STT_SERVICE: Config.STT_SERVICE_URL || 'https://stt-service-production.up.railway.app',
+  TTS_SERVICE: Config.TTS_SERVICE_URL || 'https://tts-service-production.up.railway.app',
+  HISTORY_SERVICE: Config.HISTORY_SERVICE_URL || 'https://history-service-production.up.railway.app',
+  SCHEDULER_SERVICE: Config.SCHEDULER_SERVICE_URL || 'https://scheduler-service-production-4dd1.up.railway.app',
 };
 
 // Create axios instance with dynamic base URL
@@ -39,10 +40,11 @@ export const reminderApi = createApiInstance(API_ENDPOINTS.REMINDER_SERVICE);
 export const noteApi = createApiInstance(API_ENDPOINTS.NOTE_SERVICE);
 export const ledgerApi = createApiInstance(API_ENDPOINTS.LEDGER_SERVICE);
 export const chatApi = createApiInstance(API_ENDPOINTS.CHAT_SERVICE);
-export const intentApi = createApiInstance(API_ENDPOINTS.INTENT_SERVICE);
+export const friendApi = createApiInstance(API_ENDPOINTS.FRIEND_SERVICE);
 export const sttApi = createApiInstance(API_ENDPOINTS.STT_SERVICE);
 export const ttsApi = createApiInstance(API_ENDPOINTS.TTS_SERVICE);
-export const aiPipelineApi = createApiInstance(API_ENDPOINTS.AI_PIPELINE_SERVICE);
+export const historyApi = createApiInstance(API_ENDPOINTS.HISTORY_SERVICE);
+export const schedulerApi = createApiInstance(API_ENDPOINTS.SCHEDULER_SERVICE);
 
 // Function to add interceptors to an API instance
 const addInterceptors = (apiInstance: any) => {
@@ -78,6 +80,16 @@ const addInterceptors = (apiInstance: any) => {
         switch (error.response.status) {
           case 401:
           case 403:
+            // Skip token refresh for the refresh endpoint itself to prevent infinite loops
+            const isRefreshEndpoint = originalRequest.url?.includes('/auth/refresh');
+            
+            if (isRefreshEndpoint) {
+              console.error('❌ Refresh token is invalid or expired, logging out user');
+              store.dispatch(logout());
+              await StorageService.clearAuthData();
+              break;
+            }
+            
             // Handle unauthorized/forbidden access - try to refresh token
             // Check if this is an authentication error that can be resolved with token refresh
              const errorData = error.response.data as any;
@@ -93,8 +105,17 @@ const addInterceptors = (apiInstance: any) => {
                 if (authData.refreshToken) {
                   console.log('🔄 Attempting automatic token refresh...');
                   
+                  // Create a new axios instance without interceptors for refresh to prevent loops
+                  const refreshApi = axios.create({
+                    baseURL: authApi.defaults.baseURL,
+                    headers: {
+                      'Content-Type': 'application/json',
+                    },
+                    timeout: 10000,
+                  });
+                  
                   // Try to refresh the token
-                  const refreshResponse = await authApi.post('/auth/refresh', {
+                  const refreshResponse = await refreshApi.post('/auth/refresh', {
                     refresh_token: authData.refreshToken
                   });
                   
@@ -200,9 +221,10 @@ addInterceptors(reminderApi);
 addInterceptors(noteApi);
 addInterceptors(ledgerApi);
 addInterceptors(chatApi);
-addInterceptors(intentApi);
+addInterceptors(friendApi);
 addInterceptors(sttApi);
 addInterceptors(ttsApi);
-addInterceptors(aiPipelineApi);
+addInterceptors(historyApi);
+addInterceptors(schedulerApi);
 
 export default api;

@@ -1,0 +1,347 @@
+Is Reminders active? false
+NotesScreen.tsx:142 🔍 NotesScreen initial load useEffect triggered: {isAuthenticated: true, hasToken: true}
+api.ts:57 🔑 Adding auth token to request: {url: '/notes?page=1&limit=20', method: 'get', hasToken: true, tokenPreview: 'eyJhbGciOiJIUzI1NiIs...'}
+api.ts:57 🔑 Adding auth token to request: {url: '/friends/', method: 'get', hasToken: true, tokenPreview: 'eyJhbGciOiJIUzI1NiIs...'}
+api.ts:57 🔑 Adding auth token to request: {url: '/notes?page=1&limit=20', method: 'get', hasToken: true, tokenPreview: 'eyJhbGciOiJIUzI1NiIs...'}
+api.ts:57 🔑 Adding auth token to request: {url: '/notes?page=1&limit=20', method: 'get', hasToken: true, tokenPreview: 'eyJhbGciOiJIUzI1NiIs...'}
+3api.ts:106 🔄 Attempting automatic token refresh...
+api.ts:156 ❌ Token refresh failed: AxiosError: Request failed with status code 401
+    at settle (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137658:37)
+    at onloadend (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137502:29)
+    at call (native)
+    at dispatchEvent (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:46317:31)
+    at setReadyState (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48716:29)
+    at __didCompleteResponse (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48509:29)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48641:52)
+    at apply (native)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2802:40)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2664:200)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2680:66)
+    at ?anon_0_ (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:135854:64)
+    at throw (native)
+    at asyncGeneratorStep (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22277:19)
+    at _throw (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22294:29)
+    at tryCallOne (address at InternalBytecode.js:1:1180)
+    at anonymous (address at InternalBytecode.js:1:1874)
+anonymous @ console.js:654
+overrideMethod @ backend.js:17042
+reactConsoleErrorHandler @ ExceptionsManager.js:182
+anonymous @ setUpDeveloperTools.js:40
+registerError @ LogBox.js:231
+anonymous @ LogBox.js:80
+?anon_0_ @ api.ts:156
+asyncGeneratorStep @ asyncToGenerator.js:3
+_throw @ asyncToGenerator.js:20
+Show 8 more frames
+Show less
+NotesScreen.tsx:142 🔍 NotesScreen initial load useEffect triggered: {isAuthenticated: false, hasToken: false}
+RootNavigator.tsx:208 🧭 Determining initial route: {isAuthenticated: false, hasUser: false, userIsNew: undefined, userId: undefined, isInitialized: true}
+RootNavigator.tsx:217 📍 Initial route: Login (not authenticated)
+NotesScreen.tsx:142 🔍 NotesScreen initial load useEffect triggered: {isAuthenticated: false, hasToken: false}
+2api.ts:64 ⚠️ No auth token available for request: /friends/
+anonymous @ console.js:654
+overrideMethod @ backend.js:17042
+anonymous @ setUpDeveloperTools.js:40
+registerWarning @ LogBox.js:171
+anonymous @ LogBox.js:84
+anonymous @ api.ts:64
+Show 5 more frames
+Show less
+2api.ts:156 ❌ Token refresh failed: AxiosError: Request failed with status code 401
+    at settle (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137658:37)
+    at onloadend (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137502:29)
+    at call (native)
+    at dispatchEvent (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:46317:31)
+    at setReadyState (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48716:29)
+    at __didCompleteResponse (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48509:29)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48641:52)
+    at apply (native)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2802:40)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2664:200)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2680:66)
+    at ?anon_0_ (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:135854:64)
+    at throw (native)
+    at asyncGeneratorStep (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22277:19)
+    at _throw (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22294:29)
+    at tryCallOne (address at InternalBytecode.js:1:1180)
+    at anonymous (address at InternalBytecode.js:1:1874)
+anonymous @ console.js:654
+overrideMethod @ backend.js:17042
+reactConsoleErrorHandler @ ExceptionsManager.js:182
+anonymous @ setUpDeveloperTools.js:40
+registerError @ LogBox.js:231
+anonymous @ LogBox.js:80
+?anon_0_ @ api.ts:156
+asyncGeneratorStep @ asyncToGenerator.js:3
+_throw @ asyncToGenerator.js:20
+Show 8 more frames
+Show less
+storageService.ts:193 ✅ Auth data cleared successfully
+notesService.ts:146 Error fetching notes: AxiosError: Request failed with status code 401
+    at settle (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137658:37)
+    at onloadend (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137502:29)
+    at call (native)
+    at dispatchEvent (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:46317:31)
+    at setReadyState (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48716:29)
+    at __didCompleteResponse (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48509:29)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48641:52)
+    at apply (native)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2802:40)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2664:200)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2680:66)
+    at ?anon_0_ (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:135854:64)
+    at throw (native)
+    at asyncGeneratorStep (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22277:19)
+    at _throw (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22294:29)
+    at tryCallOne (address at InternalBytecode.js:1:1180)
+    at anonymous (address at InternalBytecode.js:1:1874)
+anonymous @ console.js:654
+overrideMethod @ backend.js:17042
+reactConsoleErrorHandler @ ExceptionsManager.js:182
+anonymous @ setUpDeveloperTools.js:40
+registerError @ LogBox.js:231
+anonymous @ LogBox.js:80
+?anon_0_ @ notesService.ts:146
+asyncGeneratorStep @ asyncToGenerator.js:3
+_throw @ asyncToGenerator.js:20
+Show 8 more frames
+Show less
+NotesScreen.tsx:129 Error fetching notes: AxiosError: Request failed with status code 401
+    at settle (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137658:37)
+    at onloadend (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137502:29)
+    at call (native)
+    at dispatchEvent (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:46317:31)
+    at setReadyState (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48716:29)
+    at __didCompleteResponse (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48509:29)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48641:52)
+    at apply (native)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2802:40)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2664:200)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2680:66)
+    at ?anon_0_ (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:135854:64)
+    at throw (native)
+    at asyncGeneratorStep (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22277:19)
+    at _throw (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22294:29)
+    at tryCallOne (address at InternalBytecode.js:1:1180)
+    at anonymous (address at InternalBytecode.js:1:1874)
+anonymous @ console.js:654
+overrideMethod @ backend.js:17042
+reactConsoleErrorHandler @ ExceptionsManager.js:182
+anonymous @ setUpDeveloperTools.js:40
+registerError @ LogBox.js:231
+anonymous @ LogBox.js:80
+?anon_0_ @ NotesScreen.tsx:129
+asyncGeneratorStep @ asyncToGenerator.js:3
+_throw @ asyncToGenerator.js:20
+Show 8 more frames
+Show less
+storageService.ts:193 ✅ Auth data cleared successfully
+notesService.ts:146 Error fetching notes: AxiosError: Request failed with status code 401
+    at settle (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137658:37)
+    at onloadend (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137502:29)
+    at call (native)
+    at dispatchEvent (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:46317:31)
+    at setReadyState (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48716:29)
+    at __didCompleteResponse (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48509:29)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48641:52)
+    at apply (native)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2802:40)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2664:200)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2680:66)
+    at ?anon_0_ (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:135854:64)
+    at throw (native)
+    at asyncGeneratorStep (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22277:19)
+    at _throw (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22294:29)
+    at tryCallOne (address at InternalBytecode.js:1:1180)
+    at anonymous (address at InternalBytecode.js:1:1874)
+anonymous @ console.js:654
+overrideMethod @ backend.js:17042
+reactConsoleErrorHandler @ ExceptionsManager.js:182
+anonymous @ setUpDeveloperTools.js:40
+registerError @ LogBox.js:231
+anonymous @ LogBox.js:80
+?anon_0_ @ notesService.ts:146
+asyncGeneratorStep @ asyncToGenerator.js:3
+_throw @ asyncToGenerator.js:20
+Show 8 more frames
+Show less
+NotesScreen.tsx:129 Error fetching notes: AxiosError: Request failed with status code 401
+    at settle (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137658:37)
+    at onloadend (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137502:29)
+    at call (native)
+    at dispatchEvent (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:46317:31)
+    at setReadyState (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48716:29)
+    at __didCompleteResponse (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48509:29)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48641:52)
+    at apply (native)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2802:40)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2664:200)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2680:66)
+    at ?anon_0_ (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:135854:64)
+    at throw (native)
+    at asyncGeneratorStep (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22277:19)
+    at _throw (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22294:29)
+    at tryCallOne (address at InternalBytecode.js:1:1180)
+    at anonymous (address at InternalBytecode.js:1:1874)
+anonymous @ console.js:654
+overrideMethod @ backend.js:17042
+reactConsoleErrorHandler @ ExceptionsManager.js:182
+anonymous @ setUpDeveloperTools.js:40
+registerError @ LogBox.js:231
+anonymous @ LogBox.js:80
+?anon_0_ @ NotesScreen.tsx:129
+asyncGeneratorStep @ asyncToGenerator.js:3
+_throw @ asyncToGenerator.js:20
+Show 8 more frames
+Show less
+storageService.ts:193 ✅ Auth data cleared successfully
+notesService.ts:146 Error fetching notes: AxiosError: Request failed with status code 401
+    at settle (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137658:37)
+    at onloadend (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137502:29)
+    at call (native)
+    at dispatchEvent (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:46317:31)
+    at setReadyState (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48716:29)
+    at __didCompleteResponse (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48509:29)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48641:52)
+    at apply (native)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2802:40)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2664:200)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2680:66)
+    at ?anon_0_ (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:135854:64)
+    at throw (native)
+    at asyncGeneratorStep (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22277:19)
+    at _throw (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22294:29)
+    at tryCallOne (address at InternalBytecode.js:1:1180)
+    at anonymous (address at InternalBytecode.js:1:1874)
+anonymous @ console.js:654
+overrideMethod @ backend.js:17042
+reactConsoleErrorHandler @ ExceptionsManager.js:182
+anonymous @ setUpDeveloperTools.js:40
+registerError @ LogBox.js:231
+anonymous @ LogBox.js:80
+?anon_0_ @ notesService.ts:146
+asyncGeneratorStep @ asyncToGenerator.js:3
+_throw @ asyncToGenerator.js:20
+Show 8 more frames
+Show less
+NotesScreen.tsx:129 Error fetching notes: AxiosError: Request failed with status code 401
+    at settle (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137658:37)
+    at onloadend (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137502:29)
+    at call (native)
+    at dispatchEvent (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:46317:31)
+    at setReadyState (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48716:29)
+    at __didCompleteResponse (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48509:29)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48641:52)
+    at apply (native)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2802:40)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2664:200)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2680:66)
+    at ?anon_0_ (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:135854:64)
+    at throw (native)
+    at asyncGeneratorStep (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22277:19)
+    at _throw (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22294:29)
+    at tryCallOne (address at InternalBytecode.js:1:1180)
+    at anonymous (address at InternalBytecode.js:1:1874)
+anonymous @ console.js:654
+overrideMethod @ backend.js:17042
+reactConsoleErrorHandler @ ExceptionsManager.js:182
+anonymous @ setUpDeveloperTools.js:40
+registerError @ LogBox.js:231
+anonymous @ LogBox.js:80
+?anon_0_ @ NotesScreen.tsx:129
+asyncGeneratorStep @ asyncToGenerator.js:3
+_throw @ asyncToGenerator.js:20
+Show 8 more frames
+Show less
+2api.ts:151 ❌ No refresh token available
+anonymous @ console.js:654
+overrideMethod @ backend.js:17042
+reactConsoleErrorHandler @ ExceptionsManager.js:182
+anonymous @ setUpDeveloperTools.js:40
+registerError @ LogBox.js:231
+anonymous @ LogBox.js:80
+?anon_0_ @ api.ts:151
+asyncGeneratorStep @ asyncToGenerator.js:3
+_next @ asyncToGenerator.js:17
+Show 8 more frames
+Show less
+storageService.ts:193 ✅ Auth data cleared successfully
+friendsService.ts:74 Error fetching friends: AxiosError: Request failed with status code 403
+    at settle (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137658:37)
+    at onloadend (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137502:29)
+    at call (native)
+    at dispatchEvent (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:46317:31)
+    at setReadyState (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48716:29)
+    at __didCompleteResponse (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48509:29)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48641:52)
+    at apply (native)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2802:40)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2664:200)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2680:66)
+    at ?anon_0_ (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:135854:64)
+    at throw (native)
+    at asyncGeneratorStep (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22277:19)
+    at _throw (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22294:29)
+    at tryCallOne (address at InternalBytecode.js:1:1180)
+    at anonymous (address at InternalBytecode.js:1:1874)
+anonymous @ console.js:654
+overrideMethod @ backend.js:17042
+reactConsoleErrorHandler @ ExceptionsManager.js:182
+anonymous @ setUpDeveloperTools.js:40
+registerError @ LogBox.js:231
+anonymous @ LogBox.js:80
+?anon_0_ @ friendsService.ts:74
+asyncGeneratorStep @ asyncToGenerator.js:3
+_throw @ asyncToGenerator.js:20
+Show 8 more frames
+Show less
+storageService.ts:193 ✅ Auth data cleared successfully
+friendsService.ts:74 Error fetching friends: AxiosError: Request failed with status code 403
+    at settle (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137658:37)
+    at onloadend (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:137502:29)
+    at call (native)
+    at dispatchEvent (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:46317:31)
+    at setReadyState (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48716:29)
+    at __didCompleteResponse (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48509:29)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:48641:52)
+    at apply (native)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2802:40)
+    at apply (native)
+    at anonymous (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2664:200)
+    at emit (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:2680:66)
+    at ?anon_0_ (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:135854:64)
+    at throw (native)
+    at asyncGeneratorStep (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22277:19)
+    at _throw (http://localhost:8081/index.bundle//&platform=android&dev=true&lazy=true&minify=false&app=com.eindr&modulesOnly=false&runModule=true&excludeSource=true&sourcePaths=url-server:22294:29)
+    at tryCallOne (address at InternalBytecode.js:1:1180)
+    at anonymous (address at InternalBytecode.js:1:1874)
+anonymous @ console.js:654
+overrideMethod @ backend.js:17042
+reactConsoleErrorHandler @ ExceptionsManager.js:182
+anonymous @ setUpDeveloperTools.js:40
+registerError @ LogBox.js:231
+anonymous @ LogBox.js:80
+?anon_0_ @ friendsService.ts:74
+asyncGeneratorStep @ asyncToGenerator.js:3
+_throw @ asyncToGenerator.js:20
+Show 8 more frames
+Show less

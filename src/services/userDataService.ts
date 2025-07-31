@@ -1,4 +1,4 @@
-import { reminderApi, ledgerApi, sttApi } from './api';
+import { reminderApi, ledgerApi, sttApi, noteApi } from './api';
 
 // Types for user data
 export interface ReminderItem {
@@ -48,6 +48,8 @@ export interface UserDataSummary {
     completedReminders: number;
     totalLedgerAmount: number;
     recentActivities: number;
+    totalNotes: number;
+    totalFriends: number;
   };
 }
 
@@ -66,11 +68,7 @@ export class UserDataService {
       return response.data.reminders || [];
     } catch (error) {
       console.error('Error fetching user reminders:', error);
-      // Return mock data as fallback
-      return [
-        { id: '1', title: 'Morning walk' },
-        { id: '2', title: "Doc's Appointment" },
-      ];
+      return [];
     }
   }
 
@@ -95,14 +93,7 @@ export class UserDataService {
       }));
     } catch (error) {
       console.error('Error fetching ledger activities:', error);
-      // Return mock data as fallback
-      return [
-        { id: '1', title: 'Morning walk', type: 'other' },
-        { id: '2', title: "Doc's Appointment", type: 'other' },
-        { id: '3', title: 'Coffee - Date', type: 'other' },
-        { id: '4', title: 'Morning walk', type: 'other' },
-        { id: '5', title: "Doc's Appointment", type: 'other' },
-      ];
+      return [];
     }
   }
 
@@ -130,11 +121,7 @@ export class UserDataService {
       });
     } catch (error) {
       console.error('Error fetching user history:', error);
-      // Return mock data as fallback
-      return [
-        { id: '1', title: 'Walk the dog', date: '12/12/25', time: '2PM', type: 'reminder' },
-        { id: '2', title: 'Call the dentist', date: '12/12/25', time: '1PM', type: 'reminder' },
-      ];
+      return [];
     }
   }
 
@@ -164,7 +151,7 @@ export class UserDataService {
    */
   static async getReminderStats(): Promise<{ total: number; completed: number; pending: number }> {
     try {
-      const response = await reminderApi.get('/stats');
+      const response = await reminderApi.get('/reminders/stats');
       return {
         total: response.data.total || 0,
         completed: response.data.completed || 0,
@@ -181,16 +168,55 @@ export class UserDataService {
   }
 
   /**
+   * Fetch notes statistics
+   */
+  static async getNotesStats(): Promise<{ total: number }> {
+    try {
+      const response = await sttApi.get('/notes/stats');
+      return {
+        total: response.data.total || 0
+      };
+    } catch (error) {
+      console.error('Error fetching notes stats:', error);
+      return {
+        total: 0
+      };
+    }
+  }
+
+  /**
+   * Fetch friends statistics
+   */
+  static async getFriendsStats(): Promise<{ total: number }> {
+    try {
+      // Import friends service
+      const { FriendsService } = require('./friendsService');
+      const stats = await FriendsService.getFriendshipStats();
+      
+      return {
+        total: stats.total_friends || 0
+      };
+    } catch (error) {
+      console.error('Error fetching friends stats:', error);
+      return {
+        total: 0
+      };
+    }
+  }
+
+  /**
    * Fetch comprehensive user data for profile screen
    */
   static async getUserProfileData(): Promise<UserDataSummary> {
     try {
-      const [reminders, activities, history, ledgerSummary, reminderStats] = await Promise.allSettled([
+      const [reminders, activities, history, ledgerSummary, reminderStats, notesStats, friendsStats] = await Promise.allSettled([
         this.getUserReminders(12),
         this.getUserLedgerActivities(5),
         this.getUserHistory(10),
         this.getLedgerSummary(),
-        this.getReminderStats()
+        this.getReminderStats(),
+        this.getNotesStats(),
+        this.getFriendsStats()
       ]);
 
       return {
@@ -202,7 +228,9 @@ export class UserDataService {
           totalReminders: reminderStats.status === 'fulfilled' ? reminderStats.value.total : 0,
           completedReminders: reminderStats.status === 'fulfilled' ? reminderStats.value.completed : 0,
           totalLedgerAmount: ledgerSummary.status === 'fulfilled' ? ledgerSummary.value.totalOwed : 0,
-          recentActivities: activities.status === 'fulfilled' ? activities.value.length : 0
+          recentActivities: activities.status === 'fulfilled' ? activities.value.length : 0,
+          totalNotes: notesStats.status === 'fulfilled' ? notesStats.value.total : 0,
+          totalFriends: friendsStats.status === 'fulfilled' ? friendsStats.value.total : 0
         }
       };
     } catch (error) {
