@@ -166,10 +166,13 @@ const PlansScreen = () => {
   const handleButtonPress = async () => {
     if (selectedPlan) {
       try {
-        // Complete onboarding
-        await completeOnboarding();
+        console.log('🚀 Starting onboarding completion process...');
         
-        // Update user state
+        // Complete onboarding via API (this handles backend updates)
+        await completeOnboarding();
+        console.log('✅ Backend onboarding completion successful');
+        
+        // Update user state in Redux
         if (user) {
           const updatedUser = {
             ...user,
@@ -179,10 +182,20 @@ const PlansScreen = () => {
             }
           };
           
+          console.log('🔄 Updating Redux state...');
           dispatch(updateUser(updatedUser));
           
-          // Update AsyncStorage with the updated user data using StorageService
-          await StorageService.updateUserProfile({ is_new: false });
+          // Try to update AsyncStorage, but don't fail if it doesn't work
+          try {
+            console.log('🔄 Updating local storage...');
+            await StorageService.updateUserProfile({ is_new: false });
+            console.log('✅ Local storage updated successfully');
+          } catch (storageError) {
+            console.warn('⚠️ Local storage update failed, but continuing:', storageError);
+            // Don't throw - this is not critical for the flow
+          }
+        } else {
+          console.warn('⚠️ No user data available for Redux update');
         }
         
         console.log('✅ Onboarding completed, navigating to dashboard');
@@ -194,7 +207,22 @@ const PlansScreen = () => {
         });
       } catch (error) {
         console.error('❌ Error during onboarding completion:', error);
-        // Still navigate to dashboard even if local update fails
+        
+        // Even if onboarding completion fails, update local state and continue
+        if (user) {
+          console.log('🔄 Fallback: Updating local state only...');
+          const updatedUser = {
+            ...user,
+            profile: {
+              ...user.profile,
+              is_new: false
+            }
+          };
+          dispatch(updateUser(updatedUser));
+        }
+        
+        // Still navigate to dashboard to prevent user from being stuck
+        console.log('🚀 Navigating to dashboard despite errors...');
         navigation.reset({
           index: 0,
           routes: [{ name: 'Dashboard' }],

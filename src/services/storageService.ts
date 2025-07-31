@@ -159,7 +159,9 @@ export class StorageService {
     try {
       const { user } = await this.getAuthData();
       if (!user) {
-        throw new Error('No user data found to update');
+        console.warn('⚠️ No user data found in storage, skipping profile update');
+        // Don't throw error, just log warning and return
+        return;
       }
 
       const updatedUser: StoredUser = {
@@ -174,7 +176,8 @@ export class StorageService {
       console.log('✅ User profile updated successfully');
     } catch (error) {
       console.error('❌ Error updating user profile:', error);
-      throw new Error('Failed to update user profile');
+      // Don't throw error to prevent app crashes during onboarding
+      console.warn('⚠️ Profile update failed, but continuing with app flow');
     }
   }
 

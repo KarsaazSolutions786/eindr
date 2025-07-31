@@ -28,13 +28,17 @@ const MainLayout: React.FC<MainLayoutProps> = ({
   showBottomBar = true,
   headerProps,
 }) => {
-  const { isAuthenticated } = useSelector((state: RootState) => state.auth);
+  const { isAuthenticated, isInitialized } = useSelector((state: RootState) => state.auth);
+  
+  // Only render BottomBar if auth is initialized and user is authenticated
+  const shouldShowBottomBar = isInitialized && isAuthenticated && showBottomBar;
+  
   return (
     <View style={styles.container}>
       <BackgroundScreen>
         {showHeader && <Header {...headerProps} />}
         {children}
-        {isAuthenticated && showBottomBar && <BottomBar />}
+        {shouldShowBottomBar && <BottomBar />}
       </BackgroundScreen>
     </View>
   );
